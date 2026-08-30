@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing & Coverage
+coverage/
+
+# Production Build
+dist/
+build/
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env/
+ENV/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Database
+*.db
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+sorted_club.db
+backend/sorted_club.db
+
+# Environment Variables
+.env
+.env.*
+*.env
+backend/.env
+backend/.env.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite & IDEs
+.vite/
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Operating System
+.DS_Store
+Thumbs.db
