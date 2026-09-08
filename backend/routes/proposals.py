@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime, timezone
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, desc, asc, func
 
@@ -26,6 +26,8 @@ from schemas import (
     PublicProposalReject
 )
 from auth import get_current_admin
+from rate_limiter import limiter
+from services.notification_service import send_business_notification, send_customer_email
 
 router = APIRouter(tags=["Proposals"])
 
@@ -337,6 +339,26 @@ def send_proposal(
 
     db.commit()
     db.refresh(proposal)
+
+    # Customer transactional notification
+    client = db.query(Client).filter(Client.id == proposal.client_id).first()
+    if client and client.email:
+        send_customer_email(
+            db=db,
+            recipient=client.email,
+            event_type="PROPOSAL_READY",
+            subject=f"Proposal Ready: {proposal.title} — The Sorted Club",
+            title="Your Commercial Proposal is Ready",
+            message=f"We have prepared proposal {proposal.proposal_number} for {client.business_name}. You can review scope, line items, and approve online.",
+            cta_text="REVIEW & APPROVE PROPOSAL →",
+            cta_url=f"/proposal/{proposal.secure_token}",
+            data={
+                "Proposal Number": proposal.proposal_number,
+                "Total Investment": f"{proposal.currency} {proposal.total:,.2f}",
+                "Valid Until": proposal.valid_until.strftime("%B %d, %Y") if proposal.valid_until else "30 Days"
+            }
+        )
+
     return enrich_proposal_out(proposal, db)
 
 @router.post("/api/proposals/{proposal_id}/accept", response_model=ProposalOut)
@@ -520,6 +542,7 @@ def get_public_proposal(token: str, db: Session = Depends(get_db)):
         sent_at=proposal.sent_at,
         accepted_at=proposal.accepted_at,
         accepted_by_name=proposal.accepted_by_name,
+        accepted_by_email=proposal.accepted_by_email,
         is_expired=is_expired,
         items=items
     )
@@ -528,9 +551,11 @@ def get_public_proposal(token: str, db: Session = Depends(get_db)):
 def accept_public_proposal(
     token: str,
     accept_in: PublicProposalAccept,
+    request: Request,
     db: Session = Depends(get_db)
 ):
-    """Client approves proposal online."""
+    """Client approves proposal online. Rate limited to 15 per minute per IP."""
+    limiter.check(request, "proposal_decision", max_requests=15, window_seconds=60)
     proposal = db.query(Proposal).filter(Proposal.secure_token == token).first()
     if not proposal:
         raise HTTPException(
@@ -569,15 +594,39 @@ def accept_public_proposal(
 
     db.commit()
     db.refresh(proposal)
+
+    # Trigger admin notification & email
+    biz_name = client.business_name if client else "Client"
+    send_business_notification(
+        db=db,
+        event_type="PROPOSAL_ACCEPTED",
+        subject=f"[The Sorted Club] Proposal Accepted — {biz_name}",
+        title=f"Proposal {proposal.proposal_number} Accepted!",
+        message=f"{biz_name} has accepted proposal {proposal.proposal_number} ({proposal.currency} {proposal.total:,.2f}). Signed by {proposal.accepted_by_name}.",
+        data={
+            "Proposal Number": proposal.proposal_number,
+            "Client Business": biz_name,
+            "Total Amount": f"{proposal.currency} {proposal.total:,.2f}",
+            "Accepted By": proposal.accepted_by_name,
+            "Signer Email": proposal.accepted_by_email,
+            "Title": proposal.title
+        },
+        entity_type="proposal",
+        entity_id=proposal.id,
+        action_url=f"/admin/finance?tab=proposals"
+    )
+
     return get_public_proposal(token, db)
 
 @router.post("/api/public/proposal/{token}/reject", response_model=PublicProposalOut)
 def reject_public_proposal(
     token: str,
     reject_in: PublicProposalReject,
+    request: Request,
     db: Session = Depends(get_db)
 ):
-    """Client declines proposal."""
+    """Client declines proposal. Rate limited to 15 per minute per IP."""
+    limiter.check(request, "proposal_decision", max_requests=15, window_seconds=60)
     proposal = db.query(Proposal).filter(Proposal.secure_token == token).first()
     if not proposal:
         raise HTTPException(

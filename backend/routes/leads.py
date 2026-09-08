@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, desc, asc, func
 
@@ -16,15 +17,19 @@ from schemas import (
     LeadActivityOut
 )
 from auth import get_current_admin
+from rate_limiter import limiter
+from services.notification_service import send_business_notification, send_customer_email
 
 router = APIRouter(prefix="/api/leads", tags=["Leads & CRM"])
 
 @router.post("", response_model=LeadOut, status_code=status.HTTP_201_CREATED)
-def create_lead(lead_in: LeadCreate, db: Session = Depends(get_db)):
+def create_lead(lead_in: LeadCreate, request: Request, db: Session = Depends(get_db)):
     """
     Public endpoint: Submit a new business inquiry / lead.
     Validates all inputs and persists the inquiry with status 'NEW' and source 'Website'.
+    Rate limited to 10 inquiries per minute per IP.
     """
+    limiter.check(request, "lead_create", max_requests=10, window_seconds=60)
     try:
         lead_data = lead_in.model_dump(exclude={"consent"})
         new_lead = Lead(
@@ -37,14 +42,39 @@ def create_lead(lead_in: LeadCreate, db: Session = Depends(get_db)):
             service_interest=lead_data["service_interest"],
             problem=lead_data["problem"],
             budget=lead_data["budget"],
-            status=LeadStatus.NEW.value,
+            status=lead_data.get("status") or LeadStatus.NEW.value,
             source=lead_data.get("source") or "Website",
+            utm_source=lead_data.get("utm_source"),
+            utm_medium=lead_data.get("utm_medium"),
+            utm_campaign=lead_data.get("utm_campaign"),
+            utm_content=lead_data.get("utm_content"),
+            referral_source=lead_data.get("referral_source"),
             priority=lead_data.get("priority") or LeadPriority.MEDIUM.value,
             assigned_to=lead_data.get("assigned_to"),
             estimated_value=lead_data.get("estimated_value"),
             next_follow_up_at=lead_data.get("next_follow_up_at"),
             last_contacted_at=lead_data.get("last_contacted_at"),
-            notes=lead_data.get("notes")
+            notes=lead_data.get("notes"),
+            qualification_notes=lead_data.get("qualification_notes"),
+            decision_maker=lead_data.get("decision_maker"),
+            budget_fit=lead_data.get("budget_fit"),
+            timeline=lead_data.get("timeline"),
+            relevant_template=lead_data.get("relevant_template"),
+            problem_noticed=lead_data.get("problem_noticed"),
+            has_real_business=bool(lead_data.get("has_real_business", False)),
+            has_clear_need=bool(lead_data.get("has_clear_need", False)),
+            has_budget=bool(lead_data.get("has_budget", False)),
+            has_timeline=bool(lead_data.get("has_timeline", False)),
+            is_decision_maker=bool(lead_data.get("is_decision_maker", False)),
+            responds_communication=bool(lead_data.get("responds_communication", False)),
+            qualification_score=lead_data.get("qualification_score") or sum([
+                bool(lead_data.get("has_real_business")),
+                bool(lead_data.get("has_clear_need")),
+                bool(lead_data.get("has_budget")),
+                bool(lead_data.get("has_timeline")),
+                bool(lead_data.get("is_decision_maker")),
+                bool(lead_data.get("responds_communication"))
+            ])
         )
         db.add(new_lead)
         db.commit()
@@ -59,6 +89,43 @@ def create_lead(lead_in: LeadCreate, db: Session = Depends(get_db)):
         )
         db.add(initial_activity)
         db.commit()
+
+        # Trigger customer acknowledgement email
+        send_customer_email(
+            db=db,
+            recipient=new_lead.email,
+            event_type="INQUIRY_RECEIVED",
+            subject="We received your brief — The Sorted Club",
+            title=f"Thanks for reaching out, {new_lead.name}!",
+            message=f"We have received your inquiry for {new_lead.service_interest}. Our core team is reviewing your requirements and will connect with you within 24 business hours.",
+            data={
+                "Requested Service": new_lead.service_interest,
+                "Company": new_lead.business_name,
+                "Indicated Budget": new_lead.budget
+            }
+        )
+
+        # Trigger admin notification & email
+        send_business_notification(
+            db=db,
+            event_type="NEW_INQUIRY",
+            subject=f"[The Sorted Club] New Inquiry — {new_lead.business_name}",
+            title=f"New Inquiry: {new_lead.business_name}",
+            message=f"New business inquiry received for {new_lead.service_interest}. Budget: {new_lead.budget}. Contact: {new_lead.name} ({new_lead.phone}).",
+            data={
+                "Business": new_lead.business_name,
+                "Contact Name": new_lead.name,
+                "Email": new_lead.email,
+                "Phone": new_lead.phone,
+                "Service Needed": new_lead.service_interest,
+                "Budget": new_lead.budget,
+                "Source Channel": new_lead.source,
+                "Problem Brief": new_lead.problem
+            },
+            entity_type="lead",
+            entity_id=new_lead.id,
+            action_url=f"/admin/crm?selectedLead={new_lead.id}"
+        )
 
         return new_lead
     except Exception as e:
@@ -116,21 +183,33 @@ def get_crm_metrics(
         # Stage counts
         new_count = db.query(func.count(Lead.id)).filter(Lead.status == LeadStatus.NEW.value).scalar() or 0
         contacted_count = db.query(func.count(Lead.id)).filter(Lead.status == LeadStatus.CONTACTED.value).scalar() or 0
+        replied_count = db.query(func.count(Lead.id)).filter(func.upper(Lead.status) == "REPLIED").scalar() or 0
+        discovery_call_count = db.query(func.count(Lead.id)).filter(func.upper(Lead.status) == "DISCOVERY_CALL").scalar() or 0
         qualified_count = db.query(func.count(Lead.id)).filter(Lead.status == LeadStatus.QUALIFIED.value).scalar() or 0
-        proposal_count = db.query(func.count(Lead.id)).filter(Lead.status == LeadStatus.PROPOSAL.value).scalar() or 0
+        proposal_count = db.query(func.count(Lead.id)).filter(or_(Lead.status == LeadStatus.PROPOSAL.value, func.upper(Lead.status) == "PROPOSAL_SENT")).scalar() or 0
+        proposal_sent_count = db.query(func.count(Lead.id)).filter(func.upper(Lead.status) == "PROPOSAL_SENT").scalar() or 0
         negotiation_count = db.query(func.count(Lead.id)).filter(Lead.status == LeadStatus.NEGOTIATION.value).scalar() or 0
         won_count = db.query(func.count(Lead.id)).filter(Lead.status == LeadStatus.WON.value).scalar() or 0
         lost_count = db.query(func.count(Lead.id)).filter(Lead.status == LeadStatus.LOST.value).scalar() or 0
+        follow_up_required_count = db.query(func.count(Lead.id)).filter(func.upper(Lead.status) == "FOLLOW_UP_REQUIRED").scalar() or 0
 
         active_stages = [
             LeadStatus.NEW.value,
             LeadStatus.CONTACTED.value,
+            "REPLIED",
+            "DISCOVERY_CALL",
             LeadStatus.QUALIFIED.value,
             LeadStatus.PROPOSAL.value,
-            LeadStatus.NEGOTIATION.value
+            "PROPOSAL_SENT",
+            LeadStatus.NEGOTIATION.value,
+            "FOLLOW_UP_REQUIRED"
         ]
 
-        active_deals_count = new_count + contacted_count + qualified_count + proposal_count + negotiation_count
+        active_deals_count = (
+            new_count + contacted_count + replied_count + discovery_call_count +
+            qualified_count + proposal_count + proposal_sent_count +
+            negotiation_count + follow_up_required_count
+        )
 
         # Total pipeline value (sum of estimated_value for active deals)
         total_pipeline_value = db.query(func.sum(Lead.estimated_value)).filter(
@@ -171,6 +250,14 @@ def get_crm_metrics(
             Lead.next_follow_up_at < now
         ).scalar() or 0
 
+        # Source Breakdown
+        source_counts = db.query(Lead.source, func.count(Lead.id)).group_by(Lead.source).all()
+        breakdown_by_source = {s or "Unknown": count for s, count in source_counts}
+
+        # Service Breakdown
+        service_counts = db.query(Lead.service_interest, func.count(Lead.id)).group_by(Lead.service_interest).all()
+        breakdown_by_service = {srv or "Unknown": count for srv, count in service_counts}
+
         return CRMMetrics(
             total_pipeline_value=round(float(total_pipeline_value), 2),
             active_deals_count=active_deals_count,
@@ -185,7 +272,13 @@ def get_crm_metrics(
             win_rate_percentage=round(float(win_rate), 1),
             avg_deal_value=round(float(avg_deal_value), 2),
             followups_due_today=followups_due_today,
-            followups_overdue=followups_overdue
+            followups_overdue=followups_overdue,
+            replied_count=replied_count,
+            discovery_call_count=discovery_call_count,
+            proposal_sent_count=proposal_sent_count,
+            follow_up_required_count=follow_up_required_count,
+            breakdown_by_source=breakdown_by_source,
+            breakdown_by_service=breakdown_by_service
         )
     except Exception as e:
         raise HTTPException(
@@ -284,7 +377,10 @@ def get_leads(
                     Lead.business_type.ilike(term),
                     Lead.notes.ilike(term),
                     Lead.assigned_to.ilike(term),
-                    Lead.source.ilike(term)
+                    Lead.source.ilike(term),
+                    Lead.problem_noticed.ilike(term),
+                    Lead.relevant_template.ilike(term),
+                    Lead.qualification_notes.ilike(term)
                 )
             )
 
@@ -315,6 +411,8 @@ def get_leads(
 
         return leads
     except Exception as e:
+        import logging
+        logging.getLogger("the_sorted_club.leads").error(f"Failed to query leads: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to query leads."
@@ -401,19 +499,93 @@ def update_lead(
             else:
                 update_dict["priority"] = str(update_dict["priority"]).upper()
 
+        # Handle qualification score calculation
+        qual_keys = ["has_real_business", "has_clear_need", "has_budget", "has_timeline", "is_decision_maker", "responds_communication"]
+        if any(k in update_dict for k in qual_keys):
+            has_rb = update_dict.get("has_real_business", lead.has_real_business)
+            has_cn = update_dict.get("has_clear_need", lead.has_clear_need)
+            has_b = update_dict.get("has_budget", lead.has_budget)
+            has_tl = update_dict.get("has_timeline", lead.has_timeline)
+            is_dm = update_dict.get("is_decision_maker", lead.is_decision_maker)
+            resp = update_dict.get("responds_communication", lead.responds_communication)
+            if "qualification_score" not in update_dict:
+                update_dict["qualification_score"] = sum([bool(has_rb), bool(has_cn), bool(has_b), bool(has_tl), bool(is_dm), bool(resp)])
+
         for key, value in update_dict.items():
             setattr(lead, key, value)
 
         lead.updated_at = datetime.now(timezone.utc)
         db.commit()
         db.refresh(lead)
+
+        c = db.query(Client).filter(Client.lead_id == lead.id).first()
+        if c:
+            lead.is_converted = True
+            lead.client_id = c.id
+            lead.client_code = c.client_code
+        else:
+            lead.is_converted = False
+            lead.client_id = None
+            lead.client_code = None
+
         return lead
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
+        import logging
+        logging.getLogger("the_sorted_club.leads").error(f"Failed to update lead {lead_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update lead."
+            detail=f"Failed to update lead: {str(e)}"
         )
+
+class FollowUpCompleteIn(BaseModel):
+    notes: Optional[str] = None
+    next_follow_up_at: Optional[datetime] = None
+
+@router.post("/{lead_id}/complete-follow-up", response_model=LeadOut)
+def complete_lead_follow_up(
+    lead_id: int,
+    follow_up_in: Optional[FollowUpCompleteIn] = None,
+    db: Session = Depends(get_db),
+    admin_user: str = Depends(get_current_admin)
+):
+    """
+    Protected endpoint: Mark current follow-up complete, log activity, and optionally schedule next follow-up.
+    """
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+    if not lead:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Lead with id {lead_id} not found."
+        )
+
+    now = datetime.now(timezone.utc)
+    notes_text = follow_up_in.notes.strip() if follow_up_in and follow_up_in.notes else "Completed follow-up action."
+    next_date = follow_up_in.next_follow_up_at if follow_up_in else None
+
+    # Log activity
+    db.add(LeadActivity(
+        lead_id=lead.id,
+        type=ActivityType.NOTE.value,
+        text=f"Follow-up completed: {notes_text}" + (f" Next follow-up scheduled for {next_date.strftime('%d %b %Y, %I:%M %p UTC')}." if next_date else " No further follow-up scheduled."),
+        created_by=admin_user
+    ))
+
+    lead.last_contacted_at = now
+    lead.next_follow_up_at = next_date
+    lead.updated_at = now
+
+    db.commit()
+    db.refresh(lead)
+
+    c = db.query(Client).filter(Client.lead_id == lead.id).first()
+    if c:
+        lead.is_converted = True
+        lead.client_id = c.id
+        lead.client_code = c.client_code
+    return lead
 
 @router.delete("/{lead_id}", status_code=status.HTTP_200_OK)
 def delete_lead(

@@ -1,6 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
+  Layers,
+  Inbox,
+  Kanban,
   Users,
+  DollarSign,
+  FolderKanban,
   Search,
   RefreshCw,
   LogOut,
@@ -16,10 +21,8 @@ import {
   Loader2,
   ArrowLeft,
   Calendar,
-  Layers,
   AlertTriangle,
-  Kanban,
-  DollarSign
+  MessageSquare
 } from 'lucide-react';
 import {
   fetchLeads,
@@ -30,6 +33,7 @@ import {
   getAdminUsername
 } from '../api/client';
 import StatusBadge, { PriorityBadge, FollowUpBadge } from './StatusBadge';
+import NotificationCenter from './NotificationCenter';
 
 const STATUS_LIST = ['ALL', 'NEW', 'CONTACTED', 'QUALIFIED', 'PROPOSAL', 'NEGOTIATION', 'WON', 'LOST'];
 const SERVICE_LIST = [
@@ -44,9 +48,12 @@ const SERVICE_LIST = [
 
 export default function AdminDashboard({
   onLogout,
+  onNavigateToCommandCenter,
+  onNavigateToInquiries,
   onNavigateToCRM,
   onNavigateToClients,
   onNavigateToFinance,
+  onNavigateToProjects,
   onBackToSite
 }) {
   const [stats, setStats] = useState({
@@ -181,20 +188,34 @@ export default function AdminDashboard({
 
   return (
     <div className="admin-app-root">
-      {/* Top Admin Navbar */}
+      {/* Top Admin Navbar with 6 Tabs */}
       <header className="admin-navbar">
         <div className="admin-nav-left">
           <div className="brand">THE SORTED <span>CLUB</span></div>
-          <span className="admin-badge">ADMIN OS</span>
+          <span className="admin-badge">INQUIRIES</span>
 
           <div className="admin-nav-tabs">
+            {/* 1. Command Center */}
+            <button
+              type="button"
+              className="admin-tab-btn"
+              onClick={() => onNavigateToCommandCenter && onNavigateToCommandCenter()}
+            >
+              <Layers size={14} />
+              <span>Command Center</span>
+            </button>
+
+            {/* 2. Inquiries */}
             <button
               type="button"
               className="admin-tab-btn active"
+              onClick={() => onNavigateToInquiries && onNavigateToInquiries()}
             >
-              <Layers size={14} />
+              <Inbox size={14} />
               <span>Inquiries</span>
             </button>
+
+            {/* 3. Sales Pipeline */}
             <button
               type="button"
               className="admin-tab-btn"
@@ -203,6 +224,8 @@ export default function AdminDashboard({
               <Kanban size={14} />
               <span>Sales Pipeline</span>
             </button>
+
+            {/* 4. Clients & Onboarding */}
             <button
               type="button"
               className="admin-tab-btn"
@@ -211,6 +234,8 @@ export default function AdminDashboard({
               <Users size={14} />
               <span>Clients & Onboarding</span>
             </button>
+
+            {/* 5. Commercial & Finance */}
             <button
               type="button"
               className="admin-tab-btn"
@@ -219,10 +244,40 @@ export default function AdminDashboard({
               <DollarSign size={14} />
               <span>Commercial & Finance</span>
             </button>
+
+            {/* 6. Projects & Delivery */}
+            <button
+              type="button"
+              className="admin-tab-btn"
+              onClick={() => onNavigateToProjects && onNavigateToProjects()}
+            >
+              <FolderKanban size={14} />
+              <span>Projects & Delivery</span>
+            </button>
           </div>
         </div>
 
-        <div className="admin-nav-right">
+        <div className="admin-nav-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <NotificationCenter
+            onNavigate={(url) => {
+              if (url.startsWith('/admin/command-center')) {
+                onNavigateToCommandCenter && onNavigateToCommandCenter();
+              } else if (url.startsWith('/admin/crm')) {
+                onNavigateToCRM && onNavigateToCRM();
+              } else if (url.startsWith('/admin/finance')) {
+                const tab = new URLSearchParams(url.split('?')[1] || '').get('tab');
+                onNavigateToFinance && onNavigateToFinance(tab || 'overview');
+              } else if (url.startsWith('/admin/clients')) {
+                const cid = new URLSearchParams(url.split('?')[1] || '').get('selectedClient');
+                onNavigateToClients && onNavigateToClients(cid);
+              } else if (url.startsWith('/admin/projects')) {
+                const pid = new URLSearchParams(url.split('?')[1] || '').get('selectedProject');
+                onNavigateToProjects && onNavigateToProjects(pid);
+              } else if (url.startsWith('/admin')) {
+                onNavigateToInquiries && onNavigateToInquiries();
+              }
+            }}
+          />
           <button
             onClick={onBackToSite}
             className="admin-link-btn"
@@ -250,6 +305,7 @@ export default function AdminDashboard({
         </div>
       </header>
 
+      {/* Main Content: Original Clean Inquiry Dashboard */}
       <main className="admin-main-content">
         {/* Header Section */}
         <div className="admin-page-head">
@@ -271,7 +327,7 @@ export default function AdminDashboard({
           </div>
         </div>
 
-        {/* Metric Cards Banner */}
+        {/* Metric Cards Banner (Original 5 Cards) */}
         <div className="admin-stats-grid">
           <div
             className={`stat-card stat-card-clickable ${statusFilter === 'ALL' ? 'active-stat' : ''}`}
@@ -555,6 +611,17 @@ export default function AdminDashboard({
               <div className="drawer-section">
                 <label className="section-subtitle">DIRECT OUTREACH</label>
                 <div className="outreach-grid">
+                  <a
+                    href={`https://wa.me/${selectedLead.phone?.replace(/\D/g, '')}?text=Hi%20${encodeURIComponent(selectedLead.name)}%2C%20this%20is%20The%20Sorted%20Club%20regarding%20your%20inquiry%20for%20${encodeURIComponent(selectedLead.service_interest)}.`}
+                    className="outreach-btn"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: '#15803d', fontWeight: 600 }}
+                  >
+                    <MessageSquare size={16} />
+                    <span>WhatsApp ({selectedLead.phone})</span>
+                  </a>
+
                   <a
                     href={`mailto:${selectedLead.email}?subject=The%20Sorted%20Club%20—%20Your%20Inquiry%20(${encodeURIComponent(selectedLead.service_interest)})`}
                     className="outreach-btn"

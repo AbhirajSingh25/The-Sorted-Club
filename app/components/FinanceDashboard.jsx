@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Inbox,
   DollarSign,
   FileText,
   FileCheck,
@@ -33,7 +34,8 @@ import {
   Phone,
   Shield,
   Clock,
-  ArrowUpRight
+  ArrowUpRight,
+  FolderKanban
 } from 'lucide-react';
 import {
   fetchFinanceStats,
@@ -59,20 +61,22 @@ import {
   deleteInvoice,
   sendInvoice,
   recordInvoicePayment,
+  fetchInvoicePayments,
   fetchPaymentConfirmations,
   confirmPaymentVerification,
   rejectPaymentVerification,
   fetchClients,
-  getAdminUsername,
-  clearAdminAuth
+  clearAdminAuth,
+  getAdminUsername
 } from '../api/client';
-import {
+import StatusBadge, {
   ProposalStatusBadge,
   ContractStatusBadge,
   InvoiceStatusBadge,
   PaymentConfirmationStatusBadge
 } from './StatusBadge';
 import EmailComposerModal from './EmailComposerModal';
+import NotificationCenter from './NotificationCenter';
 
 export function formatMoney(amount, currency = 'INR') {
   const num = typeof amount === 'number' ? amount : parseFloat(amount || 0);
@@ -83,11 +87,16 @@ export function formatMoney(amount, currency = 'INR') {
   return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+export const formatCurrency = formatMoney;
+
+
 export default function FinanceDashboard({
   onLogout,
+  onNavigateToCommandCenter,
   onNavigateToInquiries,
   onNavigateToCRM,
   onNavigateToClients,
+  onNavigateToProjects,
   onBackToSite,
   initialTab = 'overview'
 }) {
@@ -745,14 +754,22 @@ export default function FinanceDashboard({
           <div className="brand">THE SORTED <span>CLUB</span></div>
           <span className="admin-badge">COMMERCIAL & FINANCE</span>
 
-          {/* Navigation Switcher */}
+          {/* Navigation Switcher with 6 Tabs */}
           <div className="admin-nav-tabs">
+            <button
+              type="button"
+              className="admin-tab-btn"
+              onClick={() => (onNavigateToCommandCenter ? onNavigateToCommandCenter() : onNavigateToInquiries && onNavigateToInquiries())}
+            >
+              <Layers size={14} />
+              <span>Command Center</span>
+            </button>
             <button
               type="button"
               className="admin-tab-btn"
               onClick={() => onNavigateToInquiries && onNavigateToInquiries()}
             >
-              <Layers size={14} />
+              <Inbox size={14} />
               <span>Inquiries</span>
             </button>
             <button
@@ -778,10 +795,36 @@ export default function FinanceDashboard({
               <DollarSign size={14} />
               <span>Commercial & Finance</span>
             </button>
+            <button
+              type="button"
+              className="admin-tab-btn"
+              onClick={() => onNavigateToProjects && onNavigateToProjects()}
+            >
+              <FolderKanban size={14} />
+              <span>Projects & Delivery</span>
+            </button>
           </div>
         </div>
 
-        <div className="admin-nav-right">
+        <div className="admin-nav-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <NotificationCenter
+            onNavigate={(url) => {
+              if (url.startsWith('/admin/crm')) {
+                onNavigateToCRM && onNavigateToCRM();
+              } else if (url.startsWith('/admin/finance')) {
+                const tab = new URLSearchParams(url.split('?')[1] || '').get('tab');
+                if (tab) setActiveTab(tab);
+              } else if (url.startsWith('/admin/clients')) {
+                const cid = new URLSearchParams(url.split('?')[1] || '').get('selectedClient');
+                onNavigateToClients && onNavigateToClients(cid);
+              } else if (url.startsWith('/admin/projects')) {
+                const pid = new URLSearchParams(url.split('?')[1] || '').get('selectedProject');
+                onNavigateToProjects && onNavigateToProjects(pid);
+              } else if (url.startsWith('/admin')) {
+                onNavigateToInquiries && onNavigateToInquiries();
+              }
+            }}
+          />
           <button
             onClick={onBackToSite}
             className="admin-link-btn"
@@ -1651,6 +1694,25 @@ export default function FinanceDashboard({
                           <p>Loading payment confirmations...</p>
                         </td>
                       </tr>
+                    ) : confirmationsList.filter(c => {
+                        if (!confirmationSearch.trim()) return true;
+                        const term = confirmationSearch.toLowerCase();
+                        return (
+                          (c.client_business_name && c.client_business_name.toLowerCase().includes(term)) ||
+                          (c.client_name && c.client_name.toLowerCase().includes(term)) ||
+                          (c.invoice_number && c.invoice_number.toLowerCase().includes(term)) ||
+                          (c.reference && c.reference.toLowerCase().includes(term)) ||
+                          (c.payer_name && c.payer_name.toLowerCase().includes(term)) ||
+                          (c.payer_email && c.payer_email.toLowerCase().includes(term))
+                        );
+                      }).length === 0 ? (
+                      <tr>
+                        <td colSpan="9" className="crm-empty-state">
+                          <Shield size={32} style={{ color: 'var(--muted)', margin: '0 auto 8px', display: 'block' }} />
+                          <h3>No payment confirmations found</h3>
+                          <p>Customer submissions from public invoice payment pages will appear here for review.</p>
+                        </td>
+                      </tr>
                     ) : (
                       confirmationsList
                         .filter(c => {
@@ -1665,131 +1727,109 @@ export default function FinanceDashboard({
                             (c.payer_email && c.payer_email.toLowerCase().includes(term))
                           );
                         })
-                        .length === 0 ? (
-                        <tr>
-                          <td colSpan="9" className="crm-empty-state">
-                            <Shield size={32} style={{ color: 'var(--muted)', margin: '0 auto 8px', display: 'block' }} />
-                            <h3>No payment confirmations found</h3>
-                            <p>Customer submissions from public invoice payment pages will appear here for review.</p>
-                          </td>
-                        </tr>
-                      ) : (
-                        confirmationsList
-                          .filter(c => {
-                            if (!confirmationSearch.trim()) return true;
-                            const term = confirmationSearch.toLowerCase();
-                            return (
-                              (c.client_business_name && c.client_business_name.toLowerCase().includes(term)) ||
-                              (c.client_name && c.client_name.toLowerCase().includes(term)) ||
-                              (c.invoice_number && c.invoice_number.toLowerCase().includes(term)) ||
-                              (c.reference && c.reference.toLowerCase().includes(term)) ||
-                              (c.payer_name && c.payer_name.toLowerCase().includes(term)) ||
-                              (c.payer_email && c.payer_email.toLowerCase().includes(term))
-                            );
-                          })
-                          .map(conf => (
-                            <tr key={conf.id} className="lead-row">
-                              <td>
-                                <span className="lead-date">
-                                  {new Date(conf.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                </span>
-                                <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
-                                  {new Date(conf.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        .map(conf => (
+                          <tr key={conf.id} className="lead-row">
+                            <td>
+                              <span className="lead-date">
+                                {new Date(conf.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </span>
+                              <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
+                                {new Date(conf.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            </td>
+                            <td>
+                              <div className="lead-name-cell">
+                                <strong>{conf.client_business_name || conf.client_name || `Client #${conf.client_id}`}</strong>
+                                {conf.client_name && <span className="lead-email-sub">{conf.client_name}</span>}
+                              </div>
+                            </td>
+                            <td>
+                              <span className="client-code-tag" style={{ background: '#10100f', color: '#fff', padding: '3px 8px', borderRadius: '4px', font: '700 11px monospace' }}>
+                                {conf.invoice_number || `INV #${conf.invoice_id}`}
+                              </span>
+                            </td>
+                            <td>
+                              <strong style={{ font: '700 13px "Space Grotesk", monospace', color: '#15803d' }}>
+                                ${conf.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              </strong>
+                            </td>
+                            <td>
+                              <span className="badge badge-light" style={{ fontSize: '11px', padding: '2px 8px' }}>
+                                {conf.payment_method}
+                              </span>
+                            </td>
+                            <td>
+                              <div style={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 600, color: 'var(--ink)' }}>
+                                {conf.reference}
+                              </div>
+                              {conf.notes && (
+                                <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px', fontStyle: 'italic' }}>
+                                  "{conf.notes}"
                                 </div>
-                              </td>
-                              <td>
-                                <div className="lead-name-cell">
-                                  <strong>{conf.client_business_name || conf.client_name || `Client #${conf.client_id}`}</strong>
-                                  {conf.client_name && <span className="lead-email-sub">{conf.client_name}</span>}
+                              )}
+                            </td>
+                            <td>
+                              <div style={{ fontSize: '13px', fontWeight: 600 }}>{conf.payer_name}</div>
+                              <div style={{ fontSize: '12px', color: 'var(--muted)' }}>{conf.payer_email}</div>
+                            </td>
+                            <td>
+                              <PaymentConfirmationStatusBadge status={conf.status} />
+                              {conf.status === 'REJECTED' && conf.rejection_reason && (
+                                <div style={{ fontSize: '11px', color: '#dc2626', marginTop: '3px' }}>
+                                  Reason: {conf.rejection_reason}
                                 </div>
-                              </td>
-                              <td>
-                                <span className="client-code-tag" style={{ background: '#10100f', color: '#fff', padding: '3px 8px', borderRadius: '4px', font: '700 11px monospace' }}>
-                                  {conf.invoice_number || `INV #${conf.invoice_id}`}
-                                </span>
-                              </td>
-                              <td>
-                                <strong style={{ font: '700 13px "Space Grotesk", monospace', color: '#15803d' }}>
-                                  ${conf.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                </strong>
-                              </td>
-                              <td>
-                                <span className="badge badge-light" style={{ fontSize: '11px', padding: '2px 8px' }}>
-                                  {conf.payment_method}
-                                </span>
-                              </td>
-                              <td>
-                                <div style={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 600, color: 'var(--ink)' }}>
-                                  {conf.reference}
-                                </div>
-                                {conf.notes && (
-                                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px', fontStyle: 'italic' }}>
-                                    "{conf.notes}"
-                                  </div>
+                              )}
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <div className="row-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
+                                {conf.status === 'PENDING_VERIFICATION' && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      className="btn-primary btn-sm"
+                                      style={{ fontSize: '11px', padding: '4px 10px', height: '28px', background: '#15803d', borderColor: '#15803d' }}
+                                      title="Verify and confirm payment"
+                                      onClick={() => {
+                                        setConfirmingConfirmation(conf);
+                                        setShowConfirmVerificationModal(true);
+                                      }}
+                                    >
+                                      <CheckCircle size={13} />
+                                      <span>Confirm</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="btn-outline-danger btn-sm"
+                                      style={{ fontSize: '11px', padding: '4px 8px', height: '28px' }}
+                                      title="Reject payment confirmation"
+                                      onClick={() => {
+                                        setRejectingConfirmation(conf);
+                                        setRejectReason('');
+                                        setShowRejectVerificationModal(true);
+                                      }}
+                                    >
+                                      <X size={13} />
+                                      <span>Reject</span>
+                                    </button>
+                                  </>
                                 )}
-                              </td>
-                              <td>
-                                <div style={{ fontSize: '13px', fontWeight: 600 }}>{conf.payer_name}</div>
-                                <div style={{ fontSize: '12px', color: 'var(--muted)' }}>{conf.payer_email}</div>
-                              </td>
-                              <td>
-                                <PaymentConfirmationStatusBadge status={conf.status} />
-                                {conf.status === 'REJECTED' && conf.rejection_reason && (
-                                  <div style={{ fontSize: '11px', color: '#dc2626', marginTop: '3px' }}>
-                                    Reason: {conf.rejection_reason}
-                                  </div>
-                                )}
-                              </td>
-                              <td style={{ textAlign: 'right' }}>
-                                <div className="row-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
-                                  {conf.status === 'PENDING_VERIFICATION' && (
-                                    <>
-                                      <button
-                                        type="button"
-                                        className="btn-primary btn-sm"
-                                        style={{ fontSize: '11px', padding: '4px 10px', height: '28px', background: '#15803d', borderColor: '#15803d' }}
-                                        title="Verify and confirm payment"
-                                        onClick={() => {
-                                          setConfirmingConfirmation(conf);
-                                          setShowConfirmVerificationModal(true);
-                                        }}
-                                      >
-                                        <CheckCircle size={13} />
-                                        <span>Confirm</span>
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className="btn-outline-danger btn-sm"
-                                        style={{ fontSize: '11px', padding: '4px 8px', height: '28px' }}
-                                        title="Reject payment confirmation"
-                                        onClick={() => {
-                                          setRejectingConfirmation(conf);
-                                          setRejectReason('');
-                                          setShowRejectVerificationModal(true);
-                                        }}
-                                      >
-                                        <X size={13} />
-                                        <span>Reject</span>
-                                      </button>
-                                    </>
-                                  )}
-                                  <button
-                                    type="button"
-                                    className="btn-icon"
-                                    title="Open Email Composer"
-                                    onClick={() => handleOpenEmailComposer('payment_confirmed', {
-                                      client_name: conf.payer_name || conf.client_name,
-                                      client_business_name: conf.client_business_name,
-                                      client_email: conf.payer_email,
-                                      confirmation: conf
-                                    })}
-                                  >
-                                    <Mail size={15} />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))
+                                <button
+                                  type="button"
+                                  className="btn-icon"
+                                  title="Open Email Composer"
+                                  onClick={() => handleOpenEmailComposer('payment_confirmed', {
+                                    client_name: conf.payer_name || conf.client_name,
+                                    client_business_name: conf.client_business_name,
+                                    client_email: conf.payer_email,
+                                    confirmation: conf
+                                  })}
+                                >
+                                  <Mail size={15} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
                     )}
                   </tbody>
                 </table>

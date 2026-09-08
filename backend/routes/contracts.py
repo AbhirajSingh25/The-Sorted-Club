@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime, timezone
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, desc, asc, func
 
@@ -13,6 +13,7 @@ from models import (
     ProposalStatus,
     Contract,
     ContractStatus,
+    ClientOnboardingItem,
     LeadActivity,
     ActivityType
 )
@@ -24,6 +25,8 @@ from schemas import (
     PublicContractAccept
 )
 from auth import get_current_admin
+from rate_limiter import limiter
+from services.notification_service import send_business_notification, send_customer_email
 
 router = APIRouter(tags=["Contracts"])
 
@@ -276,6 +279,26 @@ def send_contract(
 
     db.commit()
     db.refresh(contract)
+
+    # Customer transactional email
+    client = db.query(Client).filter(Client.id == contract.client_id).first()
+    if client and client.email:
+        send_customer_email(
+            db=db,
+            recipient=client.email,
+            event_type="CONTRACT_READY",
+            subject=f"Agreement Ready: {contract.contract_number} — The Sorted Club",
+            title="Service Agreement Ready for Review",
+            message=f"Master Services Agreement {contract.contract_number} has been generated for {client.business_name}. Please review and sign online to proceed with the engagement.",
+            cta_text="REVIEW & SIGN AGREEMENT →",
+            cta_url=f"/contract/{contract.secure_token}",
+            data={
+                "Agreement Reference": contract.contract_number,
+                "Client Business": client.business_name,
+                "Title": contract.title
+            }
+        )
+
     return enrich_contract_out(contract, db)
 
 @router.post("/api/contracts/{contract_id}/accept", response_model=ContractOut)
@@ -343,9 +366,11 @@ def get_public_contract(token: str, db: Session = Depends(get_db)):
 def accept_public_contract(
     token: str,
     accept_in: PublicContractAccept,
+    request: Request,
     db: Session = Depends(get_db)
 ):
-    """Client acknowledges and accepts agreement terms online."""
+    """Client acknowledges and accepts agreement terms online. Rate limited to 15 per minute per IP."""
+    limiter.check(request, "contract_accept", max_requests=15, window_seconds=60)
     contract = db.query(Contract).filter(Contract.secure_token == token).first()
     if not contract:
         raise HTTPException(
@@ -372,6 +397,40 @@ def accept_public_contract(
             created_by="Client Online Agreement"
         ))
 
+        # Check and update onboarding item
+        onboarding_item = db.query(ClientOnboardingItem).filter(
+            ClientOnboardingItem.client_id == contract.client_id,
+            or_(
+                ClientOnboardingItem.item_key == "agreement_signed",
+                ClientOnboardingItem.title.ilike("%contract%"),
+                ClientOnboardingItem.title.ilike("%agreement%")
+            ),
+            ClientOnboardingItem.completed == False
+        ).first()
+        if onboarding_item:
+            onboarding_item.completed = True
+            onboarding_item.completed_at = now
+            onboarding_item.notes = f"Signed online via agreement {contract.contract_number}."
+
     db.commit()
     db.refresh(contract)
+
+    if client:
+        send_business_notification(
+            db=db,
+            event_type="CONTRACT_ACCEPTED",
+            subject=f"[The Sorted Club] Agreement Signed — {client.business_name}",
+            title=f"Agreement Signed: {contract.contract_number}",
+            message=f"{accept_in.accepted_by_name} ({accept_in.accepted_by_email}) accepted Agreement {contract.contract_number} for {client.business_name}.",
+            data={
+                "Agreement Reference": contract.contract_number,
+                "Client Business": client.business_name,
+                "Signer": accept_in.accepted_by_name,
+                "Signer Email": accept_in.accepted_by_email
+            },
+            entity_type="contract",
+            entity_id=contract.id,
+            action_url=f"/admin/clients?selectedClient={client.id}"
+        )
+
     return get_public_contract(token, db)

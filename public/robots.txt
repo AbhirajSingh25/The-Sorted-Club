@@ -1,0 +1,20 @@
+# robots.txt for The Sorted Club
+User-agent: *
+Allow: /
+Allow: /services
+Allow: /services/build
+Allow: /services/grow
+Allow: /services/automate
+Allow: /services/hire
+
+# Disallow private customer tokens and admin portals from search engine indexing
+Disallow: /admin/
+Disallow: /admin
+Disallow: /proposal/
+Disallow: /contract/
+Disallow: /invoice/
+Disallow: /project/
+Disallow: /project-review/
+Disallow: /api/
+
+Sitemap: https://thesortedclub.com/sitemap.xml

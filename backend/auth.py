@@ -9,9 +9,26 @@ from dotenv import load_dotenv
 from fastapi import HTTPException, Security, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-# Load .env on module import
+# Load .env on module import (override only in non-test modes)
 env_path = Path(__file__).resolve().parent / ".env"
-load_dotenv(dotenv_path=env_path)
+is_test = os.environ.get("APP_ENV") == "test"
+load_dotenv(dotenv_path=env_path, override=not is_test)
+
+DEFAULT_INSECURE_SECRETS = {
+    "sorted_club_super_secret_jwt_key_2026",
+    "change_this_to_a_random_64_character_hex_secret_key",
+    "secret",
+    "jwt_secret",
+    "default_secret"
+}
+
+DEFAULT_INSECURE_PASSWORDS = {
+    "sorted_admin_2026",
+    "change_this_to_a_secure_admin_password",
+    "admin",
+    "password",
+    "123456"
+}
 
 def get_admin_username() -> str:
     return os.getenv("ADMIN_USERNAME", "admin")
@@ -20,7 +37,28 @@ def get_admin_password() -> str:
     return os.getenv("ADMIN_PASSWORD", "sorted_admin_2026")
 
 def get_admin_secret_key() -> str:
-    return os.getenv("ADMIN_SECRET_KEY", "sorted_club_super_secret_jwt_key_2026")
+    return os.getenv("ADMIN_SECRET_KEY") or os.getenv("JWT_SECRET") or "sorted_club_super_secret_jwt_key_2026"
+
+def validate_production_auth_config():
+    """
+    Validates authentication settings for production mode.
+    Raises ValueError if insecure defaults or weak keys are used.
+    """
+    app_env = os.getenv("APP_ENV", "development").lower()
+    if app_env == "production":
+        secret = get_admin_secret_key()
+        if not secret or secret in DEFAULT_INSECURE_SECRETS or len(secret) < 32:
+            raise ValueError(
+                "CRITICAL SECURITY CONFIGURATION ERROR: Production requires a secure ADMIN_SECRET_KEY / JWT_SECRET "
+                "with at least 32 characters. Default or placeholder secrets are strictly prohibited in production."
+            )
+        
+        password = get_admin_password()
+        if not password or password in DEFAULT_INSECURE_PASSWORDS or len(password) < 8:
+            raise ValueError(
+                "CRITICAL SECURITY CONFIGURATION ERROR: Production requires a strong ADMIN_PASSWORD. "
+                "Default or placeholder passwords are strictly prohibited in production."
+            )
 
 security = HTTPBearer(auto_error=False)
 
@@ -41,8 +79,9 @@ def create_access_token(username: str, expires_in_seconds: int = 86400 * 7) -> s
     Create a signed HMAC-SHA256 session token valid for 7 days by default.
     """
     secret_key = get_admin_secret_key()
+    sub_val = username if isinstance(username, str) else (username.get("sub", "admin") if isinstance(username, dict) else str(username))
     payload = {
-        "sub": username,
+        "sub": sub_val,
         "exp": int(time.time()) + expires_in_seconds,
         "iat": int(time.time())
     }
@@ -126,4 +165,7 @@ def get_current_admin(credentials: HTTPAuthorizationCredentials = Security(secur
             headers={"WWW-Authenticate": "Bearer"},
         )
     payload = verify_token(credentials.credentials)
-    return payload.get("sub", get_admin_username())
+    sub = payload.get("sub", get_admin_username())
+    if isinstance(sub, dict):
+        return str(sub.get("sub", get_admin_username()))
+    return str(sub)

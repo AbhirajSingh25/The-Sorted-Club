@@ -371,6 +371,73 @@ export default function PublicInvoiceView({ token, onBackToSite }) {
           </div>
         </div>
 
+        {/* Milestone & Installment Schedule (BUILD 50/50 or Custom Milestones) */}
+        {invoice.installments && invoice.installments.length > 0 && (
+          <div className="proposal-deliverables-section" style={{ marginTop: '24px' }}>
+            <div className="section-eyebrow">PAYMENT SCHEDULE & MILESTONES</div>
+            <table className="proposal-items-table">
+              <thead>
+                <tr>
+                  <th>Milestone / Term</th>
+                  <th className="text-center" style={{ width: '90px' }}>Split</th>
+                  <th>Due Schedule</th>
+                  <th className="text-center" style={{ width: '140px' }}>Status</th>
+                  <th className="text-right" style={{ width: '140px' }}>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoice.installments.map((inst, idx) => {
+                  const isInstPaid = inst.status === 'PAID';
+                  const isPendingVerif = inst.status === 'VERIFICATION_PENDING' || inst.status === 'PAYMENT_SUBMITTED';
+                  const isOverdue = inst.status === 'OVERDUE';
+                  
+                  return (
+                    <tr key={inst.id || idx}>
+                      <td>
+                        <strong style={{ fontSize: '13px', display: 'block', color: 'var(--ink)' }}>
+                          #{inst.installment_number} — {inst.description}
+                        </strong>
+                      </td>
+                      <td className="text-center">
+                        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted)' }}>
+                          {inst.percentage ? `${inst.percentage}%` : '—'}
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ fontSize: '12px', color: 'var(--muted)' }}>
+                          {inst.due_date ? new Date(inst.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Sprint Kickoff / Handover'}
+                        </span>
+                      </td>
+                      <td className="text-center">
+                        {isInstPaid ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '12px', background: '#dcfce7', color: '#15803d', fontSize: '11px', fontWeight: 700 }}>
+                            <Check size={11} /> PAID
+                          </span>
+                        ) : isPendingVerif ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '12px', background: '#fef3c7', color: '#b45309', fontSize: '11px', fontWeight: 700 }}>
+                            <Clock size={11} /> CLAIM SUBMITTED
+                          </span>
+                        ) : isOverdue ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '12px', background: '#fee2e2', color: '#dc2626', fontSize: '11px', fontWeight: 700 }}>
+                            OVERDUE
+                          </span>
+                        ) : (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '12px', background: '#f1f5f9', color: '#475569', fontSize: '11px', fontWeight: 700 }}>
+                            PENDING
+                          </span>
+                        )}
+                      </td>
+                      <td className="text-right item-total-cell">
+                        ${inst.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
         {/* Recorded Official Payments (if any) */}
         {invoice.payments && invoice.payments.length > 0 && (
           <div className="proposal-deliverables-section" style={{ marginTop: '24px' }}>

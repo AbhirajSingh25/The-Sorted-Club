@@ -32,16 +32,31 @@ ENV/
 sorted_club.db
 backend/sorted_club.db
 
-# Environment Variables
+# Environment Variables & Secrets
 .env
 .env.*
 *.env
 backend/.env
-backend/.env.local
+backend/.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+
+# Allow safe environment example templates
+!.env.example
+!*.env.example
+!backend/.env.example
+
+# SSL Certificates, Keys, and Backups
+*.pem
+*.key
+*.crt
+*.csr
+*.sql.gz
+*.bak
+backups/
 
 # Vite & IDEs
 .vite/

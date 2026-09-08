@@ -11,7 +11,9 @@ import {
   AlertCircle,
   Loader2,
   CheckCircle2,
-  RotateCcw
+  RotateCcw,
+  Layers,
+  Tag
 } from 'lucide-react';
 import { submitLead } from '../api/client';
 
@@ -25,12 +27,18 @@ const SERVICE_OPTIONS = [
 ];
 
 const BUSINESS_TYPES = [
+  'Restaurants and Cafés',
+  'Coaching Institutes',
+  'Salons and Spas',
+  'Real Estate',
   'E-commerce & Retail',
-  'SaaS & Tech',
-  'Agency & Consulting',
   'Local Business & Services',
+  'Freelancers and Personal Brands',
+  'Booking Websites',
+  'Startup Landing Pages',
+  'Portfolio Websites',
+  'Agency & Consulting',
   'Healthcare & Wellness',
-  'Creator & Media',
   'Other'
 ];
 
@@ -42,17 +50,29 @@ const BUDGET_RANGES = [
   '$50,000+'
 ];
 
-export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
+export default function InquiryModal({ isOpen, onClose, initialService = '', initialTemplate = null }) {
+  const [selectedTemplate, setSelectedTemplate] = useState(initialTemplate);
+
+  const getInitialBusinessType = (tmpl) => {
+    if (!tmpl) return 'Agency & Consulting';
+    if (BUSINESS_TYPES.includes(tmpl.category)) return tmpl.category;
+    if (tmpl.category === 'E-commerce') return 'E-commerce & Retail';
+    if (tmpl.category === 'Local Service Businesses') return 'Local Business & Services';
+    return 'Agency & Consulting';
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     business_name: '',
     email: '',
     phone: '',
     website: '',
-    business_type: 'Agency & Consulting',
+    business_type: getInitialBusinessType(initialTemplate),
     service_interest: initialService || 'Website / Build',
-    problem: '',
-    budget: '$5,000 - $15,000',
+    problem: initialTemplate
+      ? `I would like to build a website based on the ${initialTemplate.name} demo concept (${initialTemplate.category}). Required features: ${initialTemplate.mainFeatures ? initialTemplate.mainFeatures.slice(0, 3).join(', ') : 'Modern responsive website'}.`
+      : '',
+    budget: initialTemplate?.budgetRange || '$2,500 - $5,000',
     consent: true
   });
 
@@ -65,12 +85,21 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
   const modalRef = useRef(null);
   const nameInputRef = useRef(null);
 
-  // Sync initialService when opened
+  // Sync when initialTemplate or initialService changes on open
   useEffect(() => {
-    if (initialService && SERVICE_OPTIONS.includes(initialService)) {
-      setFormData(prev => ({ ...prev, service_interest: initialService }));
+    if (initialTemplate) {
+      setSelectedTemplate(initialTemplate);
+      setFormData((prev) => ({
+        ...prev,
+        service_interest: 'Website / Build',
+        business_type: getInitialBusinessType(initialTemplate),
+        problem: `I would like to build a website based on the ${initialTemplate.name} demo concept (${initialTemplate.category}). Required features: ${initialTemplate.mainFeatures ? initialTemplate.mainFeatures.slice(0, 3).join(', ') : 'Modern responsive website'}.`,
+        budget: initialTemplate.budgetRange || prev.budget
+      }));
+    } else if (initialService && SERVICE_OPTIONS.includes(initialService)) {
+      setFormData((prev) => ({ ...prev, service_interest: initialService }));
     }
-  }, [initialService]);
+  }, [initialTemplate, initialService]);
 
   // Lock body scroll and focus on name input on open
   useEffect(() => {
@@ -164,7 +193,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
     }
 
     if (!formData.problem.trim()) {
-      newErrors.problem = 'Please tell us briefly about your problem or project brief.';
+      newErrors.problem = 'Please tell us briefly about your project brief or requirements.';
     } else if (formData.problem.trim().length < 10) {
       newErrors.problem = 'Please provide a little more detail (at least 10 characters).';
     }
@@ -183,12 +212,11 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSubmitting) return; // Prevent duplicate in-flight submissions
+    if (isSubmitting) return;
 
     setSubmitError(null);
 
     if (!validate()) {
-      // Scroll modal to top so user sees the first error
       if (modalRef.current) {
         modalRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -198,6 +226,22 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
     setIsSubmitting(true);
 
     try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const utmSource = searchParams.get('utm_source');
+      const utmMedium = searchParams.get('utm_medium');
+      const utmCampaign = searchParams.get('utm_campaign');
+      const utmContent = searchParams.get('utm_content');
+      const refParam = searchParams.get('ref') || searchParams.get('referrer');
+
+      let calculatedSource = 'Website';
+      if (selectedTemplate) {
+        calculatedSource = `Website - Template: ${selectedTemplate.name} (${selectedTemplate.badge || 'Demo Concept'})`;
+      } else if (refParam) {
+        calculatedSource = `Referral (${refParam})`;
+      } else if (utmSource) {
+        calculatedSource = utmSource.charAt(0).toUpperCase() + utmSource.slice(1);
+      }
+
       const payload = {
         name: formData.name.trim(),
         business_name: formData.business_name.trim(),
@@ -208,6 +252,12 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
         service_interest: formData.service_interest.trim(),
         problem: formData.problem.trim(),
         budget: formData.budget.trim(),
+        source: calculatedSource,
+        utm_source: utmSource || null,
+        utm_medium: utmMedium || null,
+        utm_campaign: utmCampaign || null,
+        utm_content: utmContent || null,
+        referral_source: refParam || null,
         consent: formData.consent
       };
 
@@ -219,11 +269,13 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
         modalRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (err) {
-      // If backend returned field-specific errors, map them onto form errors
       if (err.fieldErrors && Object.keys(err.fieldErrors).length > 0) {
-        setErrors(prev => ({ ...prev, ...err.fieldErrors }));
+        setErrors((prev) => ({ ...prev, ...err.fieldErrors }));
       }
-      setSubmitError(err.message || 'Failed to submit inquiry. Your entered data has been preserved. Please try again.');
+      setSubmitError(
+        err.message ||
+          'Failed to submit inquiry. Your entered data has been preserved. Please try again.'
+      );
       if (modalRef.current) {
         modalRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -241,6 +293,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
     setIsSuccess(false);
     setSubmittedLead(null);
     setSubmitError(null);
+    setSelectedTemplate(null);
     setFormData({
       name: '',
       business_name: '',
@@ -261,6 +314,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
     setIsSuccess(false);
     setSubmittedLead(null);
     setSubmitError(null);
+    setSelectedTemplate(null);
     setFormData({
       name: '',
       business_name: '',
@@ -319,7 +373,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
             </div>
 
             <p className="success-copy">
-              We've received the brief for <strong>{submittedLead?.business_name || formData.business_name}</strong> regarding <strong>{submittedLead?.service_interest || formData.service_interest}</strong>. Our team will review the requirements and reach out via <strong>{submittedLead?.email || formData.email}</strong> or WhatsApp within 24 hours.
+              We've received the brief for <strong>{submittedLead?.business_name || formData.business_name}</strong> regarding <strong>{submittedLead?.service_interest || formData.service_interest}</strong>. Our engineering team will review the requirements and reach out via <strong>{submittedLead?.email || formData.email}</strong> or WhatsApp within 24 hours.
             </p>
 
             <div className="success-summary-box">
@@ -327,6 +381,26 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
                 <span>Contact Person</span>
                 <strong>{submittedLead?.name || formData.name}</strong>
               </div>
+              <div className="summary-item">
+                <span>Email / WhatsApp</span>
+                <strong>{submittedLead?.email || formData.email}</strong>
+              </div>
+              {selectedTemplate && (
+                <div className="summary-item summary-item-blueprint full-width">
+                  <span>Selected Blueprint</span>
+                  <div className="summary-blueprint-header">
+                    <strong className="blueprint-name">{selectedTemplate.name}</strong>
+                    <span className="summary-item-badge">{selectedTemplate.badge || 'Demo Concept'}</span>
+                  </div>
+                  <div className="summary-blueprint-meta">
+                    <span>{selectedTemplate.category}</span>
+                    <span>•</span>
+                    <span>Starting {selectedTemplate.startingPrice}</span>
+                    <span>•</span>
+                    <span>{selectedTemplate.turnaround}</span>
+                  </div>
+                </div>
+              )}
               <div className="summary-item">
                 <span>Service Focus</span>
                 <strong>{submittedLead?.service_interest || formData.service_interest}</strong>
@@ -362,9 +436,44 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
           <div className="inquiry-form-view">
             <div className="inquiry-header">
               <div className="eyebrow">GET SORTED / BUSINESS BRIEF</div>
-              <h2 id="inquiry-modal-title">Tell us what needs<br /><em>sorting.</em></h2>
+              <h2 id="inquiry-modal-title">
+                {selectedTemplate ? (
+                  <>Build a website like<br /><em>{selectedTemplate.name}</em></>
+                ) : (
+                  <>Tell us what needs<br /><em>sorting.</em></>
+                )}
+              </h2>
               <p>One direct team. Clear turnaround. Zero agency runaround.</p>
             </div>
+
+            {/* Selected Template Banner */}
+            {selectedTemplate && (
+              <div className="selected-template-banner" role="region" aria-label="Selected website template details">
+                <div className="template-banner-content">
+                  <div className="template-banner-tags">
+                    <span className="template-badge-pill">Selected Blueprint</span>
+                    <span className="template-concept-tag">{selectedTemplate.badge || 'Demo Concept'}</span>
+                  </div>
+                  <h4 className="template-banner-title">{selectedTemplate.name}</h4>
+                  <div className="template-banner-sub">
+                    <span>{selectedTemplate.category}</span>
+                    <span>•</span>
+                    <span>Starting {selectedTemplate.startingPrice}</span>
+                    <span>•</span>
+                    <span>{selectedTemplate.turnaround}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="clear-template-btn"
+                  onClick={() => setSelectedTemplate(null)}
+                  title="Remove template selection"
+                  aria-label="Remove template selection"
+                >
+                  <X size={14} /> Clear
+                </button>
+              </div>
+            )}
 
             {submitError && (
               <div className="error-banner" role="alert" style={{ marginBottom: '18px' }}>
@@ -409,7 +518,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
 
                 <div className="form-group">
                   <label htmlFor="inquiry-business">
-                    Company / Business <span className="req" aria-hidden="true">*</span>
+                    Company / Business Name <span className="req" aria-hidden="true">*</span>
                     <span className="sr-only">(required)</span>
                   </label>
                   <div className="input-wrapper">
@@ -418,7 +527,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
                       id="inquiry-business"
                       type="text"
                       autoComplete="organization"
-                      placeholder="e.g. Acme Studio"
+                      placeholder="e.g. Saffron Bistro / Acme Studio"
                       value={formData.business_name}
                       onChange={(e) => {
                         setFormData({ ...formData, business_name: e.target.value });
@@ -451,7 +560,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
                       id="inquiry-email"
                       type="email"
                       autoComplete="email"
-                      placeholder="alex@acmestudio.com"
+                      placeholder="alex@example.com"
                       value={formData.email}
                       onChange={(e) => {
                         setFormData({ ...formData, email: e.target.value });
@@ -509,7 +618,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="inquiry-website">
-                    Website URL <span className="opt">(optional)</span>
+                    Existing Website URL <span className="opt">(optional)</span>
                   </label>
                   <div className="input-wrapper">
                     <Globe size={16} className="input-icon" aria-hidden="true" />
@@ -517,7 +626,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
                       id="inquiry-website"
                       type="url"
                       autoComplete="url"
-                      placeholder="https://acmestudio.com"
+                      placeholder="https://example.com"
                       value={formData.website}
                       onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                     />
@@ -535,14 +644,14 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
                     onChange={(e) => setFormData({ ...formData, business_type: e.target.value })}
                     className="custom-select"
                   >
-                    {BUSINESS_TYPES.map(type => (
+                    {BUSINESS_TYPES.map((type) => (
                       <option key={type} value={type}>{type}</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              {/* Service Interest Selector */}
+              {/* Service Interest Selector (Hidden or condensed if template selected) */}
               <div className="form-group full-width">
                 <label id="service-interest-label">
                   What do you need sorted? <span className="req" aria-hidden="true">*</span>
@@ -573,16 +682,16 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
                 )}
               </div>
 
-              {/* Problem Brief */}
+              {/* Problem / Features Brief */}
               <div className="form-group full-width">
                 <label htmlFor="inquiry-problem">
-                  Describe your problem or project brief <span className="req" aria-hidden="true">*</span>
+                  Describe your requirements &amp; required features <span className="req" aria-hidden="true">*</span>
                   <span className="sr-only">(required)</span>
                 </label>
                 <textarea
                   id="inquiry-problem"
                   rows={3}
-                  placeholder="What are you trying to build, grow, automate or hire for? What's blocking momentum right now?"
+                  placeholder="What are you trying to build? Mention any specific features (e.g. table booking, payment gateway, custom colors, CRM webhook)..."
                   value={formData.problem}
                   onChange={(e) => {
                     setFormData({ ...formData, problem: e.target.value });
@@ -664,7 +773,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '' }) {
                     </>
                   ) : (
                     <>
-                      Submit Inquiry <ArrowRight size={18} aria-hidden="true" />
+                      {selectedTemplate ? 'Submit Website Request' : 'Submit Inquiry'} <ArrowRight size={18} aria-hidden="true" />
                     </>
                   )}
                 </button>

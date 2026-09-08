@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Inbox,
   Users,
   Search,
   RefreshCw,
@@ -31,7 +32,9 @@ import {
   DollarSign,
   Receipt,
   FileCheck,
-  Link as LinkIcon
+  Link as LinkIcon,
+  FolderKanban,
+  Plus
 } from 'lucide-react';
 import {
   fetchClients,
@@ -42,10 +45,12 @@ import {
   updateClientOnboarding,
   fetchClientActivities,
   createClientActivity,
+  fetchProjects,
   clearAdminAuth,
   getAdminUsername
 } from '../api/client';
-import { ClientStatusBadge, OnboardingStatusBadge } from './StatusBadge';
+import { ClientStatusBadge, OnboardingStatusBadge, ProjectStatusBadge } from './StatusBadge';
+import NotificationCenter from './NotificationCenter';
 
 const CLIENT_STATUSES = ['ALL', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'ARCHIVED'];
 const ONBOARDING_STATUSES = ['ALL', 'NOT_STARTED', 'IN_PROGRESS', 'WAITING_FOR_CLIENT', 'COMPLETED'];
@@ -58,9 +63,11 @@ const CATEGORY_TITLES = {
 
 export default function ClientDashboard({
   onLogout,
+  onNavigateToCommandCenter,
   onNavigateToInquiries,
   onNavigateToCRM,
   onNavigateToFinance,
+  onNavigateToProjects,
   onBackToSite,
   initialSelectedClientId = null
 }) {
@@ -89,6 +96,8 @@ export default function ClientDashboard({
   const [loadingOnboarding, setLoadingOnboarding] = useState(false);
   const [activities, setActivities] = useState([]);
   const [loadingActivities, setLoadingActivities] = useState(false);
+  const [clientProjects, setClientProjects] = useState([]);
+  const [loadingProjects, setLoadingProjects] = useState(false);
 
   // Drawer Account Edit State
   const [editStatus, setEditStatus] = useState('ACTIVE');
@@ -177,14 +186,17 @@ export default function ClientDashboard({
     setAccountSuccessMsg(null);
     setLoadingOnboarding(true);
     setLoadingActivities(true);
+    setLoadingProjects(true);
 
     try {
-      const [obData, actData] = await Promise.all([
+      const [obData, actData, projData] = await Promise.all([
         fetchClientOnboarding(client.id),
-        fetchClientActivities(client.id)
+        fetchClientActivities(client.id),
+        fetchProjects({ client_id: client.id })
       ]);
       setOnboardingData(obData);
       setActivities(actData);
+      setClientProjects(projData);
 
       // Initialize item note drafts
       const notesMap = {};
@@ -197,6 +209,7 @@ export default function ClientDashboard({
     } finally {
       setLoadingOnboarding(false);
       setLoadingActivities(false);
+      setLoadingProjects(false);
     }
   };
 
@@ -401,14 +414,22 @@ export default function ClientDashboard({
           <div className="brand">THE SORTED <span>CLUB</span></div>
           <span className="admin-badge">CLIENT HUB</span>
 
-          {/* Navigation Switcher */}
+          {/* Navigation Switcher with 6 Tabs */}
           <div className="admin-nav-tabs">
+            <button
+              type="button"
+              className="admin-tab-btn"
+              onClick={() => (onNavigateToCommandCenter ? onNavigateToCommandCenter() : onNavigateToInquiries && onNavigateToInquiries())}
+            >
+              <Layers size={14} />
+              <span>Command Center</span>
+            </button>
             <button
               type="button"
               className="admin-tab-btn"
               onClick={() => onNavigateToInquiries && onNavigateToInquiries()}
             >
-              <Layers size={14} />
+              <Inbox size={14} />
               <span>Inquiries</span>
             </button>
             <button
@@ -434,10 +455,39 @@ export default function ClientDashboard({
               <DollarSign size={14} />
               <span>Commercial & Finance</span>
             </button>
+            <button
+              type="button"
+              className="admin-tab-btn"
+              onClick={() => onNavigateToProjects && onNavigateToProjects()}
+            >
+              <FolderKanban size={14} />
+              <span>Projects & Delivery</span>
+            </button>
           </div>
         </div>
 
-        <div className="admin-nav-right">
+        <div className="admin-nav-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <NotificationCenter
+            onNavigate={(url) => {
+              if (url.startsWith('/admin/crm')) {
+                onNavigateToCRM && onNavigateToCRM();
+              } else if (url.startsWith('/admin/finance')) {
+                const tab = new URLSearchParams(url.split('?')[1] || '').get('tab');
+                onNavigateToFinance && onNavigateToFinance(tab || 'overview');
+              } else if (url.startsWith('/admin/clients')) {
+                const cid = new URLSearchParams(url.split('?')[1] || '').get('selectedClient');
+                if (cid) {
+                  const target = clients.find(c => String(c.id) === cid);
+                  if (target) openClientDrawer(target);
+                }
+              } else if (url.startsWith('/admin/projects')) {
+                const pid = new URLSearchParams(url.split('?')[1] || '').get('selectedProject');
+                onNavigateToProjects && onNavigateToProjects(pid);
+              } else if (url.startsWith('/admin')) {
+                onNavigateToInquiries && onNavigateToInquiries();
+              }
+            }}
+          />
           <button
             onClick={onBackToSite}
             className="admin-link-btn"
@@ -1035,6 +1085,107 @@ export default function ClientDashboard({
                     })}
                   </div>
                 ) : null}
+
+                {/* Onboarding Complete Action Banner */}
+                {(onboardingData?.onboarding_status === 'COMPLETED' || onboardingData?.progress_percentage === 100) && (
+                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '14px 18px', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <CheckCircle size={20} color="#15803d" />
+                      <div>
+                        <strong style={{ fontSize: '13px', color: '#15803d', display: 'block' }}>
+                          Onboarding Complete
+                        </strong>
+                        <span style={{ fontSize: '12px', color: '#166534' }}>
+                          All activation requirements fulfilled. Ready to launch project delivery.
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn-primary btn-sm"
+                      style={{ background: '#15803d', borderColor: '#15803d', fontSize: '12px' }}
+                      onClick={() => onNavigateToProjects && onNavigateToProjects(selectedClient.id)}
+                    >
+                      <Plus size={13} />
+                      <span>Create Project from Onboarding</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* CLIENT PROJECTS & SERVICE DELIVERABLES */}
+              <div className="drawer-section" style={{ background: '#fdfcf9', border: '1px solid var(--line)', borderRadius: '10px', padding: '18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                  <div>
+                    <label className="section-subtitle" style={{ margin: 0 }}>SERVICE DELIVERY</label>
+                    <h3 style={{ font: '700 16px "Space Grotesk", sans-serif', margin: '4px 0 0' }}>
+                      Active & Completed Projects ({clientProjects.length})
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-secondary btn-sm"
+                    onClick={() => onNavigateToProjects && onNavigateToProjects(selectedClient.id)}
+                  >
+                    <Plus size={13} />
+                    <span>Create Project</span>
+                  </button>
+                </div>
+
+                {loadingProjects ? (
+                  <div style={{ padding: '20px', textAlign: 'center' }}>
+                    <Loader2 size={20} className="spinner" />
+                    <p style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '6px' }}>Loading projects...</p>
+                  </div>
+                ) : clientProjects.length === 0 ? (
+                  <div className="crm-empty-state" style={{ padding: '20px', background: '#faf8f2', borderRadius: '6px' }}>
+                    <p style={{ fontSize: '13px', margin: 0 }}>No delivery projects created for this client yet.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {clientProjects.map(proj => (
+                      <div
+                        key={proj.id}
+                        style={{
+                          background: '#fff',
+                          border: '1px solid var(--line)',
+                          borderRadius: '6px',
+                          padding: '12px 14px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '12px'
+                        }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+                            <span className="client-code-tag" style={{ background: '#10100f', color: '#fff', padding: '2px 6px', borderRadius: '3px', font: '700 10px monospace' }}>
+                              {proj.project_code}
+                            </span>
+                            <ProjectStatusBadge status={proj.status} size="small" />
+                          </div>
+                          <strong style={{ fontSize: '13px', color: 'var(--ink)' }}>{proj.name}</strong>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
+                            <span>{proj.progress_percentage}% Done ({proj.completed_tasks_count}/{proj.total_tasks_count} tasks)</span>
+                            {proj.target_date && (
+                              <span style={{ color: proj.is_overdue ? '#dc2626' : undefined, fontWeight: proj.is_overdue ? 700 : 400 }}>
+                                Due: {new Date(proj.target_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn-secondary btn-sm"
+                          style={{ fontSize: '11px', padding: '3px 8px' }}
+                          onClick={() => onNavigateToProjects && onNavigateToProjects(selectedClient.id, proj.id)}
+                        >
+                          View Project <ChevronRight size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* ACCOUNT PARAMETERS & ASSIGNMENT */}

@@ -11,6 +11,8 @@ from models import (
     ProposalStatus,
     Invoice,
     InvoiceStatus,
+    InvoiceInstallment,
+    InstallmentStatus,
     Payment,
     PaymentConfirmation,
     PaymentConfirmationStatus,
@@ -24,7 +26,8 @@ from schemas import (
     PaymentConfirmationReview
 )
 from auth import get_current_admin
-from routes.invoices import check_and_update_client_onboarding
+from routes.invoices import check_and_update_client_onboarding, sync_invoice_installments_on_payment
+from services.notification_service import send_business_notification, send_customer_email
 
 router = APIRouter(prefix="/api/finance", tags=["Commercial & Finance"])
 
@@ -200,8 +203,10 @@ def confirm_payment_verification(
         conf.updated_at = now
 
         # 4. Log client activity
+        client = db.query(Client).filter(Client.id == invoice.client_id).first()
         db.add(LeadActivity(
             client_id=invoice.client_id,
+            lead_id=client.lead_id if client else None,
             type=ActivityType.STATUS_CHANGE.value,
             text=f"Payment of ${conf.amount:,.2f} (Ref: {conf.reference}) for Invoice {invoice.invoice_number} was VERIFIED & CONFIRMED by {admin_user}. Balance due: ${invoice.amount_due:,.2f}.",
             created_by=admin_user
@@ -214,8 +219,54 @@ def confirm_payment_verification(
             reason=f"Auto-completed via verified payment (${conf.amount:,.2f}) for Invoice {invoice.invoice_number}."
         )
 
+        # 6. Sync invoice installments
+        sync_invoice_installments_on_payment(invoice, new_payment, db)
+
         db.commit()
         db.refresh(conf)
+
+        # Trigger admin notification & email
+        client = db.query(Client).filter(Client.id == invoice.client_id).first()
+        biz_name = client.business_name if client else conf.payer_name
+        send_business_notification(
+            db=db,
+            event_type="PAYMENT_VERIFIED",
+            subject=f"[The Sorted Club] Payment Verified — {biz_name}",
+            title=f"Payment Verified: Invoice {invoice.invoice_number}",
+            message=f"Payment of {invoice.currency} {conf.amount:,.2f} for {biz_name} verified by {admin_user}. Balance due: {invoice.currency} {invoice.amount_due:,.2f}.",
+            data={
+                "Invoice": invoice.invoice_number,
+                "Business": biz_name,
+                "Amount Verified": f"{invoice.currency} {conf.amount:,.2f}",
+                "Remaining Due": f"{invoice.currency} {invoice.amount_due:,.2f}",
+                "Invoice Status": invoice.status,
+                "Verified By": admin_user
+            },
+            entity_type="payment_confirmation",
+            entity_id=conf.id,
+            action_url=f"/admin/finance?tab=invoices"
+        )
+
+        # Customer receipt email
+        if client and client.email:
+            send_customer_email(
+                db=db,
+                recipient=client.email,
+                event_type="PAYMENT_VERIFIED",
+                subject=f"Payment Receipt: {invoice.invoice_number} Confirmed — The Sorted Club",
+                title="Payment Confirmed!",
+                message=f"Your payment of {invoice.currency} {conf.amount:,.2f} for Invoice {invoice.invoice_number} has been verified and recorded. Thank you for your partnership!",
+                cta_text="VIEW UPDATED INVOICE →",
+                cta_url=f"/invoice/{invoice.secure_token}",
+                data={
+                    "Invoice Number": invoice.invoice_number,
+                    "Amount Confirmed": f"{invoice.currency} {conf.amount:,.2f}",
+                    "Remaining Balance": f"{invoice.currency} {invoice.amount_due:,.2f}",
+                    "Reference / UTR": conf.reference,
+                    "Payment Method": conf.payment_method
+                }
+            )
+
         return enrich_confirmation_out(conf, db)
     except Exception as e:
         db.rollback()
@@ -253,8 +304,18 @@ def reject_payment_verification(
     reason_text = f" Reason: '{conf.rejection_reason}'." if conf.rejection_reason else ""
 
     if invoice:
+        # Revert any VERIFICATION_PENDING installment back to PENDING
+        verif_inst = db.query(InvoiceInstallment).filter(
+            InvoiceInstallment.invoice_id == invoice.id,
+            InvoiceInstallment.status == InstallmentStatus.VERIFICATION_PENDING.value
+        ).first()
+        if verif_inst:
+            verif_inst.status = InstallmentStatus.PENDING.value
+
+        client = db.query(Client).filter(Client.id == conf.client_id).first()
         db.add(LeadActivity(
             client_id=invoice.client_id,
+            lead_id=client.lead_id if client else None,
             type=ActivityType.STATUS_CHANGE.value,
             text=f"Payment verification claim of ${conf.amount:,.2f} (Ref: {conf.reference}) for Invoice {invoice.invoice_number} was REJECTED by {admin_user}.{reason_text}",
             created_by=admin_user
@@ -262,4 +323,26 @@ def reject_payment_verification(
 
     db.commit()
     db.refresh(conf)
+
+    # Trigger admin notification & email
+    client = db.query(Client).filter(Client.id == conf.client_id).first()
+    biz_name = client.business_name if client else conf.payer_name
+    send_business_notification(
+        db=db,
+        event_type="PAYMENT_REJECTED",
+        subject=f"[The Sorted Club] Payment Verification Rejected — {biz_name}",
+        title=f"Payment Verification Rejected: Invoice {invoice.invoice_number if invoice else ''}",
+        message=f"Payment confirmation of {invoice.currency if invoice else 'USD'} {conf.amount:,.2f} for {biz_name} was rejected by {admin_user}. Reason: {conf.rejection_reason or 'Verification check failed'}",
+        data={
+            "Invoice": invoice.invoice_number if invoice else "—",
+            "Business": biz_name,
+            "Amount": f"{invoice.currency if invoice else 'USD'} {conf.amount:,.2f}",
+            "Rejection Reason": conf.rejection_reason or "Verification check failed",
+            "Reviewed By": admin_user
+        },
+        entity_type="payment_confirmation",
+        entity_id=conf.id,
+        action_url=f"/admin/finance?tab=verifications"
+    )
+
     return enrich_confirmation_out(conf, db)

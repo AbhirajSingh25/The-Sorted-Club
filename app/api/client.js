@@ -95,6 +95,9 @@ export async function submitLead(leadData) {
   });
 }
 
+export const createLead = submitLead;
+
+
 // Admin Authentication API
 export async function loginAdmin(username, password) {
   const data = await request('/api/admin/login', {
@@ -488,3 +491,274 @@ export async function rejectPaymentVerification(id, reason = '') {
     body: JSON.stringify({ reason })
   });
 }
+
+// ============================================================================
+// PROJECT DELIVERY & SERVICE MANAGEMENT API
+// ============================================================================
+
+export async function fetchProjects({
+  status = '',
+  service_type = '',
+  priority = '',
+  assigned_to = '',
+  client_id = null,
+  search = '',
+  sort_by = 'newest'
+} = {}) {
+  const params = new URLSearchParams();
+  if (status && status !== 'ALL') params.append('status', status);
+  if (service_type && service_type !== 'ALL') params.append('service_type', service_type);
+  if (priority && priority !== 'ALL') params.append('priority', priority);
+  if (assigned_to && assigned_to !== 'ALL') params.append('assigned_to', assigned_to);
+  if (client_id) params.append('client_id', client_id);
+  if (search && search.trim()) params.append('search', search.trim());
+  if (sort_by) params.append('sort_by', sort_by);
+
+  const query = params.toString() ? `?${params.toString()}` : '';
+  return request(`/api/projects${query}`);
+}
+
+export async function fetchProjectStats() {
+  return request('/api/projects/stats');
+}
+
+export async function fetchProject(id) {
+  return request(`/api/projects/${id}`);
+}
+
+export async function createProject(projectData) {
+  return request('/api/projects', {
+    method: 'POST',
+    body: JSON.stringify(projectData)
+  });
+}
+
+export async function updateProject(id, updateData) {
+  return request(`/api/projects/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updateData)
+  });
+}
+
+export async function deleteProject(id) {
+  return request(`/api/projects/${id}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function fetchProjectTasks(projectId) {
+  return request(`/api/projects/${projectId}/tasks`);
+}
+
+export async function createProjectTask(projectId, taskData) {
+  return request(`/api/projects/${projectId}/tasks`, {
+    method: 'POST',
+    body: JSON.stringify(taskData)
+  });
+}
+
+export async function updateProjectTask(projectId, taskId, taskData) {
+  return request(`/api/projects/${projectId}/tasks/${taskId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(taskData)
+  });
+}
+
+export async function deleteProjectTask(projectId, taskId) {
+  return request(`/api/projects/${projectId}/tasks/${taskId}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function fetchProjectActivities(projectId) {
+  return request(`/api/projects/${projectId}/activities`);
+}
+
+export async function createProjectActivity(projectId, activityData) {
+  return request(`/api/projects/${projectId}/activities`, {
+    method: 'POST',
+    body: JSON.stringify(activityData)
+  });
+}
+
+export async function fetchProjectResources(projectId) {
+  return request(`/api/projects/${projectId}/resources`);
+}
+
+export async function createProjectResource(projectId, resourceData) {
+  return request(`/api/projects/${projectId}/resources`, {
+    method: 'POST',
+    body: JSON.stringify(resourceData)
+  });
+}
+
+export async function updateProjectResource(projectId, resourceId, resourceData) {
+  return request(`/api/projects/${projectId}/resources/${resourceId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(resourceData)
+  });
+}
+
+export async function deleteProjectResource(projectId, resourceId) {
+  return request(`/api/projects/${projectId}/resources/${resourceId}`, {
+    method: 'DELETE'
+  });
+}
+
+// Build Project Brief & Discovery Checklist
+export async function fetchProjectBrief(projectId) {
+  return request(`/api/projects/${projectId}/brief`);
+}
+
+export async function updateProjectBrief(projectId, briefData) {
+  return request(`/api/projects/${projectId}/brief`, {
+    method: 'PUT',
+    body: JSON.stringify(briefData)
+  });
+}
+
+// Project Milestones API
+export async function fetchProjectMilestones(projectId) {
+  return request(`/api/projects/${projectId}/milestones`);
+}
+
+export async function createProjectMilestone(projectId, milestoneData) {
+  return request(`/api/projects/${projectId}/milestones`, {
+    method: 'POST',
+    body: JSON.stringify(milestoneData)
+  });
+}
+
+export async function updateProjectMilestone(projectId, milestoneId, milestoneData) {
+  return request(`/api/projects/${projectId}/milestones/${milestoneId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(milestoneData)
+  });
+}
+
+export async function deleteProjectMilestone(projectId, milestoneId) {
+  return request(`/api/projects/${projectId}/milestones/${milestoneId}`, {
+    method: 'DELETE'
+  });
+}
+
+// Project Approvals API
+export async function fetchProjectApprovals(projectId) {
+  return request(`/api/projects/${projectId}/approvals`);
+}
+
+export async function createProjectApproval(projectId, approvalData) {
+  return request(`/api/projects/${projectId}/approvals`, {
+    method: 'POST',
+    body: JSON.stringify(approvalData)
+  });
+}
+
+export async function deleteProjectApproval(projectId, approvalId) {
+  return request(`/api/projects/${projectId}/approvals/${approvalId}`, {
+    method: 'DELETE'
+  });
+}
+
+// Project Announcements / Updates API
+export async function fetchProjectUpdates(projectId) {
+  return request(`/api/projects/${projectId}/updates`);
+}
+
+export async function createProjectUpdate(projectId, updateData) {
+  return request(`/api/projects/${projectId}/updates`, {
+    method: 'POST',
+    body: JSON.stringify(updateData)
+  });
+}
+
+export async function deleteProjectUpdate(projectId, updateId) {
+  return request(`/api/projects/${projectId}/updates/${updateId}`, {
+    method: 'DELETE'
+  });
+}
+
+// Handover & Strict Completion API
+export async function updateProjectHandover(projectId, handoverData) {
+  return request(`/api/projects/${projectId}/handover`, {
+    method: 'PATCH',
+    body: JSON.stringify(handoverData)
+  });
+}
+
+export async function completeProject(projectId) {
+  return request(`/api/projects/${projectId}/complete`, {
+    method: 'POST'
+  });
+}
+
+// ==============================================================================
+// PUBLIC CUSTOMER PROJECT & APPROVAL APIS
+// ==============================================================================
+
+export async function fetchPublicProject(token) {
+  return request(`/api/public/project/${token}`);
+}
+
+export async function fetchPublicApproval(token) {
+  return request(`/api/public/approval/${token}`);
+}
+
+export async function submitPublicApprovalDecision(token, decisionData) {
+  return request(`/api/public/approval/${token}/decision`, {
+    method: 'POST',
+    body: JSON.stringify(decisionData)
+  });
+}
+
+// ==============================================================================
+// ADMIN NOTIFICATIONS & EMAIL LOGS API
+// ==============================================================================
+
+export async function fetchNotifications({ unread_only = false, limit = 50 } = {}) {
+  const params = new URLSearchParams();
+  if (unread_only) params.append('unread_only', 'true');
+  if (limit) params.append('limit', limit);
+  const query = params.toString() ? `?${params.toString()}` : '';
+  return request(`/api/notifications${query}`);
+}
+
+export async function markNotificationRead(id) {
+  return request(`/api/notifications/${id}/read`, {
+    method: 'PATCH'
+  });
+}
+
+export async function markAllNotificationsRead() {
+  return request('/api/notifications/mark-all-read', {
+    method: 'POST'
+  });
+}
+
+export async function deleteNotification(id) {
+  return request(`/api/notifications/${id}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function fetchEmailLogs(limit = 50) {
+  return request(`/api/notifications/email-logs?limit=${limit}`);
+}
+
+// ==============================================================================
+// ADMIN COMMAND CENTER & BOS API
+// ==============================================================================
+
+export async function fetchCommandCenterMetrics() {
+  return request('/api/admin/command-center');
+}
+
+export async function completeLeadFollowUp(leadId, followUpData = {}) {
+  return request(`/api/leads/${leadId}/complete-follow-up`, {
+    method: 'POST',
+    body: JSON.stringify(followUpData)
+  });
+}
+
+
+

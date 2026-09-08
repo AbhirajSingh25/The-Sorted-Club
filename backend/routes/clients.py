@@ -26,6 +26,7 @@ from schemas import (
     LeadActivityOut
 )
 from auth import get_current_admin
+from services.notification_service import send_business_notification
 
 router = APIRouter(prefix="/api/clients", tags=["Clients & Onboarding"])
 
@@ -438,10 +439,12 @@ def update_client_onboarding(
         progress_percentage = int((completed_items / total_items) * 100) if total_items > 0 else 0
 
         # Auto-update client onboarding status based on progression
+        newly_completed = False
         if completed_items == total_items and total_items > 0:
             client.onboarding_status = OnboardingStatus.COMPLETED.value
             if not client.onboarding_completed_at:
                 client.onboarding_completed_at = now
+                newly_completed = True
                 db.add(LeadActivity(
                     client_id=client.id,
                     lead_id=client.lead_id,
@@ -458,9 +461,28 @@ def update_client_onboarding(
             client.onboarding_status = new_st
             if new_st == OnboardingStatus.COMPLETED.value and not client.onboarding_completed_at:
                 client.onboarding_completed_at = now
+                newly_completed = True
 
         client.updated_at = now
         db.commit()
+
+        if newly_completed:
+            send_business_notification(
+                db=db,
+                event_type="ONBOARDING_COMPLETED",
+                subject=f"[The Sorted Club] Onboarding Completed — {client.business_name}",
+                title=f"Onboarding Completed: {client.business_name}",
+                message=f"All onboarding checklist items for {client.business_name} ({client.client_code}) have been completed.",
+                data={
+                    "Client Code": client.client_code,
+                    "Business Name": client.business_name,
+                    "Contact Name": client.name,
+                    "Completed At": str(client.onboarding_completed_at)
+                },
+                entity_type="client",
+                entity_id=client.id,
+                action_url=f"/admin/clients?selectedClient={client.id}"
+            )
 
         return ClientOnboardingResponse(
             client_id=client.id,

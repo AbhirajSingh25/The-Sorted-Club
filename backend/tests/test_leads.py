@@ -212,3 +212,66 @@ def test_get_lead_stats(client, admin_headers):
     assert stats["contacted"] == 1
     assert stats["won"] == 1
     assert stats["qualified"] == 0
+
+def test_get_leads_empty_database(client, admin_headers):
+    """Regression test: GET /api/leads?sort_by=newest with an empty database returns 200 OK and empty list."""
+    response = client.get("/api/leads?sort_by=newest", headers=admin_headers)
+    assert response.status_code == 200
+    assert response.json() == []
+
+def test_get_leads_newest_sorting(client, admin_headers):
+    """Regression test: GET /api/leads?sort_by=newest returns leads sorted descending by created_at."""
+    res1 = client.post("/api/leads", json={**VALID_LEAD_PAYLOAD, "email": "first@example.com", "name": "Lead One"})
+    res2 = client.post("/api/leads", json={**VALID_LEAD_PAYLOAD, "email": "second@example.com", "name": "Lead Two"})
+    res3 = client.post("/api/leads", json={**VALID_LEAD_PAYLOAD, "email": "third@example.com", "name": "Lead Three"})
+
+    response = client.get("/api/leads?sort_by=newest", headers=admin_headers)
+    assert response.status_code == 200
+    leads = response.json()
+    assert len(leads) == 3
+    # Newest created lead should be first
+    assert leads[0]["id"] == res3.json()["id"]
+    assert leads[1]["id"] == res2.json()["id"]
+    assert leads[2]["id"] == res1.json()["id"]
+
+def test_get_leads_invalid_sort_by(client, admin_headers):
+    """Regression test: Invalid sort_by parameter falls back to default newest sorting without crashing."""
+    client.post("/api/leads", json=VALID_LEAD_PAYLOAD)
+    response = client.get("/api/leads?sort_by=invalid_random_sort", headers=admin_headers)
+    assert response.status_code == 200
+    leads = response.json()
+    assert len(leads) == 1
+
+def test_get_leads_value_and_followup_sorting(client, admin_headers):
+    """Regression test: sort_by=value_desc and sort_by=follow_up_asc function correctly."""
+    l1 = client.post("/api/leads", json={**VALID_LEAD_PAYLOAD, "email": "val1@example.com"}).json()["id"]
+    l2 = client.post("/api/leads", json={**VALID_LEAD_PAYLOAD, "email": "val2@example.com"}).json()["id"]
+    
+    client.patch(f"/api/leads/{l1}", json={"estimated_value": 1000.0}, headers=admin_headers)
+    client.patch(f"/api/leads/{l2}", json={"estimated_value": 50000.0}, headers=admin_headers)
+
+    response = client.get("/api/leads?sort_by=value_desc", headers=admin_headers)
+    assert response.status_code == 200
+    leads = response.json()
+    assert leads[0]["id"] == l2
+    assert leads[0]["estimated_value"] == 50000.0
+
+def test_get_leads_frontend_contract_structure(client, admin_headers):
+    """Regression test: Lead response structure exactly matches frontend expectations."""
+    client.post("/api/leads", json=VALID_LEAD_PAYLOAD)
+    response = client.get("/api/leads?sort_by=newest", headers=admin_headers)
+    assert response.status_code == 200
+    leads = response.json()
+    assert len(leads) == 1
+    lead = leads[0]
+
+    # Required fields for AdminDashboard and CRMView
+    expected_fields = [
+        "id", "name", "business_name", "email", "phone", "website",
+        "business_type", "service_interest", "problem", "budget",
+        "status", "source", "priority", "created_at", "updated_at",
+        "is_converted", "client_id", "client_code"
+    ]
+    for field in expected_fields:
+        assert field in lead, f"Missing expected field '{field}' in lead response"
+

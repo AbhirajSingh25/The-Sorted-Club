@@ -2,7 +2,7 @@ import React from 'react';
 
 const STATUS_CONFIG = {
   NEW: {
-    label: 'NEW',
+    label: 'NEW PROSPECT',
     bg: '#d8ff55',
     text: '#10100f',
     border: '#bfe63c'
@@ -13,6 +13,18 @@ const STATUS_CONFIG = {
     text: '#0369a1',
     border: '#bae6fd'
   },
+  REPLIED: {
+    label: 'REPLIED',
+    bg: '#fef08a',
+    text: '#854d0e',
+    border: '#fde047'
+  },
+  DISCOVERY_CALL: {
+    label: 'DISCOVERY CALL',
+    bg: '#f3e8ff',
+    text: '#7e22ce',
+    border: '#e9d5ff'
+  },
   QUALIFIED: {
     label: 'QUALIFIED',
     bg: '#fef3c7',
@@ -20,10 +32,16 @@ const STATUS_CONFIG = {
     border: '#fde68a'
   },
   PROPOSAL: {
-    label: 'PROPOSAL',
-    bg: '#f3e8ff',
-    text: '#7e22ce',
-    border: '#e9d5ff'
+    label: 'PROPOSAL SENT',
+    bg: '#e0e7ff',
+    text: '#4338ca',
+    border: '#c7d2fe'
+  },
+  PROPOSAL_SENT: {
+    label: 'PROPOSAL SENT',
+    bg: '#e0e7ff',
+    text: '#4338ca',
+    border: '#c7d2fe'
   },
   NEGOTIATION: {
     label: 'NEGOTIATION',
@@ -42,6 +60,12 @@ const STATUS_CONFIG = {
     bg: '#fee2e2',
     text: '#b91c1c',
     border: '#fecaca'
+  },
+  FOLLOW_UP_REQUIRED: {
+    label: 'FOLLOW-UP REQ',
+    bg: '#fff1f2',
+    text: '#be123c',
+    border: '#fecdd3'
   }
 };
 
@@ -509,3 +533,194 @@ export function PaymentConfirmationStatusBadge({ status, size = 'normal' }) {
     </span>
   );
 }
+
+// Project Delivery Badges
+const PROJECT_STATUS_CONFIG = {
+  PLANNED: { label: 'PLANNED', bg: '#f4f1e9', text: '#68665e', border: '#d4d0c5' },
+  IN_PROGRESS: { label: 'IN PROGRESS', bg: '#e0f2fe', text: '#0369a1', border: '#bae6fd' },
+  WAITING_FOR_CLIENT: { label: 'WAITING ON CLIENT', bg: '#fff7ed', text: '#c2410c', border: '#ffedd5' },
+  BLOCKED: { label: 'BLOCKED', bg: '#fee2e2', text: '#b91c1c', border: '#fecaca' },
+  IN_REVIEW: { label: 'IN REVIEW', bg: '#f3e8ff', text: '#7e22ce', border: '#e9d5ff' },
+  COMPLETED: { label: 'COMPLETED', bg: '#dcfce7', text: '#15803d', border: '#bbf7d0' },
+  CANCELLED: { label: 'CANCELLED', bg: '#f3f4f6', text: '#9ca3af', border: '#e5e7eb' }
+};
+
+export function ProjectStatusBadge({ status, size = 'normal' }) {
+  const normalized = (status || 'PLANNED').toUpperCase();
+  const config = PROJECT_STATUS_CONFIG[normalized] || PROJECT_STATUS_CONFIG.PLANNED;
+  const isSmall = size === 'small';
+
+  return (
+    <span
+      className={`project-status-badge project-status-${normalized.toLowerCase()}`}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '5px',
+        padding: isSmall ? '2px 7px' : '4px 10px',
+        borderRadius: '999px',
+        fontSize: isSmall ? '9px' : '10px',
+        fontWeight: 700,
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+        backgroundColor: config.bg,
+        color: config.text,
+        border: `1px solid ${config.border}`,
+        lineHeight: 1,
+        whiteSpace: 'nowrap'
+      }}
+    >
+      <span
+        style={{
+          width: isSmall ? '5px' : '6px',
+          height: isSmall ? '5px' : '6px',
+          borderRadius: '50%',
+          backgroundColor: config.text,
+          opacity: 0.85
+        }}
+      />
+      {config.label}
+    </span>
+  );
+}
+
+const TASK_STATUS_CONFIG = {
+  TODO: { label: 'TO DO', bg: '#f4f1e9', text: '#68665e', border: '#d4d0c5' },
+  IN_PROGRESS: { label: 'IN PROGRESS', bg: '#e0f2fe', text: '#0369a1', border: '#bae6fd' },
+  BLOCKED: { label: 'BLOCKED', bg: '#fee2e2', text: '#b91c1c', border: '#fecaca' },
+  IN_REVIEW: { label: 'IN REVIEW', bg: '#f3e8ff', text: '#7e22ce', border: '#e9d5ff' },
+  DONE: { label: 'DONE', bg: '#dcfce7', text: '#15803d', border: '#bbf7d0' }
+};
+
+export function TaskStatusBadge({ status, size = 'normal' }) {
+  const normalized = (status || 'TODO').toUpperCase();
+  const config = TASK_STATUS_CONFIG[normalized] || TASK_STATUS_CONFIG.TODO;
+  const isSmall = size === 'small';
+
+  return (
+    <span
+      className={`task-status-badge task-status-${normalized.toLowerCase()}`}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '4px',
+        padding: isSmall ? '2px 6px' : '3px 8px',
+        borderRadius: '4px',
+        fontSize: isSmall ? '9px' : '10px',
+        fontWeight: 700,
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+        backgroundColor: config.bg,
+        color: config.text,
+        border: `1px solid ${config.border}`,
+        lineHeight: 1,
+        whiteSpace: 'nowrap'
+      }}
+    >
+      <span
+        style={{
+          width: '5px',
+          height: '5px',
+          borderRadius: '50%',
+          backgroundColor: config.text,
+          opacity: 0.85
+        }}
+      />
+      {config.label}
+    </span>
+  );
+}
+
+export function ResourceTypeBadge({ type, size = 'small' }) {
+  const normalized = (type || 'DOCUMENT').toUpperCase();
+  const configs = {
+    DOCUMENT: { bg: '#f0fdf4', text: '#166534', border: '#bbf7d0' },
+    DESIGN: { bg: '#faf5ff', text: '#6b21a8', border: '#f3e8ff' },
+    WEBSITE: { bg: '#eff6ff', text: '#1e40af', border: '#dbeafe' },
+    REPOSITORY: { bg: '#fdf2f8', text: '#9d174d', border: '#fce7f3' },
+    DRIVE: { bg: '#fefce8', text: '#854d0e', border: '#fef08a' },
+    OTHER: { bg: '#f3f4f6', text: '#374151', border: '#e5e7eb' }
+  };
+  const config = configs[normalized] || configs.DOCUMENT;
+  const isSmall = size === 'small';
+
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: isSmall ? '2px 6px' : '3px 8px',
+        borderRadius: '4px',
+        fontSize: isSmall ? '9px' : '10px',
+        fontWeight: 700,
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+        backgroundColor: config.bg,
+        color: config.text,
+        border: `1px solid ${config.border}`,
+        lineHeight: 1,
+        whiteSpace: 'nowrap'
+      }}
+    >
+      {normalized}
+    </span>
+  );
+}
+
+export function QualificationScoreBadge({ score = 0, size = 'normal' }) {
+  const numScore = Number(score) || 0;
+  let bg = '#fee2e2';
+  let text = '#991b1b';
+  let border = '#fecaca';
+  let tier = 'Tier C (Cold)';
+
+  if (numScore >= 5) {
+    bg = '#dcfce7';
+    text = '#15803d';
+    border = '#bbf7d0';
+    tier = 'Tier A (High Intent)';
+  } else if (numScore >= 3) {
+    bg = '#fef3c7';
+    text = '#b45309';
+    border = '#fde68a';
+    tier = 'Tier B (Qualified)';
+  }
+
+  const isSmall = size === 'small';
+
+  return (
+    <span
+      className={`qual-score-badge qual-${numScore}`}
+      title={`Score: ${numScore}/6 - ${tier}`}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '5px',
+        padding: isSmall ? '2px 7px' : '4px 10px',
+        borderRadius: '999px',
+        fontSize: isSmall ? '10px' : '11px',
+        fontWeight: 700,
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+        backgroundColor: bg,
+        color: text,
+        border: `1px solid ${border}`,
+        lineHeight: 1,
+        whiteSpace: 'nowrap'
+      }}
+    >
+      <span
+        style={{
+          width: isSmall ? '5px' : '6px',
+          height: isSmall ? '5px' : '6px',
+          borderRadius: '50%',
+          backgroundColor: text,
+          opacity: 0.85
+        }}
+      />
+      {numScore}/6 {isSmall ? '' : `• ${numScore >= 5 ? 'TIER A' : numScore >= 3 ? 'TIER B' : 'TIER C'}`}
+    </span>
+  );
+}
+
+

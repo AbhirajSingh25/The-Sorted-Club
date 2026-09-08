@@ -2,7 +2,7 @@ import os
 import secrets
 from datetime import datetime, timezone
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, desc, asc, func
 
@@ -14,6 +14,8 @@ from models import (
     Invoice,
     InvoiceItem,
     InvoiceStatus,
+    InvoiceInstallment,
+    InstallmentStatus,
     Payment,
     PaymentMethod,
     PaymentConfirmation,
@@ -28,6 +30,9 @@ from schemas import (
     InvoiceOut,
     InvoiceItemCreate,
     InvoiceItemOut,
+    InvoiceInstallmentCreate,
+    InvoiceInstallmentUpdate,
+    InvoiceInstallmentOut,
     PaymentCreate,
     PaymentOut,
     PaymentInstructionsOut,
@@ -37,18 +42,20 @@ from schemas import (
     PublicPaymentConfirmationOut
 )
 from auth import get_current_admin
+from rate_limiter import limiter
+from services.notification_service import send_business_notification, send_customer_email
 
 router = APIRouter(tags=["Invoices & Payments"])
 
 def get_payment_instructions() -> PaymentInstructionsOut:
     """Retrieve official banking and UPI payment instructions from server environment configuration."""
     return PaymentInstructionsOut(
-        upi_id=os.getenv("PAYMENT_UPI_ID", "thesortedclub@upi"),
-        account_name=os.getenv("PAYMENT_BANK_ACCOUNT_NAME", "The Sorted Club Private Limited"),
-        bank_name=os.getenv("PAYMENT_BANK_NAME", "HDFC Bank"),
-        account_number=os.getenv("PAYMENT_BANK_ACCOUNT_NUMBER", "50200012345678"),
-        ifsc=os.getenv("PAYMENT_BANK_IFSC", "HDFC0001234"),
-        branch=os.getenv("PAYMENT_BANK_BRANCH", "Indiranagar, Bangalore")
+        upi_id=os.getenv("PAYMENT_UPI_ID") or os.getenv("UPI_ID") or "thesortedclub@upi",
+        account_name=os.getenv("PAYMENT_BANK_ACCOUNT_NAME") or os.getenv("BANK_ACCOUNT_NAME") or "The Sorted Club Private Limited",
+        bank_name=os.getenv("PAYMENT_BANK_NAME") or os.getenv("BANK_NAME") or "HDFC Bank",
+        account_number=os.getenv("PAYMENT_BANK_ACCOUNT_NUMBER") or os.getenv("BANK_ACCOUNT_NUMBER") or "50200012345678",
+        ifsc=os.getenv("PAYMENT_BANK_IFSC") or os.getenv("BANK_IFSC") or "HDFC0001234",
+        branch=os.getenv("PAYMENT_BANK_BRANCH") or os.getenv("BANK_BRANCH") or "Indiranagar, Bangalore"
     )
 
 def generate_invoice_number(db: Session) -> str:
@@ -80,10 +87,57 @@ def ensure_utc(dt: Optional[datetime]) -> Optional[datetime]:
         return dt.replace(tzinfo=timezone.utc)
     return dt.astimezone(timezone.utc)
 
+def generate_preset_installments(preset: str, total: float, issue_date: datetime, due_date: Optional[datetime]) -> List[dict]:
+    """Generate default BUILD payment terms: 50% advance / 50% final."""
+    half = round(total / 2.0, 2)
+    final = round(total - half, 2)
+    return [
+        {
+            "installment_number": 1,
+            "description": "50% Advance Payment (Project Kickoff)",
+            "percentage": 50.0,
+            "amount": half,
+            "due_date": issue_date,
+            "status": InstallmentStatus.PENDING.value
+        },
+        {
+            "installment_number": 2,
+            "description": "50% Final Payment (Prior to Production Launch & Handover)",
+            "percentage": 50.0,
+            "amount": final,
+            "due_date": due_date,
+            "status": InstallmentStatus.PENDING.value
+        }
+    ]
+
+def sync_invoice_installments_on_payment(invoice: Invoice, payment: Payment, db: Session):
+    """Update status of invoice installments when a payment is recorded or verified."""
+    installments = db.query(InvoiceInstallment).filter(
+        InvoiceInstallment.invoice_id == invoice.id
+    ).order_by(asc(InvoiceInstallment.installment_number)).all()
+    if not installments:
+        return
+
+    now = datetime.now(timezone.utc)
+    accumulated_paid = invoice.amount_paid
+    running_req = 0.0
+
+    for inst in installments:
+        running_req += inst.amount
+        if accumulated_paid >= running_req - 0.01:
+            if inst.status != InstallmentStatus.PAID.value:
+                inst.status = InstallmentStatus.PAID.value
+                inst.payment_id = payment.id
+                inst.paid_at = inst.paid_at or payment.paid_at or now
+        elif accumulated_paid > (running_req - inst.amount):
+            if inst.status not in [InstallmentStatus.VERIFICATION_PENDING.value, InstallmentStatus.PAYMENT_SUBMITTED.value]:
+                inst.status = InstallmentStatus.PENDING.value
+
 def enrich_invoice_out(invoice: Invoice, db: Session) -> InvoiceOut:
     client = db.query(Client).filter(Client.id == invoice.client_id).first()
     items = db.query(InvoiceItem).filter(InvoiceItem.invoice_id == invoice.id).order_by(asc(InvoiceItem.order_index)).all()
     payments = db.query(Payment).filter(Payment.invoice_id == invoice.id).order_by(desc(Payment.paid_at)).all()
+    installments = db.query(InvoiceInstallment).filter(InvoiceInstallment.invoice_id == invoice.id).order_by(asc(InvoiceInstallment.installment_number)).all()
 
     now = datetime.now(timezone.utc)
     due_utc = ensure_utc(invoice.due_date)
@@ -111,6 +165,7 @@ def enrich_invoice_out(invoice: Invoice, db: Session) -> InvoiceOut:
         "updated_at": invoice.updated_at,
         "items": items,
         "payments": payments,
+        "installments": installments,
         "client_name": client.name if client else None,
         "client_business_name": client.business_name if client else None,
         "client_code": client.client_code if client else None,
@@ -176,6 +231,33 @@ def create_invoice(
                 order_index=it.order_index if it.order_index is not None else idx
             )
             db.add(db_item)
+
+        # Installments creation
+        if invoice_in.installments:
+            for inst in invoice_in.installments:
+                db_inst = InvoiceInstallment(
+                    invoice_id=new_invoice.id,
+                    installment_number=inst.installment_number,
+                    description=inst.description,
+                    percentage=inst.percentage,
+                    amount=round(inst.amount, 2),
+                    due_date=inst.due_date,
+                    status=InstallmentStatus.PENDING.value
+                )
+                db.add(db_inst)
+        elif invoice_in.payment_terms_preset or (total > 0):
+            preset = invoice_in.payment_terms_preset or "BUILD_50_50"
+            for inst_data in generate_preset_installments(preset, new_invoice.total, new_invoice.issue_date, new_invoice.due_date):
+                db_inst = InvoiceInstallment(
+                    invoice_id=new_invoice.id,
+                    installment_number=inst_data["installment_number"],
+                    description=inst_data["description"],
+                    percentage=inst_data["percentage"],
+                    amount=inst_data["amount"],
+                    due_date=inst_data["due_date"],
+                    status=inst_data["status"]
+                )
+                db.add(db_inst)
 
         db.add(LeadActivity(
             client_id=client.id,
@@ -252,6 +334,39 @@ def create_invoice_from_proposal(
                 total=it.total,
                 order_index=it.order_index
             ))
+
+        # Translate proposal payment_schedule or seed BUILD 50/50 installments
+        if proposal.payment_schedule and isinstance(proposal.payment_schedule, list) and len(proposal.payment_schedule) > 0:
+            for idx, sch in enumerate(proposal.payment_schedule):
+                sch_amt = sch.get("amount")
+                sch_pct = sch.get("percentage")
+                if sch_amt is None and sch_pct is not None:
+                    sch_amt = round(new_invoice.total * (float(sch_pct) / 100.0), 2)
+                elif sch_amt is None:
+                    sch_amt = round(new_invoice.total / len(proposal.payment_schedule), 2)
+                
+                db_inst = InvoiceInstallment(
+                    invoice_id=new_invoice.id,
+                    installment_number=sch.get("installment_number", sch.get("installment", idx + 1)),
+                    description=sch.get("description", f"Milestone Installment #{idx+1}"),
+                    percentage=float(sch_pct) if sch_pct is not None else None,
+                    amount=round(float(sch_amt), 2),
+                    due_date=proposal.valid_until,
+                    status=InstallmentStatus.PENDING.value
+                )
+                db.add(db_inst)
+        elif new_invoice.total > 0:
+            for inst_data in generate_preset_installments("BUILD_50_50", new_invoice.total, new_invoice.issue_date, new_invoice.due_date):
+                db_inst = InvoiceInstallment(
+                    invoice_id=new_invoice.id,
+                    installment_number=inst_data["installment_number"],
+                    description=inst_data["description"],
+                    percentage=inst_data["percentage"],
+                    amount=inst_data["amount"],
+                    due_date=inst_data["due_date"],
+                    status=inst_data["status"]
+                )
+                db.add(db_inst)
 
         db.add(LeadActivity(
             client_id=client.id,
@@ -443,10 +558,12 @@ def send_invoice(
     if invoice.status == InvoiceStatus.DRAFT.value:
         invoice.status = InvoiceStatus.SENT.value
 
-    invoice.updated_at = datetime.now(timezone.utc)
+    # Customer transactional notification
+    client = db.query(Client).filter(Client.id == invoice.client_id).first()
 
     db.add(LeadActivity(
         client_id=invoice.client_id,
+        lead_id=client.lead_id if client else None,
         type=ActivityType.EMAIL.value,
         text=f"Invoice {invoice.invoice_number} (${invoice.total:,.2f}) marked as SENT to client.",
         created_by=admin_user
@@ -454,6 +571,23 @@ def send_invoice(
 
     db.commit()
     db.refresh(invoice)
+    if client and client.email:
+        send_customer_email(
+            db=db,
+            recipient=client.email,
+            event_type="PAYMENT_INSTRUCTIONS",
+            subject=f"Invoice Issued: {invoice.invoice_number} — The Sorted Club",
+            title=f"Invoice {invoice.invoice_number} Ready",
+            message=f"Invoice {invoice.invoice_number} for {client.business_name} has been generated. Payment instructions and wire transfer / UPI details are available online.",
+            cta_text="VIEW INVOICE & PAYMENT DETAILS →",
+            cta_url=f"/invoice/{invoice.secure_token}",
+            data={
+                "Invoice Number": invoice.invoice_number,
+                "Amount Due": f"{invoice.currency} {invoice.amount_due:,.2f}",
+                "Due Date": invoice.due_date.strftime("%B %d, %Y") if invoice.due_date else "Upon Receipt"
+            }
+        )
+
     return enrich_invoice_out(invoice, db)
 
 def check_and_update_client_onboarding(client_id: int, db: Session, reason: str = ""):
@@ -535,9 +669,11 @@ def record_payment(
         invoice.updated_at = now
 
         # Log activity
+        client = db.query(Client).filter(Client.id == invoice.client_id).first()
         ref_txt = f" (Ref: {new_payment.reference})" if new_payment.reference else ""
         db.add(LeadActivity(
             client_id=invoice.client_id,
+            lead_id=client.lead_id if client else None,
             type=ActivityType.STATUS_CHANGE.value,
             text=f"Payment of ${new_payment.amount:,.2f} recorded for Invoice {invoice.invoice_number} via {new_payment.payment_method}{ref_txt}. Remaining balance: ${invoice.amount_due:,.2f}.",
             created_by=admin_user
@@ -549,6 +685,9 @@ def record_payment(
             db,
             reason=f"Confirmed via Invoice {invoice.invoice_number} payment (${new_payment.amount:,.2f})."
         )
+
+        # Sync invoice installments
+        sync_invoice_installments_on_payment(invoice, new_payment, db)
 
         db.commit()
         db.refresh(invoice)
@@ -614,6 +753,8 @@ def get_public_invoice(token: str, db: Session = Depends(get_db)):
         ) for p in payments
     ]
 
+    installments = db.query(InvoiceInstallment).filter(InvoiceInstallment.invoice_id == invoice.id).order_by(asc(InvoiceInstallment.installment_number)).all()
+
     return PublicInvoiceOut(
         invoice_number=invoice.invoice_number,
         status=invoice.status,
@@ -636,6 +777,7 @@ def get_public_invoice(token: str, db: Session = Depends(get_db)):
         client_phone=client.phone if client else "",
         items=items,
         payments=pub_payments,
+        installments=installments,
         payment_instructions=get_payment_instructions(),
         is_overdue=is_overdue,
         has_pending_confirmation=has_pending
@@ -645,9 +787,11 @@ def get_public_invoice(token: str, db: Session = Depends(get_db)):
 def submit_payment_confirmation(
     token: str,
     confirm_in: PublicPaymentConfirmationCreate,
+    request: Request,
     db: Session = Depends(get_db)
 ):
-    """Customer submits an 'I've made the payment' verification claim."""
+    """Customer submits an 'I've made the payment' verification claim. Rate limited to 15 per minute per IP."""
+    limiter.check(request, "payment_confirmation", max_requests=15, window_seconds=60)
     invoice = db.query(Invoice).filter(Invoice.secure_token == token).first()
     if not invoice:
         raise HTTPException(
@@ -675,8 +819,18 @@ def submit_payment_confirmation(
         db.add(new_confirm)
         db.flush()
 
+        # Update first pending installment status to VERIFICATION_PENDING
+        pending_inst = db.query(InvoiceInstallment).filter(
+            InvoiceInstallment.invoice_id == invoice.id,
+            InvoiceInstallment.status.in_([InstallmentStatus.PENDING.value, InstallmentStatus.PAYMENT_SUBMITTED.value])
+        ).order_by(asc(InvoiceInstallment.installment_number)).first()
+        if pending_inst:
+            pending_inst.status = InstallmentStatus.VERIFICATION_PENDING.value
+
+        client = db.query(Client).filter(Client.id == invoice.client_id).first()
         db.add(LeadActivity(
             client_id=invoice.client_id,
+            lead_id=client.lead_id if client else None,
             type=ActivityType.STATUS_CHANGE.value,
             text=f"Payment claim of ${new_confirm.amount:,.2f} via {new_confirm.payment_method} (Ref: {new_confirm.reference}) submitted online by {new_confirm.payer_name} ({new_confirm.payer_email}) for Invoice {invoice.invoice_number}. Awaiting finance confirmation.",
             created_by="Client Payment Portal"
@@ -684,6 +838,28 @@ def submit_payment_confirmation(
 
         db.commit()
         db.refresh(new_confirm)
+
+        # Trigger admin notification & email
+        biz_name = client.business_name if client else new_confirm.payer_name
+        send_business_notification(
+            db=db,
+            event_type="PAYMENT_CONFIRMATION_SUBMITTED",
+            subject=f"[The Sorted Club] Payment Verification Required — {biz_name}",
+            title=f"Payment Verification Required: Invoice {invoice.invoice_number}",
+            message=f"Customer {new_confirm.payer_name} submitted payment confirmation of {invoice.currency} {new_confirm.amount:,.2f} via {new_confirm.payment_method}. Reference: {new_confirm.reference}. Verification required.",
+            data={
+                "Invoice Number": invoice.invoice_number,
+                "Client Business": biz_name,
+                "Amount Claimed": f"{invoice.currency} {new_confirm.amount:,.2f}",
+                "Payment Method": new_confirm.payment_method,
+                "Reference / UTR": new_confirm.reference,
+                "Payer Name": new_confirm.payer_name,
+                "Payer Email": new_confirm.payer_email
+            },
+            entity_type="payment_confirmation",
+            entity_id=new_confirm.id,
+            action_url=f"/admin/finance?tab=verifications"
+        )
 
         return PublicPaymentConfirmationOut(
             message="Payment confirmation received. Our team will verify and record your payment shortly.",

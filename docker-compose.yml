@@ -1,0 +1,154 @@
+# ==============================================================================
+# The Sorted Club — Production Multi-Container Orchestration (Docker Compose)
+# Stack: PostgreSQL 16 + FastAPI Backend + React Frontend + Nginx Reverse Proxy + Certbot
+# Architecture: Single-VPS, zero vendor lock-in, internal bridge networking
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL 16 Database
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: sorted_club_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sorted_club}
+      POSTGRES_USER: ${POSTGRES_USER:-sorted_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_this_postgres_password_in_production}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-sorted_user} -d $${POSTGRES_DB:-sorted_club}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - sorted_club_net
+
+  # ----------------------------------------------------------------------------
+  # 2. FastAPI Backend Application
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sorted_club_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-sorted_user}:${POSTGRES_PASSWORD:-change_this_postgres_password_in_production}@postgres:5432/${POSTGRES_DB:-sorted_club}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://thesortedclub.com,https://www.thesortedclub.com}
+      FRONTEND_URL: ${FRONTEND_URL:-https://thesortedclub.com}
+      EMAIL_NOTIFICATIONS_ENABLED: ${EMAIL_NOTIFICATIONS_ENABLED:-true}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USE_SSL: ${SMTP_USE_SSL:-false}
+      SMTP_USERNAME: ${SMTP_USERNAME:-thesortedclub@gmail.com}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-thesortedclub@gmail.com}
+      BUSINESS_NOTIFICATION_EMAIL: ${BUSINESS_NOTIFICATION_EMAIL:-thesortedclub@gmail.com}
+      PAYMENT_UPI_ID: ${PAYMENT_UPI_ID:-thesortedclub@upi}
+      PAYMENT_BANK_ACCOUNT_NAME: ${PAYMENT_BANK_ACCOUNT_NAME:-The Sorted Club Private Limited}
+      PAYMENT_BANK_NAME: ${PAYMENT_BANK_NAME:-HDFC Bank}
+      PAYMENT_BANK_ACCOUNT_NUMBER: ${PAYMENT_BANK_ACCOUNT_NUMBER:-50200012345678}
+      PAYMENT_BANK_IFSC: ${PAYMENT_BANK_IFSC:-HDFC0001234}
+      PAYMENT_BANK_BRANCH: ${PAYMENT_BANK_BRANCH:-Indiranagar, Bangalore}
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - sorted_club_net
+
+  # ----------------------------------------------------------------------------
+  # 3. React SPA Frontend Application
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: sorted_club_frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - sorted_club_net
+
+  # ----------------------------------------------------------------------------
+  # 4. Nginx Production Reverse Proxy (SSL + Gzip + Security Headers)
+  # ----------------------------------------------------------------------------
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: sorted_club_nginx
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/thesortedclub.conf:/etc/nginx/conf.d/thesortedclub.conf:ro
+      - letsencrypt_certs:/etc/letsencrypt:ro
+      - certbot_webroot:/var/www/certbot:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - sorted_club_net
+
+  # ----------------------------------------------------------------------------
+  # 5. Let's Encrypt Certbot Auto-Renewal Companion
+  # ----------------------------------------------------------------------------
+  certbot:
+    image: certbot/certbot:latest
+    container_name: sorted_club_certbot
+    restart: unless-stopped
+    volumes:
+      - letsencrypt_certs:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - sorted_club_net
+
+# ------------------------------------------------------------------------------
+# Persistent Storage Volumes
+# ------------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+  letsencrypt_certs:
+    driver: local
+  certbot_webroot:
+    driver: local
+
+# ------------------------------------------------------------------------------
+# Isolated Internal Network
+# ------------------------------------------------------------------------------
+networks:
+  sorted_club_net:
+    driver: bridge
