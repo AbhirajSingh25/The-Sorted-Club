@@ -123,10 +123,16 @@ origins = [origin.strip() for origin in cors_env.split(",") if origin.strip()]
 if not origins:
     origins = ["*"]
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins if "*" not in origins else ["*"],
-    allow_credentials=True if "*" not in origins else False,
+    allow_origins=[
+        "https://thesortedclub.vercel.app",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
