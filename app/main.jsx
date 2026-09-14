@@ -529,6 +529,58 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleNavigateToCRM = () => {
+    navigateTo('/admin/crm');
+  };
+
+  const handleNavigateToClients = (clientIdOrOptions) => {
+    let url = '/admin/clients';
+    if (typeof clientIdOrOptions === 'string' || typeof clientIdOrOptions === 'number') {
+      url += `?selectedClient=${clientIdOrOptions}`;
+    } else if (clientIdOrOptions && typeof clientIdOrOptions === 'object') {
+      const params = new URLSearchParams();
+      if (clientIdOrOptions.selectedClient || clientIdOrOptions.clientId) {
+        params.set('selectedClient', clientIdOrOptions.selectedClient || clientIdOrOptions.clientId);
+      }
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+    }
+    navigateTo(url);
+  };
+
+  const handleNavigateToFinance = (tabOrOptions) => {
+    let url = '/admin/finance';
+    if (typeof tabOrOptions === 'string') {
+      url += `?tab=${tabOrOptions}`;
+    } else if (tabOrOptions && typeof tabOrOptions === 'object') {
+      const params = new URLSearchParams();
+      if (tabOrOptions.tab) params.set('tab', tabOrOptions.tab);
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+    }
+    navigateTo(url);
+  };
+
+  const handleNavigateToProjects = (projectIdOrClient, maybeProjectId) => {
+    let url = '/admin/projects';
+    if (maybeProjectId) {
+      url += `?selectedProject=${maybeProjectId}`;
+    } else if (typeof projectIdOrClient === 'string' || typeof projectIdOrClient === 'number') {
+      url += `?selectedProject=${projectIdOrClient}`;
+    } else if (projectIdOrClient && typeof projectIdOrClient === 'object') {
+      const params = new URLSearchParams();
+      if (projectIdOrClient.selectedProject || projectIdOrClient.projectId) {
+        params.set('selectedProject', projectIdOrClient.selectedProject || projectIdOrClient.projectId);
+      }
+      if (projectIdOrClient.health) {
+        params.set('health', projectIdOrClient.health);
+      }
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+    }
+    navigateTo(url);
+  };
+
   const handleOpenInquiry = (serviceOrOpts = '') => {
     if (typeof serviceOrOpts === 'object' && serviceOrOpts !== null) {
       if (serviceOrOpts.template) {
@@ -622,7 +674,7 @@ export default function App() {
             onLogout={() => setIsAdminAuthenticated(false)}
             onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
             onNavigateToInquiries={() => navigateTo('/admin')}
-            onNavigateToCRM={() => navigateTo('/admin/crm')}
+            onNavigateToCRM={handleNavigateToCRM}
             onNavigateToClients={handleNavigateToClients}
             onNavigateToFinance={handleNavigateToFinance}
             onBackToSite={() => navigateTo('/')}
@@ -660,7 +712,7 @@ export default function App() {
             onLogout={() => setIsAdminAuthenticated(false)}
             onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
             onNavigateToInquiries={() => navigateTo('/admin')}
-            onNavigateToCRM={() => navigateTo('/admin/crm')}
+            onNavigateToCRM={handleNavigateToCRM}
             onNavigateToClients={handleNavigateToClients}
             onNavigateToProjects={handleNavigateToProjects}
             onBackToSite={() => navigateTo('/')}
@@ -679,7 +731,7 @@ export default function App() {
             onLogout={() => setIsAdminAuthenticated(false)}
             onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
             onNavigateToInquiries={() => navigateTo('/admin')}
-            onNavigateToCRM={() => navigateTo('/admin/crm')}
+            onNavigateToCRM={handleNavigateToCRM}
             onNavigateToFinance={handleNavigateToFinance}
             onNavigateToProjects={handleNavigateToProjects}
             onBackToSite={() => navigateTo('/')}
