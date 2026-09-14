@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Search,
   Filter,
@@ -20,6 +21,14 @@ import {
   Menu
 } from 'lucide-react';
 import { TEMPLATES, TEMPLATE_CATEGORIES, DESIGN_STYLES } from './templatesData';
+import {
+  fadeInUp,
+  fadeIn,
+  scaleIn,
+  staggerContainer,
+  TRANSITIONS,
+  accordionVariants
+} from '../utils/motion';
 
 export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateToAdmin }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,7 +98,11 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
   return (
     <div className="template-catalog-page">
       {/* Navigation */}
-      <nav>
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={TRANSITIONS.editorial}
+      >
         <div className="brand" style={{ cursor: 'pointer' }} onClick={() => onNavigate('/')}>
           THE SORTED <span>CLUB</span>
         </div>
@@ -133,63 +146,86 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
           >
             Pricing & Packages
           </a>
-          <button
+          <motion.button
             className="navcta"
+            whileHover={{ scale: 1.03, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
             onClick={() => {
               setMobileMenuOpen(false);
               onOpenInquiry({ service: 'Website / Build' });
             }}
           >
             Free Consultation <ArrowRight size={16} />
-          </button>
+          </motion.button>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Hero Header */}
-      <header className="catalog-hero">
+      <motion.header
+        className="catalog-hero"
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer(0.08, 0.05)}
+      >
         <div className="catalog-hero-inner">
-          <div className="eyebrow" style={{ color: 'var(--muted)' }}>
+          <motion.div className="eyebrow" style={{ color: 'var(--muted)' }} variants={fadeInUp}>
             <Sparkles size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
             WEBSITE BLUEPRINTS & PORTFOLIO EXAMPLES
-          </div>
+          </motion.div>
 
-          <h1 className="catalog-hero-title">
+          <motion.h1 className="catalog-hero-title" variants={fadeInUp}>
             Browse Real Website Concepts.<br />
             <em>Pick your blueprint.</em>
-          </h1>
+          </motion.h1>
 
-          <p className="catalog-hero-subtitle">
+          <motion.p className="catalog-hero-subtitle" variants={fadeInUp}>
             Explore high-converting website designs engineered for modern businesses. Filter by your industry, test interactive demo flows, and request a tailored build for your brand.
-          </p>
+          </motion.p>
 
-          <div className="catalog-disclaimer-pill" role="note">
+          <motion.div className="catalog-disclaimer-pill" role="note" variants={fadeInUp}>
             <span className="disclaimer-badge">Demo Concepts</span>
             <span>All website examples shown are engineered sample blueprints created by The Sorted Club. Real custom builds are crafted to your exact brand specifications.</span>
-          </div>
+          </motion.div>
 
-          <div style={{ marginTop: '20px', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button
+          <motion.div
+            style={{ marginTop: '20px', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}
+            variants={fadeInUp}
+          >
+            <motion.button
               type="button"
               className="primary"
               style={{ fontSize: '13px', height: '40px', padding: '0 20px', background: 'var(--acid)', color: '#10100f' }}
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
               onClick={() => onOpenInquiry({ service: 'Website / Build' })}
             >
               <Sparkles size={14} style={{ marginRight: '6px' }} /> Request a Free Website Consultation
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               className="secondary"
               style={{ fontSize: '13px', height: '40px', padding: '0 18px' }}
+              whileHover={{ scale: 1.02, x: 2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={TRANSITIONS.buttonSpring}
               onClick={() => onNavigate('/pricing')}
             >
               View Pricing Packages (From ₹14,999) →
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Filter & Search Bar */}
-      <section className="catalog-controls-container" aria-label="Template filters">
+      <motion.section
+        className="catalog-controls-container"
+        aria-label="Template filters"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         <div className="catalog-controls-card">
           {/* Search Row */}
           <div className="search-row">
@@ -243,17 +279,20 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
                   : TEMPLATES.filter((t) => t.category === cat).length;
 
               return (
-                <button
+                <motion.button
                   type="button"
                   key={cat}
                   role="tab"
                   aria-selected={isSelected}
                   className={`category-pill ${isSelected ? 'selected' : ''}`}
                   onClick={() => setSelectedCategory(cat)}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={TRANSITIONS.buttonSpring}
                 >
                   <span>{cat}</span>
                   <span className="pill-count">{count}</span>
-                </button>
+                </motion.button>
               );
             })}
           </div>
@@ -268,22 +307,29 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
             </div>
 
             {(selectedCategory !== 'All Categories' || selectedStyle !== 'All Styles' || searchQuery) && (
-              <button
+              <motion.button
                 type="button"
                 className="reset-filters-btn"
                 onClick={handleResetFilters}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
               >
                 <X size={14} /> Clear all filters
-              </button>
+              </motion.button>
             )}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Templates Grid */}
       <section className="catalog-grid-section" aria-label="Template catalogue grid">
         {filteredTemplates.length === 0 ? (
-          <div className="catalog-empty-state">
+          <motion.div
+            className="catalog-empty-state"
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={TRANSITIONS.editorial}
+          >
             <div className="empty-icon-circle">
               <Search size={32} />
             </div>
@@ -291,20 +337,34 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
             <p>
               We couldn't find any demo concepts matching your search filters. Try searching for a different keyword or reset your filters.
             </p>
-            <button
+            <motion.button
               type="button"
               className="primary"
               onClick={handleResetFilters}
               style={{ marginTop: '16px' }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
               Reset Filters
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         ) : (
-          <div className="templates-grid">
+          <motion.div
+            className="templates-grid"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer(0.06, 0.05)}
+          >
             {filteredTemplates.map((template) => {
               return (
-                <article key={template.id} className="template-card">
+                <motion.article
+                  key={template.id}
+                  className="template-card"
+                  variants={fadeInUp}
+                  whileHover={{ y: -6, boxShadow: '0 24px 48px -16px rgba(16, 16, 15, 0.16)' }}
+                  transition={TRANSITIONS.cardSpring}
+                  data-cursor={`Explore ${template.name}`}
+                >
                   {/* Card Visual Preview Box */}
                   <div
                     className="template-preview-box"
@@ -335,13 +395,15 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
                     </div>
 
                     {/* Preview Image with Ambient Overlay */}
-                    <div
+                    <motion.div
                       className="preview-image-canvas"
                       style={{
                         backgroundImage: `url(${template.heroImage})`,
                         backgroundPosition: 'center',
                         backgroundSize: 'cover'
                       }}
+                      whileHover={{ scale: 1.035 }}
+                      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                     >
                       <div className="preview-gradient-scrim">
                         <div className="preview-mockup-badge">
@@ -350,13 +412,18 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
                         </div>
 
                         {/* Floating Mobile Peek */}
-                        <div className="mobile-peek-frame" title="Mobile responsive layout included">
+                        <motion.div
+                          className="mobile-peek-frame"
+                          title="Mobile responsive layout included"
+                          whileHover={{ y: -3, scale: 1.03 }}
+                          transition={TRANSITIONS.buttonSpring}
+                        >
                           <div className="mobile-peek-notch" />
                           <div className="mobile-peek-screen">
                             <Smartphone size={16} />
                             <span>Mobile Ready</span>
                           </div>
-                        </div>
+                        </motion.div>
 
                         <div className="preview-overlay-action">
                           <span className="preview-hover-cta">
@@ -364,7 +431,7 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
                           </span>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* Card Body */}
@@ -414,76 +481,94 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
                       </div>
 
                       <div className="card-actions">
-                        <button
+                        <motion.button
                           type="button"
                           className="btn-demo-view"
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          transition={TRANSITIONS.buttonSpring}
                           onClick={() => onNavigate(`/templates/${template.slug}`)}
                           title="Inspect details, sections and live interactive demo"
                         >
                           View Details
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
                           type="button"
                           className="btn-build-this"
+                          whileHover={{ scale: 1.03, y: -1 }}
+                          whileTap={{ scale: 0.97 }}
+                          transition={TRANSITIONS.buttonSpring}
                           onClick={() => onOpenInquiry({ template })}
                           title={`Request a website build based on ${template.name}`}
                         >
                           Build This <ArrowRight size={14} />
-                        </button>
+                        </motion.button>
                       </div>
                     </div>
                   </div>
-                </article>
+                </motion.article>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </section>
 
       {/* How It Works Explainer */}
-      <section className="catalog-how-it-works">
+      <motion.section
+        className="catalog-how-it-works"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer(0.1, 0.05)}
+      >
         <div className="how-it-works-inner">
-          <div className="section-head" style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <motion.div className="section-head" style={{ textAlign: 'center', marginBottom: '40px' }} variants={fadeInUp}>
             <p className="eyebrow" style={{ color: 'var(--muted)' }}>THE SORTED CLUB METHOD</p>
             <h2 style={{ fontSize: '32px', margin: '8px 0' }}>How to launch your custom website</h2>
             <p style={{ color: 'var(--muted)', maxWidth: '640px', margin: '0 auto' }}>
               From choosing your blueprint to receiving production keys in less than a week.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="steps-grid">
-            <div className="step-card">
+          <motion.div className="steps-grid" variants={staggerContainer(0.08, 0.08)}>
+            <motion.div className="step-card" variants={fadeInUp} whileHover={{ y: -4 }}>
               <div className="step-num">01</div>
               <h3>Select a Blueprint</h3>
               <p>
                 Browse our demo concepts to find the layout, interactions, and aesthetic that matches your vision.
               </p>
-            </div>
-            <div className="step-card">
+            </motion.div>
+            <motion.div className="step-card" variants={fadeInUp} whileHover={{ y: -4 }}>
               <div className="step-num">02</div>
               <h3>Tailored Customization</h3>
               <p>
                 We inject your brand identity, refine copy, configure WhatsApp & payment gateways, and optimize for Google search.
               </p>
-            </div>
-            <div className="step-card">
+            </motion.div>
+            <motion.div className="step-card" variants={fadeInUp} whileHover={{ y: -4 }}>
               <div className="step-num">03</div>
               <h3>Production Launch</h3>
               <p>
                 We connect your domain with SSL, test lightning-fast performance across all mobile devices, and hand over the keys.
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* FAQ Accordion */}
-      <section className="catalog-faq-section">
+      <motion.section
+        className="catalog-faq-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={staggerContainer(0.08, 0.05)}
+      >
         <div className="faq-inner">
-          <div className="section-head" style={{ textAlign: 'center', marginBottom: '36px' }}>
+          <motion.div className="section-head" style={{ textAlign: 'center', marginBottom: '36px' }} variants={fadeInUp}>
             <p className="eyebrow" style={{ color: 'var(--muted)' }}>FREQUENTLY ASKED QUESTIONS</p>
             <h2 style={{ fontSize: '28px', margin: '8px 0' }}>Everything you need to know</h2>
-          </div>
+          </motion.div>
 
           <div className="faq-accordion-list">
             {faqs.map((faq, idx) => {
@@ -499,55 +584,76 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
                     <span>{faq.q}</span>
                     {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                   </button>
-                  {isOpen && (
-                    <div className="faq-answer-pane">
-                      <p>{faq.a}</p>
-                    </div>
-                  )}
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        className="faq-answer-pane"
+                        variants={accordionVariants}
+                        initial="collapsed"
+                        animate="expanded"
+                        exit="collapsed"
+                      >
+                        <p>{faq.a}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Bottom CTA Banner */}
-      <section className="catalog-bottom-cta">
-        <div className="bottom-cta-box">
+      <motion.section
+        className="catalog-bottom-cta"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer(0.08, 0.05)}
+      >
+        <motion.div className="bottom-cta-box" variants={fadeInUp}>
           <p className="eyebrow" style={{ color: '#84cc16' }}>READY TO GET SORTED?</p>
           <h2>Have a unique website requirement in mind?</h2>
           <p>
             Tell us about your project brief, custom features, or timeline. We'll outline a direct technical plan and fixed quote.
           </p>
           <div className="cta-buttons-row">
-            <button
+            <motion.button
               type="button"
               className="primary"
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
               onClick={() => onOpenInquiry({ service: 'Website / Build' })}
               style={{ fontSize: '15px' }}
             >
               Request Free Consultation <ArrowRight size={18} />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               className="secondary"
+              whileHover={{ scale: 1.02, x: 2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={TRANSITIONS.buttonSpring}
               onClick={() => onNavigate('/pricing')}
               style={{ fontSize: '14px', height: '44px', padding: '0 20px', background: '#fff' }}
             >
               View Pricing Packages
-            </button>
-            <a
+            </motion.button>
+            <motion.a
               href="https://wa.me/919643820888?text=Hi%20The%20Sorted%20Club%2C%20I%27d%20like%20to%20discuss%20a%20website%20build."
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary"
+              whileHover={{ scale: 1.02, x: 2 }}
               style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             >
               WhatsApp Us (+91 9643820888) →
-            </a>
+            </motion.a>
           </div>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* Footer */}
       <footer>

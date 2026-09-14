@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, Bot, BriefcaseBusiness, Code2, Users, Menu, X, Shield, Sparkles } from 'lucide-react';
 import './styles.css';
+import CustomCursor from './components/CustomCursor';
+import {
+  fadeInUp,
+  fadeIn,
+  scaleIn,
+  heroLineReveal,
+  staggerContainer,
+  TRANSITIONS,
+  routeVariants
+} from './utils/motion';
 import InquiryModal from './components/InquiryModal';
 import AdminDashboard from './components/AdminDashboard';
 import CRMView from './components/CRMView';
@@ -60,7 +71,11 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
   return (
     <main>
       {/* Navigation */}
-      <nav>
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={TRANSITIONS.editorial}
+      >
         <div className="brand" style={{ cursor: 'pointer' }} onClick={() => onNavigate('/')}>
           THE SORTED <span>CLUB</span>
         </div>
@@ -107,57 +122,111 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
           <a href="#about" onClick={() => setMobileMenuOpen(false)}>
             Why Sorted
           </a>
-          <button
+          <motion.button
             className="navcta"
+            whileHover={{ scale: 1.03, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
             onClick={() => {
               setMobileMenuOpen(false);
               onOpenInquiry({ service: 'Website / Build' });
             }}
           >
             Free Consultation <ArrowRight size={16} />
-          </button>
+          </motion.button>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Hero */}
       <section className="hero">
-        <div className="hero-orbit orbit-one" />
-        <div className="hero-orbit orbit-two" />
+        <motion.div
+          className="hero-orbit orbit-one"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 160, repeat: Infinity, ease: 'linear' }}
+        />
+        <motion.div
+          className="hero-orbit orbit-two"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 120, repeat: Infinity, ease: 'linear' }}
+        />
 
-        <div className="eyebrow">
+        <motion.div
+          className="eyebrow"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
           THE BUSINESS CLUB FOR WHAT'S NEXT
-          <span className="live-dot" />
-        </div>
+          <motion.span
+            className="live-dot"
+            animate={{ scale: [1, 1.35, 1], opacity: [1, 0.65, 1] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </motion.div>
 
-        <h1>
+        <motion.h1
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.12 }}
+        >
           Your business.<br />
           <em>Sorted.</em>
-        </h1>
+        </motion.h1>
 
-        <p className="hero-copy">
+        <motion.p
+          className="hero-copy"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.24 }}
+        >
           We build, grow, automate and hire for ambitious businesses. One team. One place. Fewer things left unsorted.
-        </p>
+        </motion.p>
 
-        <div className="actions">
-          <button className="primary" onClick={() => onOpenInquiry({ service: 'Website / Build' })}>
+        <motion.div
+          className="actions"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.36 }}
+        >
+          <motion.button
+            className="primary"
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
+            onClick={() => onOpenInquiry({ service: 'Website / Build' })}
+          >
             Free Website Consultation <ArrowRight size={18} />
-          </button>
-          <button className="secondary" onClick={() => onNavigate('/pricing')}>
+          </motion.button>
+          <motion.button
+            className="secondary"
+            whileHover={{ scale: 1.02, x: 2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={TRANSITIONS.buttonSpring}
+            onClick={() => onNavigate('/pricing')}
+          >
             View Website Pricing (From ₹14,999) <ArrowRight size={14} />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             className="secondary"
             style={{ background: 'transparent', borderColor: 'var(--line)' }}
+            whileHover={{ scale: 1.02, x: 2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={TRANSITIONS.buttonSpring}
             onClick={() => onNavigate('/templates')}
           >
             Browse Blueprints →
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
-        <div className="hero-bottom">
+        <motion.div
+          className="hero-bottom"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.48 }}
+        >
           <div className="hero-note">Welcome to the club.</div>
           <div style={{ color: 'var(--muted)' }}>EST. 2026 — GLOBAL OPERATING COLLECTIVE</div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Marquee Ticker */}
@@ -168,8 +237,15 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
       </div>
 
       {/* Services Section */}
-      <section id="services" className="services">
-        <div className="section-head">
+      <motion.section
+        id="services"
+        className="services"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={staggerContainer(0.08, 0.05)}
+      >
+        <motion.div className="section-head" variants={fadeInUp}>
           <span>01</span>
           <div>
             <p className="eyebrow">WHAT WE SORT</p>
@@ -178,11 +254,18 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
               <i>we'll get it sorted.</i>
             </h2>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid">
+        <motion.div className="grid" variants={staggerContainer(0.08, 0.08)}>
           {pillars.map(({ icon: Icon, title, service, text, slug }) => (
-            <article key={title} className="service-card">
+            <motion.article
+              key={title}
+              className="service-card"
+              variants={fadeInUp}
+              whileHover={{ y: -6, backgroundColor: '#eeece4' }}
+              transition={TRANSITIONS.cardSpring}
+              data-cursor={`Explore ${title}`}
+            >
               <div className="card-top">
                 <Icon size={24} />
                 <span>0{pillars.findIndex((p) => p.title === title) + 1}</span>
@@ -190,35 +273,46 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
               <h3>{title}</h3>
               <p>{text}</p>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '12px' }}>
-                <button
+                <motion.button
                   type="button"
                   onClick={() => onNavigate(`/services/${slug}`)}
                   className="card-cta-link"
+                  whileHover={{ x: 3 }}
+                  transition={TRANSITIONS.buttonSpring}
                 >
                   Explore {title} <ArrowRight size={15} />
-                </button>
+                </motion.button>
                 {slug === 'build' && (
-                  <button
+                  <motion.button
                     type="button"
                     onClick={() => onNavigate('/templates')}
                     className="card-cta-link"
                     style={{ color: 'var(--muted)', fontSize: '13px' }}
+                    whileHover={{ x: 3 }}
+                    transition={TRANSITIONS.buttonSpring}
                   >
                     View Blueprints →
-                  </button>
+                  </motion.button>
                 )}
               </div>
-            </article>
+            </motion.article>
           ))}
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* About / Manifesto Section */}
-      <section id="about" className="manifesto">
-        <div className="manifesto-label">
+      <motion.section
+        id="about"
+        className="manifesto"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer(0.1, 0.08)}
+      >
+        <motion.div className="manifesto-label" variants={fadeInUp}>
           <p className="eyebrow">02 / THE IDEA</p>
-        </div>
-        <div>
+        </motion.div>
+        <motion.div variants={fadeInUp}>
           <h2>
             You bring the problem.<br />
             <span>We get it sorted.</span>
@@ -226,29 +320,55 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
           <p className="manifesto-copy">
             Businesses shouldn't need five agencies, ten tools and a small miracle to get things done. The Sorted Club brings technology, growth and people together under one roof.
           </p>
-          <div className="manifesto-points">
-            <div>✓ Single Point of Accountability</div>
-            <div>✓ Battle-tested Engineering</div>
-            <div>✓ Rapid Turnaround</div>
-            <div>✓ Transparent Pricing</div>
-          </div>
-        </div>
-      </section>
+          <motion.div className="manifesto-points" variants={staggerContainer(0.06, 0.1)}>
+            {['Single Point of Accountability', 'Battle-tested Engineering', 'Rapid Turnaround', 'Transparent Pricing'].map((pt) => (
+              <motion.div
+                key={pt}
+                variants={fadeInUp}
+                whileHover={{ scale: 1.04, borderColor: '#555' }}
+                transition={TRANSITIONS.buttonSpring}
+              >
+                ✓ {pt}
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+      </motion.section>
 
       {/* Membership Section */}
-      <section className="club">
-        <div className="club-copy">
+      <motion.section
+        className="club"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer(0.1, 0.05)}
+      >
+        <motion.div className="club-copy" variants={fadeInUp}>
           <p className="eyebrow">03 / MEMBERSHIP</p>
           <h2>Join the club.</h2>
           <p>Start with one problem. Stay for everything else we can sort.</p>
           <div style={{ marginTop: '24px' }}>
-            <button className="primary" onClick={() => onOpenInquiry()}>
+            <motion.button
+              className="primary"
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
+              onClick={() => onOpenInquiry()}
+            >
               Become a member <ArrowRight size={18} />
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="club-card">
+        <motion.div
+          className="club-card"
+          initial={{ opacity: 0, rotate: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, rotate: 2, scale: 1 }}
+          viewport={{ once: true }}
+          transition={TRANSITIONS.cardSpring}
+          whileHover={{ rotate: 0, scale: 1.02, y: -4 }}
+          data-cursor="Member Pass"
+        >
           <div>
             <div className="club-mark">SORTED<span>*</span></div>
             <div className="club-card-title">MEMBER PASS</div>
@@ -256,47 +376,64 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
           <div className="club-card-line" />
           <p>ONE DIRECT BRIEF LINE • DEDICATED SQUAD • UNLIMITED SCALE</p>
           <strong>THE SORTED CLUB 2026</strong>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* Contact Section */}
-      <section id="contact" className="contact">
-        <div>
+      <motion.section
+        id="contact"
+        className="contact"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer(0.1, 0.05)}
+      >
+        <motion.div variants={fadeInUp}>
           <p className="eyebrow">04 / GET STARTED</p>
           <h2>What's not sorted yet?</h2>
           <p>Tell us what you're trying to fix, build or grow. We'll figure out the next move.</p>
-        </div>
+        </motion.div>
 
-        <div className="contact-actions">
-          <button
+        <motion.div className="contact-actions" variants={fadeInUp}>
+          <motion.button
             className="primary dark"
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
             onClick={() => onOpenInquiry()}
             style={{ fontSize: '15px' }}
           >
             Tell us what needs sorting <ArrowRight size={18} />
-          </button>
+          </motion.button>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginTop: '10px' }}>
-            <a
+            <motion.a
               href="https://wa.me/919643820888?text=Hi%20The%20Sorted%20Club%2C%20I%27m%20interested%20in%20your%20BUILD%20services."
               target="_blank"
               rel="noopener noreferrer"
               style={{ fontSize: '13px', color: '#15803d', fontWeight: 600, textDecoration: 'none' }}
+              whileHover={{ x: 2 }}
             >
               WhatsApp: +91 9643820888 →
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               href="mailto:thesortedclub@gmail.com"
               style={{ fontSize: '13px', color: 'var(--ink)', textDecoration: 'none' }}
+              whileHover={{ opacity: 0.7 }}
             >
               thesortedclub@gmail.com
-            </a>
+            </motion.a>
           </div>
           <small>Direct access. No sales fluff. Response in &lt; 24 hrs.</small>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* Footer */}
-      <footer>
+      <motion.footer
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="brand" style={{ cursor: 'pointer' }} onClick={() => onNavigate('/')}>
           THE SORTED CLUB
         </div>
@@ -349,7 +486,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
           </a> • <a href="https://wa.me/919643820888?text=Hi%20The%20Sorted%20Club%2C%20I%27m%20interested%20in%20your%20BUILD%20services." target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>+91 9643820888</a>
         </p>
         <small>© 2026 The Sorted Club. All rights reserved. • Blueprints labeled Demo Concept.</small>
-      </footer>
+      </motion.footer>
     </main>
   );
 }
@@ -408,224 +545,181 @@ export default function App() {
     setInquiryModalOpen(true);
   };
 
-  // Route: Public Tokenized Proposal View /proposal/{token}
-  if (currentPath.startsWith('/proposal/')) {
-    const token = currentPath.replace('/proposal/', '').split('?')[0];
-    return (
-      <PublicProposalView
-        token={token}
-        onBackToSite={() => navigateTo('/')}
-      />
-    );
-  }
-
-  // Route: Public Tokenized Contract View /contract/{token}
-  if (currentPath.startsWith('/contract/')) {
-    const token = currentPath.replace('/contract/', '').split('?')[0];
-    return (
-      <PublicContractView
-        token={token}
-        onBackToSite={() => navigateTo('/')}
-      />
-    );
-  }
-
-  // Route: Public Tokenized Invoice View /invoice/{token}
-  if (currentPath.startsWith('/invoice/')) {
-    const token = currentPath.replace('/invoice/', '').split('?')[0];
-    return (
-      <PublicInvoiceView
-        token={token}
-        onBackToSite={() => navigateTo('/')}
-      />
-    );
-  }
-
-  // Route: Public Tokenized Customer Project View /project/{token}
-  if (currentPath.startsWith('/project/')) {
-    const token = currentPath.replace('/project/', '').split('?')[0];
-    return (
-      <PublicProjectView
-        token={token}
-        onBackToSite={() => navigateTo('/')}
-      />
-    );
-  }
-
-  // Route: Public Tokenized Deliverable Approval /project-review/{token}
-  if (currentPath.startsWith('/project-review/')) {
-    const token = currentPath.replace('/project-review/', '').split('?')[0];
-    return (
-      <PublicApprovalView
-        token={token}
-        onBackToSite={() => navigateTo('/')}
-      />
-    );
-  }
-
-  const handleNavigateToCRM = (filters) => {
-    const params = new URLSearchParams();
-    if (filters) {
-      if (typeof filters === 'string') {
-        params.append('stage', filters);
-      } else if (typeof filters === 'object') {
-        if (filters.stage) params.append('stage', filters.stage);
-        if (filters.followup) params.append('followup', filters.followup);
-        if (filters.selectedLead) params.append('selectedLead', String(filters.selectedLead));
-      }
-    }
-    const query = params.toString() ? `?${params.toString()}` : '';
-    navigateTo(`/admin/crm${query}`);
-  };
-
-  const handleNavigateToFinance = (tabParam) => {
-    const validTabs = ['overview', 'proposals', 'contracts', 'invoices', 'verifications'];
-    let cleanTab = '';
-    if (typeof tabParam === 'string' && validTabs.includes(tabParam.trim().toLowerCase())) {
-      cleanTab = tabParam.trim().toLowerCase();
-    }
-    const targetUrl = cleanTab && cleanTab !== 'overview' ? `/admin/finance?tab=${cleanTab}` : '/admin/finance';
-    navigateTo(targetUrl);
-  };
-
-  const handleNavigateToClients = (clientOrId) => {
-    let clientId = null;
-    if (typeof clientOrId === 'number') {
-      clientId = String(clientOrId);
-    } else if (typeof clientOrId === 'string' && /^\d+$/.test(clientOrId.trim())) {
-      clientId = clientOrId.trim();
-    } else if (clientOrId && typeof clientOrId === 'object' && clientOrId.id !== undefined && clientOrId.id !== null) {
-      clientId = String(clientOrId.id);
-    }
-    const targetUrl = clientId ? `/admin/clients?selectedClient=${clientId}` : '/admin/clients';
-    navigateTo(targetUrl);
-  };
-
-  const handleNavigateToProjects = (clientIdOrObj, projectId) => {
-    const params = new URLSearchParams();
-    if (typeof clientIdOrObj === 'object' && clientIdOrObj !== null && !Array.isArray(clientIdOrObj)) {
-      if (clientIdOrObj.health) params.append('health', clientIdOrObj.health);
-      if (clientIdOrObj.status) params.append('status', clientIdOrObj.status);
-      if (clientIdOrObj.selectedProject) params.append('selectedProject', String(clientIdOrObj.selectedProject));
-      if (clientIdOrObj.client) params.append('client', String(clientIdOrObj.client));
-    } else {
-      if (projectId) {
-        params.append('selectedProject', String(projectId));
-      }
-      if (clientIdOrObj) {
-        const cId = typeof clientIdOrObj === 'object' ? clientIdOrObj.id : clientIdOrObj;
-        if (cId) params.append('client', String(cId));
-      }
-    }
-    const query = params.toString() ? `?${params.toString()}` : '';
-    navigateTo(`/admin/projects${query}`);
-  };
-
-  // Route: /admin/crm, /admin/clients, /admin/finance, /admin/projects, and /admin
-  if (currentPath === '/admin' || currentPath.startsWith('/admin/')) {
-    if (!isAdminAuthenticated) {
+  const renderCurrentView = () => {
+    // Route: Public Tokenized Proposal View /proposal/{token}
+    if (currentPath.startsWith('/proposal/')) {
+      const token = currentPath.replace('/proposal/', '').split('?')[0];
       return (
-        <AdminLogin
-          onLoginSuccess={() => setIsAdminAuthenticated(true)}
+        <PublicProposalView
+          token={token}
           onBackToSite={() => navigateTo('/')}
         />
       );
     }
 
-    if (currentPath === '/admin/projects' || currentPath.startsWith('/admin/projects')) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const rawSelectedProject = urlParams.get('selectedProject');
-      const selectedProjId = (rawSelectedProject && /^\d+$/.test(rawSelectedProject)) ? rawSelectedProject : null;
-
+    // Route: Public Tokenized Contract View /contract/{token}
+    if (currentPath.startsWith('/contract/')) {
+      const token = currentPath.replace('/contract/', '').split('?')[0];
       return (
-        <ProjectDashboard
-          onLogout={() => setIsAdminAuthenticated(false)}
-          onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
-          onNavigateToInquiries={() => navigateTo('/admin')}
-          onNavigateToCRM={() => navigateTo('/admin/crm')}
-          onNavigateToClients={handleNavigateToClients}
-          onNavigateToFinance={handleNavigateToFinance}
+        <PublicContractView
+          token={token}
           onBackToSite={() => navigateTo('/')}
-          initialSelectedProjectId={selectedProjId}
         />
       );
     }
 
-    if (
-      currentPath === '/admin/finance' ||
-      currentPath.startsWith('/admin/finance') ||
-      currentPath === '/admin/proposals' ||
-      currentPath === '/admin/contracts' ||
-      currentPath === '/admin/invoices' ||
-      currentPath === '/admin/verifications'
-    ) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const tabParam = urlParams.get('tab');
-      const validTabs = ['overview', 'proposals', 'contracts', 'invoices', 'verifications'];
-      let defaultTab = 'overview';
-      if (typeof tabParam === 'string' && validTabs.includes(tabParam.toLowerCase())) {
-        defaultTab = tabParam.toLowerCase();
-      } else if (currentPath.includes('proposals')) {
-        defaultTab = 'proposals';
-      } else if (currentPath.includes('contracts')) {
-        defaultTab = 'contracts';
-      } else if (currentPath.includes('invoices')) {
-        defaultTab = 'invoices';
-      } else if (currentPath.includes('verifications')) {
-        defaultTab = 'verifications';
+    // Route: Public Tokenized Invoice View /invoice/{token}
+    if (currentPath.startsWith('/invoice/')) {
+      const token = currentPath.replace('/invoice/', '').split('?')[0];
+      return (
+        <PublicInvoiceView
+          token={token}
+          onBackToSite={() => navigateTo('/')}
+        />
+      );
+    }
+
+    // Route: Public Tokenized Customer Project View /project/{token}
+    if (currentPath.startsWith('/project/')) {
+      const token = currentPath.replace('/project/', '').split('?')[0];
+      return (
+        <PublicProjectView
+          token={token}
+          onBackToSite={() => navigateTo('/')}
+        />
+      );
+    }
+
+    // Route: Public Tokenized Deliverable Approval /project-review/{token}
+    if (currentPath.startsWith('/project-review/')) {
+      const token = currentPath.replace('/project-review/', '').split('?')[0];
+      return (
+        <PublicApprovalView
+          token={token}
+          onBackToSite={() => navigateTo('/')}
+        />
+      );
+    }
+
+    // Route: /admin/crm, /admin/clients, /admin/finance, /admin/projects, and /admin
+    if (currentPath === '/admin' || currentPath.startsWith('/admin/')) {
+      if (!isAdminAuthenticated) {
+        return (
+          <AdminLogin
+            onLoginSuccess={() => setIsAdminAuthenticated(true)}
+            onBackToSite={() => navigateTo('/')}
+          />
+        );
       }
 
-      return (
-        <FinanceDashboard
-          onLogout={() => setIsAdminAuthenticated(false)}
-          onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
-          onNavigateToInquiries={() => navigateTo('/admin')}
-          onNavigateToCRM={() => navigateTo('/admin/crm')}
-          onNavigateToClients={handleNavigateToClients}
-          onNavigateToProjects={handleNavigateToProjects}
-          onBackToSite={() => navigateTo('/')}
-          initialTab={defaultTab}
-        />
-      );
-    }
+      if (currentPath === '/admin/projects' || currentPath.startsWith('/admin/projects')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const rawSelectedProject = urlParams.get('selectedProject');
+        const selectedProjId = (rawSelectedProject && /^\d+$/.test(rawSelectedProject)) ? rawSelectedProject : null;
 
-    if (currentPath === '/admin/clients' || currentPath.startsWith('/admin/clients')) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const rawSelectedClient = urlParams.get('selectedClient');
-      const selectedClientId = (rawSelectedClient && /^\d+$/.test(rawSelectedClient)) ? rawSelectedClient : null;
+        return (
+          <ProjectDashboard
+            onLogout={() => setIsAdminAuthenticated(false)}
+            onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
+            onNavigateToInquiries={() => navigateTo('/admin')}
+            onNavigateToCRM={() => navigateTo('/admin/crm')}
+            onNavigateToClients={handleNavigateToClients}
+            onNavigateToFinance={handleNavigateToFinance}
+            onBackToSite={() => navigateTo('/')}
+            initialSelectedProjectId={selectedProjId}
+          />
+        );
+      }
+
+      if (
+        currentPath === '/admin/finance' ||
+        currentPath.startsWith('/admin/finance') ||
+        currentPath === '/admin/proposals' ||
+        currentPath === '/admin/contracts' ||
+        currentPath === '/admin/invoices' ||
+        currentPath === '/admin/verifications'
+      ) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        const validTabs = ['overview', 'proposals', 'contracts', 'invoices', 'verifications'];
+        let defaultTab = 'overview';
+        if (typeof tabParam === 'string' && validTabs.includes(tabParam.toLowerCase())) {
+          defaultTab = tabParam.toLowerCase();
+        } else if (currentPath.includes('proposals')) {
+          defaultTab = 'proposals';
+        } else if (currentPath.includes('contracts')) {
+          defaultTab = 'contracts';
+        } else if (currentPath.includes('invoices')) {
+          defaultTab = 'invoices';
+        } else if (currentPath.includes('verifications')) {
+          defaultTab = 'verifications';
+        }
+
+        return (
+          <FinanceDashboard
+            onLogout={() => setIsAdminAuthenticated(false)}
+            onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
+            onNavigateToInquiries={() => navigateTo('/admin')}
+            onNavigateToCRM={() => navigateTo('/admin/crm')}
+            onNavigateToClients={handleNavigateToClients}
+            onNavigateToProjects={handleNavigateToProjects}
+            onBackToSite={() => navigateTo('/')}
+            initialTab={defaultTab}
+          />
+        );
+      }
+
+      if (currentPath === '/admin/clients' || currentPath.startsWith('/admin/clients')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const rawSelectedClient = urlParams.get('selectedClient');
+        const selectedClientId = (rawSelectedClient && /^\d+$/.test(rawSelectedClient)) ? rawSelectedClient : null;
+
+        return (
+          <ClientDashboard
+            onLogout={() => setIsAdminAuthenticated(false)}
+            onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
+            onNavigateToInquiries={() => navigateTo('/admin')}
+            onNavigateToCRM={() => navigateTo('/admin/crm')}
+            onNavigateToFinance={handleNavigateToFinance}
+            onNavigateToProjects={handleNavigateToProjects}
+            onBackToSite={() => navigateTo('/')}
+            initialSelectedClientId={selectedClientId}
+          />
+        );
+      }
+
+      if (currentPath === '/admin/crm' || currentPath.startsWith('/admin/crm')) {
+        return (
+          <CRMView
+            onLogout={() => setIsAdminAuthenticated(false)}
+            onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
+            onNavigateToInquiries={() => navigateTo('/admin')}
+            onNavigateToAdmin={() => navigateTo('/admin')}
+            onNavigateToClients={handleNavigateToClients}
+            onNavigateToFinance={handleNavigateToFinance}
+            onNavigateToProjects={handleNavigateToProjects}
+            onBackToSite={() => navigateTo('/')}
+          />
+        );
+      }
+
+      if (currentPath === '/admin/command-center' || currentPath.startsWith('/admin/command-center')) {
+        return (
+          <CommandCenterView
+            onLogout={() => setIsAdminAuthenticated(false)}
+            onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
+            onNavigateToInquiries={() => navigateTo('/admin')}
+            onNavigateToCRM={handleNavigateToCRM}
+            onNavigateToClients={handleNavigateToClients}
+            onNavigateToFinance={handleNavigateToFinance}
+            onNavigateToProjects={handleNavigateToProjects}
+            onBackToSite={() => navigateTo('/')}
+          />
+        );
+      }
 
       return (
-        <ClientDashboard
-          onLogout={() => setIsAdminAuthenticated(false)}
-          onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
-          onNavigateToInquiries={() => navigateTo('/admin')}
-          onNavigateToCRM={() => navigateTo('/admin/crm')}
-          onNavigateToFinance={handleNavigateToFinance}
-          onNavigateToProjects={handleNavigateToProjects}
-          onBackToSite={() => navigateTo('/')}
-          initialSelectedClientId={selectedClientId}
-        />
-      );
-    }
-
-    if (currentPath === '/admin/crm' || currentPath.startsWith('/admin/crm')) {
-      return (
-        <CRMView
-          onLogout={() => setIsAdminAuthenticated(false)}
-          onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
-          onNavigateToInquiries={() => navigateTo('/admin')}
-          onNavigateToAdmin={() => navigateTo('/admin')}
-          onNavigateToClients={handleNavigateToClients}
-          onNavigateToFinance={handleNavigateToFinance}
-          onNavigateToProjects={handleNavigateToProjects}
-          onBackToSite={() => navigateTo('/')}
-        />
-      );
-    }
-
-    if (currentPath === '/admin/command-center' || currentPath.startsWith('/admin/command-center')) {
-      return (
-        <CommandCenterView
+        <AdminDashboard
           onLogout={() => setIsAdminAuthenticated(false)}
           onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
           onNavigateToInquiries={() => navigateTo('/admin')}
@@ -638,156 +732,110 @@ export default function App() {
       );
     }
 
-    return (
-      <AdminDashboard
-        onLogout={() => setIsAdminAuthenticated(false)}
-        onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
-        onNavigateToInquiries={() => navigateTo('/admin')}
-        onNavigateToCRM={handleNavigateToCRM}
-        onNavigateToClients={handleNavigateToClients}
-        onNavigateToFinance={handleNavigateToFinance}
-        onNavigateToProjects={handleNavigateToProjects}
-        onBackToSite={() => navigateTo('/')}
-      />
-    );
-  }
-
-  // Route: Fullscreen Interactive Template Live Demo (/demo/:slug)
-  if (currentPath.startsWith('/demo/')) {
-    const slug = currentPath.replace('/demo/', '').split('?')[0];
-    return (
-      <>
+    // Route: Fullscreen Interactive Template Live Demo (/demo/:slug)
+    if (currentPath.startsWith('/demo/')) {
+      const slug = currentPath.replace('/demo/', '').split('?')[0];
+      return (
         <TemplateLiveDemo
           slug={slug}
           onNavigate={navigateTo}
           onOpenInquiry={handleOpenInquiry}
         />
-        <InquiryModal
-          isOpen={inquiryModalOpen}
-          onClose={() => setInquiryModalOpen(false)}
-          initialService="Website / Build"
-          initialTemplate={selectedTemplate}
-        />
-      </>
-    );
-  }
+      );
+    }
 
-  // Route: Individual Template Detail Page (/templates/:slug)
-  if (currentPath.startsWith('/templates/') && currentPath !== '/templates') {
-    const slug = currentPath.replace('/templates/', '').split('?')[0];
-    return (
-      <>
+    // Route: Individual Template Detail Page (/templates/:slug)
+    if (currentPath.startsWith('/templates/') && currentPath !== '/templates') {
+      const slug = currentPath.replace('/templates/', '').split('?')[0];
+      return (
         <TemplateDetail
           slug={slug}
           onNavigate={navigateTo}
           onOpenInquiry={handleOpenInquiry}
           onNavigateToAdmin={() => navigateTo('/admin')}
         />
-        <InquiryModal
-          isOpen={inquiryModalOpen}
-          onClose={() => setInquiryModalOpen(false)}
-          initialService="Website / Build"
-          initialTemplate={selectedTemplate}
-        />
-      </>
-    );
-  }
+      );
+    }
 
-  // Route: Website Templates Catalogue Gallery (/templates or /portfolio)
-  if (
-    currentPath === '/templates' ||
-    currentPath.startsWith('/templates') ||
-    currentPath === '/portfolio' ||
-    currentPath.startsWith('/portfolio')
-  ) {
-    return (
-      <>
+    // Route: Website Templates Catalogue Gallery (/templates or /portfolio)
+    if (
+      currentPath === '/templates' ||
+      currentPath.startsWith('/templates') ||
+      currentPath === '/portfolio' ||
+      currentPath.startsWith('/portfolio')
+    ) {
+      return (
         <TemplateCatalog
           onNavigate={navigateTo}
           onOpenInquiry={handleOpenInquiry}
           onNavigateToAdmin={() => navigateTo('/admin')}
         />
-        <InquiryModal
-          isOpen={inquiryModalOpen}
-          onClose={() => setInquiryModalOpen(false)}
-          initialService="Website / Build"
-          initialTemplate={selectedTemplate}
-        />
-      </>
-    );
-  }
+      );
+    }
 
-  // Route: Website Packages & Pricing Matrix (/pricing)
-  if (currentPath === '/pricing' || currentPath.startsWith('/pricing/')) {
-    return (
-      <>
+    // Route: Website Packages & Pricing Matrix (/pricing)
+    if (currentPath === '/pricing' || currentPath.startsWith('/pricing/')) {
+      return (
         <PricingPage
           onNavigate={navigateTo}
           onOpenInquiry={handleOpenInquiry}
           onBackToSite={() => navigateTo('/')}
         />
-        <InquiryModal
-          isOpen={inquiryModalOpen}
-          onClose={() => setInquiryModalOpen(false)}
-          initialService={selectedService || 'Website / Build'}
-          initialTemplate={selectedTemplate}
-        />
-      </>
-    );
-  }
+      );
+    }
 
-  // Route: Interactive Client Discovery Questionnaire (/discovery)
-  if (currentPath === '/discovery' || currentPath.startsWith('/discovery/')) {
-    return (
-      <>
+    // Route: Interactive Client Discovery Questionnaire (/discovery)
+    if (currentPath === '/discovery' || currentPath.startsWith('/discovery/')) {
+      return (
         <DiscoveryQuestionnaire
           onNavigate={navigateTo}
           onOpenInquiry={handleOpenInquiry}
         />
-        <InquiryModal
-          isOpen={inquiryModalOpen}
-          onClose={() => setInquiryModalOpen(false)}
-          initialService={selectedService || 'Website / Build'}
-          initialTemplate={selectedTemplate}
-        />
-      </>
-    );
-  }
+      );
+    }
 
-  // Route: Direct Outreach Landing (/build) & Productized Services Pages (/services, /services/build, ...)
-  if (currentPath === '/build' || currentPath.startsWith('/build/') || currentPath === '/services' || currentPath.startsWith('/services/')) {
-    const effectivePath = currentPath === '/build' || currentPath.startsWith('/build/') ? '/services/build' : currentPath;
-    return (
-      <>
+    // Route: Direct Outreach Landing (/build) & Productized Services Pages (/services, /services/build, ...)
+    if (currentPath === '/build' || currentPath.startsWith('/build/') || currentPath === '/services' || currentPath.startsWith('/services/')) {
+      const effectivePath = currentPath === '/build' || currentPath.startsWith('/build/') ? '/services/build' : currentPath;
+      return (
         <ServicesPages
           currentPath={effectivePath}
           onNavigate={navigateTo}
           onOpenInquiry={handleOpenInquiry}
           onBackToSite={() => navigateTo('/')}
         />
-        <InquiryModal
-          isOpen={inquiryModalOpen}
-          onClose={() => setInquiryModalOpen(false)}
-          initialService={selectedService || 'Website / Build'}
-          initialTemplate={selectedTemplate}
-        />
-      </>
-    );
-  }
+      );
+    }
 
-  // Default Route: Landing Page
-  return (
-    <>
+    // Default Route: Landing Page
+    return (
       <LandingPage
         onOpenInquiry={handleOpenInquiry}
         onNavigate={navigateTo}
         onNavigateToAdmin={() => navigateTo('/admin')}
       />
+    );
+  };
+
+  return (
+    <>
+      <CustomCursor />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentPath}
+          variants={routeVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+        >
+          {renderCurrentView()}
+        </motion.div>
+      </AnimatePresence>
 
       <InquiryModal
         isOpen={inquiryModalOpen}
         onClose={() => setInquiryModalOpen(false)}
-        initialService={selectedService}
+        initialService={selectedService || 'Website / Build'}
         initialTemplate={selectedTemplate}
       />
     </>

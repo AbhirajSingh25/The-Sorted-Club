@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Check,
   X,
+  Menu,
   ArrowRight,
   ArrowLeft,
   Sparkles,
@@ -19,6 +21,14 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { WEBSITE_PACKAGES, PRICING_COMPARISON_FEATURES, PRICING_FAQS } from './pricingData';
+import {
+  fadeInUp,
+  fadeIn,
+  scaleIn,
+  staggerContainer,
+  TRANSITIONS,
+  accordionVariants
+} from '../utils/motion';
 
 export default function PricingPage({
   onNavigate = () => {},
@@ -28,6 +38,7 @@ export default function PricingPage({
   const [currency, setCurrency] = useState('INR'); // 'INR' or 'USD'
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleFaq = (idx) => {
     setOpenFaqIndex(openFaqIndex === idx ? null : idx);
@@ -44,7 +55,11 @@ export default function PricingPage({
   return (
     <div className="pricing-page-root">
       {/* Public Navbar */}
-      <nav>
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={TRANSITIONS.editorial}
+      >
         <div
           className="brand"
           style={{ cursor: 'pointer' }}
@@ -53,61 +68,112 @@ export default function PricingPage({
           THE SORTED <span>CLUB</span>
         </div>
 
-        <div className="navlinks">
-          <button
+        <button
+          className="menu-button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        <div className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
+          <motion.button
             type="button"
             className="nav-sublink"
-            onClick={() => onNavigate('/services')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/services');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Services
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className="nav-sublink"
-            onClick={() => onNavigate('/templates')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/templates');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Templates &amp; Portfolio
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className="nav-sublink active"
-            onClick={() => onNavigate('/pricing')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/pricing');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Pricing
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className="nav-sublink"
-            onClick={() => onNavigate('/discovery')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/discovery');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Discovery Brief
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             className="navcta"
-            onClick={() => onOpenInquiry({ service: 'Website / Build' })}
+            whileHover={{ scale: 1.03, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenInquiry({ service: 'Website / Build' });
+            }}
           >
             Free Consultation <ArrowRight size={16} />
-          </button>
+          </motion.button>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Hero Section */}
-      <section className="hero" style={{ padding: '70px 20px 40px' }}>
-        <div className="hero-orbit orbit-one" />
-        <div className="eyebrow">
+      <motion.section
+        className="hero"
+        style={{ padding: '70px 20px 40px' }}
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer(0.08, 0.05)}
+      >
+        <motion.div
+          className="hero-orbit orbit-one"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 160, repeat: Infinity, ease: 'linear' }}
+        />
+        <motion.div className="eyebrow" variants={fadeInUp}>
           TRANSPARENT COMMERCIAL PACKAGES — ZERO HIDDEN FEES
-          <span className="live-dot" />
-        </div>
-        <h1 style={{ fontSize: 'clamp(34px, 5.5vw, 64px)' }}>
+          <motion.span
+            className="live-dot"
+            animate={{ scale: [1, 1.35, 1], opacity: [1, 0.65, 1] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </motion.div>
+        <motion.h1 style={{ fontSize: 'clamp(34px, 5.5vw, 64px)' }} variants={fadeInUp}>
           Transparent website pricing.<br />
           <em>Built to scale.</em>
-        </h1>
-        <p className="hero-copy" style={{ maxWidth: '640px' }}>
+        </motion.h1>
+        <motion.p className="hero-copy" style={{ maxWidth: '640px' }} variants={fadeInUp}>
           Fixed-price packages engineered for speed, conversion, and zero vendor lock-in. 50% upfront, 50% on live sign-off.
-        </p>
+        </motion.p>
 
         {/* Currency Toggle & Action Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', margin: '24px 0 12px', flexWrap: 'wrap' }}>
+        <motion.div
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', margin: '24px 0 12px', flexWrap: 'wrap' }}
+          variants={fadeInUp}
+        >
           <div className="currency-toggle-container">
             <button
               type="button"
@@ -125,24 +191,36 @@ export default function PricingPage({
             </button>
           </div>
 
-          <button
+          <motion.button
             type="button"
             className="secondary"
             style={{ fontSize: '13px', height: '36px', padding: '0 16px' }}
+            whileHover={{ scale: 1.02, x: 2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={TRANSITIONS.buttonSpring}
             onClick={() => onNavigate('/discovery')}
           >
             <FileText size={14} style={{ marginRight: '6px' }} /> Fill Discovery Questionnaire
-          </button>
-        </div>
-      </section>
+          </motion.button>
+        </motion.div>
+      </motion.section>
 
       {/* Free Website Consultation Banner */}
-      <section style={{ maxWidth: '1180px', margin: '0 auto 40px', padding: '0 20px' }}>
+      <motion.section
+        style={{ maxWidth: '1180px', margin: '0 auto 40px', padding: '0 20px' }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         <div className="consultation-banner-box">
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-            <div className="consultation-pulse-icon">
+            <motion.div
+              className="consultation-pulse-icon"
+              animate={{ scale: [1, 1.08, 1] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            >
               <Sparkles size={20} color="var(--ink)" />
-            </div>
+            </motion.div>
             <div>
               <h3 style={{ font: '700 18px "Space Grotesk"', margin: 0, color: 'var(--ink)' }}>
                 Not sure which package is right for your business?
@@ -152,61 +230,80 @@ export default function PricingPage({
               </p>
             </div>
           </div>
-          <button
+          <motion.button
             type="button"
             className="primary"
             style={{ background: 'var(--acid)', color: '#10100f', height: '42px', padding: '0 20px', fontSize: '13px', whiteSpace: 'nowrap' }}
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
             onClick={() => onOpenInquiry({ service: 'Website / Build' })}
           >
             Request Free Consultation <ArrowRight size={14} />
-          </button>
+          </motion.button>
         </div>
-      </section>
+      </motion.section>
 
       {/* Filter Tabs */}
       <section style={{ maxWidth: '1180px', margin: '0 auto 30px', padding: '0 20px' }}>
         <div className="pricing-filter-tabs">
-          <button
+          <motion.button
             type="button"
             className={`filter-pill ${activeFilter === 'all' ? 'active' : ''}`}
             onClick={() => setActiveFilter('all')}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
             All 6 Packages
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className={`filter-pill ${activeFilter === 'standard' ? 'active' : ''}`}
             onClick={() => setActiveFilter('standard')}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
             Starter &amp; Business
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className={`filter-pill ${activeFilter === 'transactional' ? 'active' : ''}`}
             onClick={() => setActiveFilter('transactional')}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
             Lead-Gen, Storefront &amp; Booking
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className={`filter-pill ${activeFilter === 'custom' ? 'active' : ''}`}
             onClick={() => setActiveFilter('custom')}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
             Custom Architecture
-          </button>
+          </motion.button>
         </div>
       </section>
 
       {/* 6 Packages Grid */}
       <section style={{ maxWidth: '1180px', margin: '0 auto 70px', padding: '0 20px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+        <motion.div
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer(0.06, 0.05)}
+        >
           {filteredPackages.map((pkg) => {
             const priceDisplay = currency === 'INR' ? pkg.priceINR : pkg.priceUSD;
 
             return (
-              <div
+              <motion.div
                 key={pkg.id}
                 className={`pricing-card-box ${pkg.popular ? 'highlighted' : ''}`}
+                variants={fadeInUp}
+                whileHover={{ y: -6, boxShadow: '0 24px 48px -12px rgba(16, 16, 15, 0.14)' }}
+                transition={TRANSITIONS.cardSpring}
               >
                 {pkg.badge && (
                   <span className={`pricing-card-badge ${pkg.popular ? 'popular' : ''}`}>
@@ -291,7 +388,7 @@ export default function PricingPage({
                 </div>
 
                 <div>
-                  <button
+                  <motion.button
                     type="button"
                     className="primary"
                     style={{
@@ -301,31 +398,41 @@ export default function PricingPage({
                       background: pkg.popular ? 'var(--acid)' : '#10100f',
                       color: pkg.popular ? '#10100f' : '#fff'
                     }}
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={TRANSITIONS.buttonSpring}
                     onClick={() => onOpenInquiry({ service: `Website / Build — ${pkg.name}` })}
                   >
                     Select {pkg.name} <ArrowRight size={14} />
-                  </button>
+                  </motion.button>
 
                   {pkg.recommendedTemplate && (
-                    <button
+                    <motion.button
                       type="button"
                       className="card-cta-link"
                       style={{ width: '100%', textAlign: 'center', marginTop: '10px', fontSize: '12px', color: 'var(--muted)', display: 'block' }}
+                      whileHover={{ x: 3 }}
                       onClick={() => onNavigate(`/templates/${pkg.recommendedTemplate}`)}
                     >
                       View Blueprint Example →
-                    </button>
+                    </motion.button>
                   )}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </section>
 
       {/* Detailed Feature Comparison Table */}
-      <section style={{ maxWidth: '1180px', margin: '0 auto 80px', padding: '0 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+      <motion.section
+        style={{ maxWidth: '1180px', margin: '0 auto 80px', padding: '0 20px' }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={staggerContainer(0.08, 0.05)}
+      >
+        <motion.div style={{ textAlign: 'center', marginBottom: '36px' }} variants={fadeInUp}>
           <label className="section-subtitle">FULL SPECIFICATION</label>
           <h2 style={{ font: '700 32px "Space Grotesk"', margin: '4px 0 0' }}>
             Feature Comparison Matrix
@@ -333,9 +440,9 @@ export default function PricingPage({
           <p style={{ color: 'var(--muted)', fontSize: '14px', margin: '6px auto 0', maxWidth: '560px' }}>
             Compare specifications, delivery timelines, and technical capabilities side-by-side.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="comparison-table-wrapper">
+        <motion.div className="comparison-table-wrapper" variants={fadeInUp}>
           <table className="comparison-table">
             <thead>
               <tr>
@@ -369,12 +476,18 @@ export default function PricingPage({
               ))}
             </tbody>
           </table>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* Discovery Intake Flow Callout */}
-      <section style={{ maxWidth: '1000px', margin: '0 auto 80px', padding: '0 20px' }}>
-        <div className="discovery-callout-card">
+      <motion.section
+        style={{ maxWidth: '1000px', margin: '0 auto 80px', padding: '0 20px' }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer(0.08, 0.05)}
+      >
+        <motion.div className="discovery-callout-card" variants={fadeInUp}>
           <div style={{ maxWidth: '580px' }}>
             <span className="client-code-tag" style={{ background: 'var(--acid)', color: '#10100f', marginBottom: '12px', display: 'inline-block' }}>
               STEP 1: DISCOVERY QUESTIONNAIRE
@@ -386,42 +499,55 @@ export default function PricingPage({
               Fill out our simple 9-question discovery intake questionnaire. We'll analyze your business model, recommend the optimal blueprint, and generate a tailored proposal within 24 hours.
             </p>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <button
+              <motion.button
                 type="button"
                 className="primary"
                 style={{ background: 'var(--acid)', color: '#10100f', height: '42px', padding: '0 20px', fontSize: '13px' }}
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={TRANSITIONS.buttonSpring}
                 onClick={() => onNavigate('/discovery')}
               >
                 Start Discovery Questionnaire <ArrowRight size={14} />
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 type="button"
                 className="secondary"
                 style={{ background: 'transparent', color: '#fff', borderColor: '#403e39', height: '42px', padding: '0 20px', fontSize: '13px' }}
+                whileHover={{ scale: 1.02, x: 2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={TRANSITIONS.buttonSpring}
                 onClick={() => onOpenInquiry({ service: 'Website / Build' })}
               >
                 Request Free Consultation
-              </button>
+              </motion.button>
             </div>
           </div>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* Pricing FAQs Accordion */}
-      <section style={{ maxWidth: '840px', margin: '0 auto 80px', padding: '0 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+      <motion.section
+        style={{ maxWidth: '840px', margin: '0 auto 80px', padding: '0 20px' }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={staggerContainer(0.08, 0.05)}
+      >
+        <motion.div style={{ textAlign: 'center', marginBottom: '32px' }} variants={fadeInUp}>
           <label className="section-subtitle">COMMERCIAL POLICIES</label>
           <h2 style={{ font: '700 28px "Space Grotesk"', margin: '4px 0 0' }}>
             Frequently Asked Pricing Questions
           </h2>
-        </div>
+        </motion.div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {PRICING_FAQS.map((faq, idx) => {
             const isOpen = openFaqIndex === idx;
             return (
-              <div
+              <motion.div
                 key={idx}
+                variants={fadeInUp}
                 style={{
                   background: '#fff',
                   border: '1px solid var(--line)',
@@ -450,16 +576,24 @@ export default function PricingPage({
                   <span>{faq.q}</span>
                   {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
-                {isOpen && (
-                  <div style={{ padding: '0 20px 16px', fontSize: '13px', color: '#55534c', lineHeight: 1.6 }}>
-                    {faq.a}
-                  </div>
-                )}
-              </div>
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div
+                      variants={accordionVariants}
+                      initial="collapsed"
+                      animate="expanded"
+                      exit="collapsed"
+                      style={{ padding: '0 20px 16px', fontSize: '13px', color: '#55534c', lineHeight: 1.6 }}
+                    >
+                      {faq.a}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             );
           })}
         </div>
-      </section>
+      </motion.section>
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid var(--line)', padding: '40px 24px', background: '#faf8f2', textAlign: 'center' }}>

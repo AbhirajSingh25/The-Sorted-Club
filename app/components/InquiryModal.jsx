@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
   ArrowRight,
@@ -16,6 +17,7 @@ import {
   Tag
 } from 'lucide-react';
 import { submitLead } from '../api/client';
+import { modalBackdropVariants, modalContainerVariants, TRANSITIONS } from '../utils/motion';
 
 const SERVICE_OPTIONS = [
   'Website / Build',
@@ -130,8 +132,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, isSubmitting]);
 
-  if (!isOpen) return null;
-
+  // Validation helpers
   const validatePhone = (raw) => {
     const clean = (raw || '').trim();
     if (!clean) return 'Please enter your phone or WhatsApp number.';
@@ -331,33 +332,54 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
   };
 
   return (
-    <div
-      className="modal-backdrop"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="inquiry-modal-title"
-      onClick={(e) => {
-        if (e.target === e.currentTarget && !isSubmitting) {
-          handleClose();
-        }
-      }}
-    >
-      <div className="modal-container" ref={modalRef}>
-        <button
-          className="modal-close-btn"
-          onClick={handleClose}
-          disabled={isSubmitting}
-          aria-label="Close inquiry modal"
-          type="button"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="inquiry-modal-title"
+          variants={modalBackdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !isSubmitting) {
+              handleClose();
+            }
+          }}
         >
-          <X size={20} />
-        </button>
+          <motion.div
+            className="modal-container"
+            ref={modalRef}
+            variants={modalContainerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <motion.button
+              className="modal-close-btn"
+              onClick={handleClose}
+              disabled={isSubmitting}
+              aria-label="Close inquiry modal"
+              type="button"
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.92 }}
+              transition={TRANSITIONS.buttonSpring}
+            >
+              <X size={20} />
+            </motion.button>
 
-        {isSuccess ? (
-          <div className="inquiry-success-view">
-            <div className="success-badge-icon">
-              <Sparkles size={32} color="#10100f" />
-            </div>
+            {isSuccess ? (
+              <div className="inquiry-success-view">
+                <motion.div
+                  className="success-badge-icon"
+                  initial={{ scale: 0, rotate: -30 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={TRANSITIONS.buttonSpring}
+                >
+                  <Sparkles size={32} color="#10100f" />
+                </motion.div>
 
             <p className="eyebrow" style={{ color: '#68665e', marginTop: '16px' }}>
               CONFIRMED INQUIRY #{submittedLead?.id || '2026'}
@@ -761,10 +783,13 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
 
               {/* Submit Button */}
               <div className="form-actions">
-                <button
+                <motion.button
                   type="submit"
                   disabled={isSubmitting}
                   className="primary form-submit-btn"
+                  whileHover={!isSubmitting ? { scale: 1.02, y: -1 } : {}}
+                  whileTap={!isSubmitting ? { scale: 0.98 } : {}}
+                  transition={TRANSITIONS.buttonSpring}
                 >
                   {isSubmitting ? (
                     <>
@@ -776,12 +801,14 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
                       {selectedTemplate ? 'Submit Website Request' : 'Submit Inquiry'} <ArrowRight size={18} aria-hidden="true" />
                     </>
                   )}
-                </button>
+                </motion.button>
               </div>
             </form>
           </div>
         )}
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

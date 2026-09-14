@@ -21,12 +21,24 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
 }
 
 a {
@@ -62,6 +74,8 @@ nav {
   display: flex;
   align-items: center;
   gap: 3px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .brand span {
@@ -8244,52 +8258,593 @@ textarea:focus-visible {
 }
 
 /* ==========================================================================
-   RESPONSIVE ADJUSTMENTS
+   COMPREHENSIVE RESPONSIVE DESIGN SYSTEM (MOBILE + TABLET + DESKTOP)
+   Tested across 1360px, 1280px, 1024px, 820px, 768px, 640px, 430px, 412px, 390px, 375px, 360px
    ========================================================================== */
 
-@media (max-width: 900px) {
-  .specs-layout-grid {
-    grid-template-columns: 1fr;
+/* Keyframe for mobile menu slide-down */
+@keyframes navDrawerSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
   }
-  .sticky-build-card {
-    position: static;
-  }
-  .story-grid {
-    grid-template-columns: 1fr;
-  }
-  .story-img-box {
-    height: 200px;
-  }
-  .mock-footer-grid {
-    grid-template-columns: 1fr;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (max-width: 640px) {
+/* Nav Sublink Base Styling */
+.nav-sublink {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font: 600 13px "Space Grotesk", sans-serif;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-sublink:hover {
+  color: var(--ink);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.nav-sublink.active {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Service Pillar & Feature Base Styling */
+.service-pillar-box {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.pillar-price-tag {
+  background: #f4f1e9;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  display: inline-block;
+  margin: 12px 0 16px;
+  width: fit-content;
+}
+
+.pillar-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.pillar-feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 1. Large Tablet / Small Desktop Breakpoint (1024px and below) */
+@media (max-width: 1024px) {
+  .hero {
+    padding: 8vh 6vw 4vh;
+  }
+
+  .hero h1 {
+    font-size: clamp(52px, 8.5vw, 110px);
+  }
+
+  .services .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .service-card {
+    min-height: 320px;
+    padding: 26px;
+  }
+
+  .club {
+    grid-template-columns: 1fr 360px;
+    gap: 4vw;
+  }
+
+  .club-card {
+    min-height: 360px;
+    padding: 24px;
+    box-shadow: 12px 14px 0 #d9d5ca;
+  }
+
   .templates-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .specs-layout-grid {
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+  }
+}
+
+/* 2. Tablet Landscape & Medium Breakpoint (900px and below) */
+@media (max-width: 900px) {
+  .services, .manifesto, .club, .contact {
+    padding: 80px 6vw;
+  }
+
+  .club {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .club-card {
+    max-width: 460px;
+    width: 100%;
+    margin: 0 auto;
+    transform: rotate(1deg);
+  }
+
+  .specs-layout-grid {
     grid-template-columns: 1fr;
   }
+
+  .sticky-build-card {
+    position: static;
+    max-width: 100%;
+    margin-top: 20px;
+  }
+
+  .story-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .story-img-box {
+    height: 220px;
+  }
+
+  .mock-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .saas-tab-content-card {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* 3. Tablet Portrait & Large Phone Breakpoint (820px and below) */
+@media (max-width: 820px) {
+  /* Navigation Bar & Mobile Drawer */
+  nav {
+    padding: 0 5vw;
+    height: 72px;
+  }
+
+  .menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    z-index: 25;
+    background: transparent;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .menu-button:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .navlinks {
+    display: none;
+  }
+
+  .navlinks.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    background: rgba(244, 241, 233, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--line);
+    padding: 24px 6vw 30px;
+    gap: 14px;
+    align-items: stretch;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    z-index: 24;
+    animation: navDrawerSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .navlinks.open > a,
+  .navlinks.open > button.nav-sublink {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(212, 208, 197, 0.6);
+    text-align: left;
+    width: 100%;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+  }
+
+  .navlinks.open > button.nav-sublink.active {
+    color: #10100f;
+    font-weight: 700;
+  }
+
+  .navlinks.open .navcta {
+    width: 100%;
+    height: 48px;
+    font-size: 14px;
+    margin-top: 8px;
+    justify-content: center;
+  }
+
+  /* Section Headers */
+  .section-head {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin-bottom: 36px;
+  }
+
+  .section-head > span,
+  .manifesto-label > p.eyebrow {
+    margin-bottom: 4px;
+  }
+
+  .section-head h2,
+  .manifesto h2,
+  .club h2,
+  .contact h2 {
+    font-size: clamp(34px, 6.5vw, 54px);
+    line-height: 1.0;
+  }
+
+  /* Manifesto */
+  .manifesto {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .manifesto-copy {
+    font-size: 17px;
+    margin: 24px 0 0;
+    max-width: 100%;
+  }
+
+  .manifesto-points {
+    margin-top: 24px;
+    gap: 8px;
+  }
+
+  /* Contact */
+  .contact {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .contact > div > p:not(.eyebrow) {
+    margin-top: 16px;
+    font-size: 16px;
+  }
+
+  /* Footer */
+  footer {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 36px 6vw;
+    text-align: left;
+  }
+
+  footer div[style*="text-align: right"],
+  footer p[style*="text-align: right"] {
+    text-align: left !important;
+  }
+
+  footer small {
+    margin-top: 16px;
+  }
+
+  /* Catalogue & Portfolio */
+  .templates-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .catalog-hero {
+    padding: 50px 5vw 24px;
+  }
+
+  .catalog-controls-container {
+    padding: 0 5vw;
+  }
+
+  .catalog-grid-section {
+    padding: 20px 5vw 50px;
+  }
+
+  .catalog-how-it-works,
+  .catalog-faq-section,
+  .catalog-bottom-cta {
+    padding: 50px 5vw;
+  }
+
   .search-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
+
   .style-select-wrapper {
     width: 100%;
   }
+}
+
+/* 4. Standard Mobile Breakpoint (640px and below) */
+@media (max-width: 640px) {
+  /* Hero */
+  .hero {
+    padding: 48px 5vw 36px;
+    min-height: auto;
+  }
+
+  .hero h1 {
+    font-size: clamp(38px, 9.5vw, 54px);
+    line-height: 0.94;
+    letter-spacing: -0.06em;
+    margin: 18px 0 20px;
+  }
+
+  .hero-copy {
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 24px;
+    width: 100%;
+  }
+
+  .actions button,
+  .actions a {
+    width: 100%;
+    height: 48px;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+
+  .hero-bottom {
+    margin-top: 48px;
+    padding-top: 14px;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .hero-note {
+    margin-top: 0;
+  }
+
+  /* Services Grid (Single column on mobile) */
+  .services, .manifesto, .club, .contact {
+    padding: 60px 5vw;
+  }
+
+  .services .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-card {
+    padding: 24px 20px;
+    min-height: auto;
+  }
+
+  .service-card h3 {
+    margin: 24px 0 8px;
+    font-size: 26px;
+  }
+
+  .service-card button,
+  .service-card a {
+    padding-top: 20px;
+  }
+
+  /* Club Card on Mobile (No distortion, un-rotated, safe shadow) */
+  .club-card {
+    transform: none !important;
+    box-shadow: 8px 10px 0 #d9d5ca;
+    padding: 22px 18px;
+    min-height: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .club-mark {
+    font-size: 44px;
+  }
+
+  /* Contact Actions */
+  .contact-actions {
+    width: 100%;
+  }
+
+  .contact-actions .primary.dark {
+    width: 100%;
+    height: 48px;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .contact-actions > div {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* Templates Catalogue */
+  .templates-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .template-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .card-actions button {
+    flex: 1;
+    justify-content: center;
+    height: 42px;
+    font-size: 12px;
+    padding: 0 8px;
+    white-space: nowrap;
+  }
+
+  .category-pills-row {
+    gap: 6px;
+  }
+
+  .category-pill {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .catalog-controls-card {
+    padding: 16px 14px;
+  }
+
+  .bottom-cta-box {
+    padding: 32px 18px;
+    border-radius: 14px;
+  }
+
+  .bottom-cta-box h2 {
+    font-size: 24px;
+  }
+
+  .cta-buttons-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .cta-buttons-row button,
+  .cta-buttons-row a {
+    width: 100%;
+    height: 46px;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  /* Template Detail */
   .detail-hero-stats {
     flex-direction: column;
+    gap: 10px;
   }
+
+  .stat-pill {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .detail-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .detail-header-actions button {
+    width: 100%;
+    height: 48px;
+    justify-content: center;
+  }
+
+  .showcase-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .open-fullscreen-demo-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
   .hide-on-small {
     display: none;
   }
 
-  /* Modal Responsive Overrides */
+  /* Pricing Page */
+  .pricing-card-box {
+    padding: 24px 18px;
+  }
+
+  .consultation-banner-box {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 16px;
+  }
+
+  .consultation-banner-box button {
+    width: 100%;
+  }
+
+  .comparison-table-wrapper {
+    margin: 0 -10px;
+    border-radius: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .comparison-table {
+    min-width: 640px;
+  }
+
+  /* Inquiry Modal */
   .modal-backdrop {
     padding: 8px;
   }
 
   .modal-container {
-    padding: 28px 18px;
+    padding: 26px 18px;
     max-height: 94vh;
     border-radius: 12px;
   }
@@ -8302,7 +8857,7 @@ textarea:focus-visible {
   }
 
   .inquiry-header h2 {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .form-row {
@@ -8314,7 +8869,6 @@ textarea:focus-visible {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* Success Confirmation Summary Stacks Vertically on Mobile */
   .success-summary-box {
     grid-template-columns: 1fr;
     gap: 10px;
@@ -8337,17 +8891,133 @@ textarea:focus-visible {
   }
 }
 
+/* 5. Compact Phone Breakpoint (480px and below) */
+@media (max-width: 480px) {
+  nav {
+    padding: 0 16px;
+    height: 68px;
+  }
+
+  .navlinks.open {
+    top: 68px;
+    padding: 18px 16px 24px;
+  }
+
+  .hero {
+    padding: 36px 16px 28px;
+  }
+
+  .hero h1 {
+    font-size: clamp(34px, 9vw, 44px);
+    letter-spacing: -0.06em;
+    margin: 14px 0 16px;
+  }
+
+  .services, .manifesto, .club, .contact {
+    padding: 44px 16px;
+  }
+
+  .club-card {
+    box-shadow: 6px 8px 0 #d9d5ca;
+    padding: 20px 16px;
+  }
+
+  .club-mark {
+    font-size: 38px;
+  }
+
+  .catalog-hero {
+    padding: 36px 16px 18px;
+  }
+
+  .catalog-controls-container {
+    padding: 0 16px;
+  }
+
+  .catalog-grid-section {
+    padding: 14px 16px 36px;
+  }
+
+  .detail-header-section {
+    padding: 24px 16px 16px;
+  }
+
+  .detail-preview-showcase {
+    padding: 8px 16px 20px;
+  }
+
+  .detail-specs-container {
+    padding: 14px 16px 36px;
+  }
+
+  .spec-card {
+    padding: 18px 14px;
+  }
+
+  .related-templates-section {
+    padding: 24px 16px 40px;
+  }
+
+  footer {
+    padding: 28px 16px;
+  }
+
+  /* Live demo floating top bar on small screens */
+  .demo-floating-bar {
+    padding: 0 10px;
+    height: 54px;
+  }
+
+  .demo-template-title {
+    display: none;
+  }
+
+  .demo-viewport-controls {
+    display: none;
+  }
+
+  .demo-build-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .demo-viewport-canvas {
+    padding: 8px 4px;
+  }
+}
+
+/* 6. Ultra-Compact Mobile Breakpoint (360px and below) */
 @media (max-width: 360px) {
+  .brand {
+    font-size: 15px;
+  }
+
+  .hero h1 {
+    font-size: 30px;
+    letter-spacing: -0.05em;
+  }
+
+  .hero-copy {
+    font-size: 14.5px;
+  }
+
+  .section-head h2,
+  .manifesto h2,
+  .club h2,
+  .contact h2 {
+    font-size: 28px;
+  }
+
   .modal-container {
-    padding: 22px 12px;
+    padding: 20px 12px;
   }
 
   .inquiry-header h2 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .success-heading {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .service-pills-grid {
@@ -8356,7 +9026,40 @@ textarea:focus-visible {
 
   .budget-pill-btn {
     font-size: 11px;
-    padding: 6px 10px;
+    padding: 6px 8px;
+  }
+
+  .card-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .card-actions button {
+    width: 100%;
+  }
+
+  .detail-main-title {
+    font-size: 26px;
+  }
+}
+
+/* 7. Accessibility: Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ticker div {
+    animation: none !important;
+  }
+
+  .hero-orbit {
+    animation: none !important;
   }
 }
 

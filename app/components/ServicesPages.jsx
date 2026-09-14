@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Code2,
   BriefcaseBusiness,
@@ -22,8 +23,18 @@ import {
   MessageSquare,
   Cpu,
   UserCheck,
-  FileCheck
+  FileCheck,
+  Menu,
+  X
 } from 'lucide-react';
+import {
+  fadeInUp,
+  fadeIn,
+  scaleIn,
+  staggerContainer,
+  TRANSITIONS,
+  accordionVariants
+} from '../utils/motion';
 
 const SERVICES_DATA = {
   build: {
@@ -422,6 +433,7 @@ export default function ServicesPages({
   onBackToSite = () => {}
 }) {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Determine active pillar view
   const subroute = currentPath.replace('/services', '').replace(/^\//, '').toLowerCase();
@@ -435,7 +447,11 @@ export default function ServicesPages({
   return (
     <div className="services-page-root">
       {/* Public Header / Navbar */}
-      <nav>
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={TRANSITIONS.editorial}
+      >
         <div
           className="brand"
           style={{ cursor: 'pointer' }}
@@ -444,64 +460,113 @@ export default function ServicesPages({
           THE SORTED <span>CLUB</span>
         </div>
 
-        <div className="navlinks">
-          <button
+        <button
+          className="menu-button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        <div className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
+          <motion.button
             type="button"
             className={`nav-sublink ${!activePillarKey ? 'active' : ''}`}
-            onClick={() => onNavigate('/services')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/services');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             All Services
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className={`nav-sublink ${activePillarKey === 'build' ? 'active' : ''}`}
-            onClick={() => onNavigate('/services/build')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/services/build');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Build
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className={`nav-sublink ${activePillarKey === 'grow' ? 'active' : ''}`}
-            onClick={() => onNavigate('/services/grow')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/services/grow');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Grow
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className={`nav-sublink ${activePillarKey === 'automate' ? 'active' : ''}`}
-            onClick={() => onNavigate('/services/automate')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/services/automate');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Automate
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className={`nav-sublink ${activePillarKey === 'hire' ? 'active' : ''}`}
-            onClick={() => onNavigate('/services/hire')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/services/hire');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Hire
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className="nav-sublink"
-            onClick={() => onNavigate('/templates')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/templates');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Templates &amp; Portfolio
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className="nav-sublink"
-            onClick={() => onNavigate('/pricing')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/pricing');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Pricing
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             className="navcta"
-            onClick={() => onOpenInquiry(pillarData ? pillarData.serviceName : undefined)}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenInquiry(pillarData ? pillarData.serviceName : undefined);
+            }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
           >
             Free Consultation <ArrowRight size={16} />
-          </button>
+          </motion.button>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* =====================================================================
           VIEW A: ALL SERVICES OVERVIEW (/services)
@@ -509,34 +574,68 @@ export default function ServicesPages({
       {!pillarData ? (
         <main className="services-overview-main">
           {/* Hero */}
-          <section className="hero" style={{ padding: '80px 20px 60px' }}>
-            <div className="hero-orbit orbit-one" />
-            <div className="eyebrow">
+          <motion.section
+            className="hero"
+            style={{ padding: '80px 20px 60px' }}
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
+            <motion.div
+              className="hero-orbit orbit-one"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 60, ease: 'linear' }}
+            />
+            <motion.div className="eyebrow" variants={fadeInUp}>
               FOUR CORE PILLARS — ONE OPERATING SYSTEM
               <span className="live-dot" />
-            </div>
-            <h1>
+            </motion.div>
+            <motion.h1 variants={fadeInUp}>
               Everything your business needs.<br />
               <em>Sorted end-to-end.</em>
-            </h1>
-            <p className="hero-copy" style={{ maxWidth: '640px' }}>
+            </motion.h1>
+            <motion.p className="hero-copy" style={{ maxWidth: '640px' }} variants={fadeInUp}>
               We partner with ambitious companies to build high-performance digital products, accelerate revenue growth, automate repetitive operations, and secure top-tier talent.
-            </p>
-            <div className="actions">
-              <button className="primary" onClick={() => onOpenInquiry()}>
+            </motion.p>
+            <motion.div className="actions" variants={fadeInUp}>
+              <motion.button
+                className="primary"
+                onClick={() => onOpenInquiry()}
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={TRANSITIONS.buttonSpring}
+              >
                 Get Sorted Today <ArrowRight size={18} />
-              </button>
-              <button className="secondary" onClick={() => onNavigate('/')}>
+              </motion.button>
+              <motion.button
+                className="secondary"
+                onClick={() => onNavigate('/')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+              >
                 <ArrowLeft size={16} /> Back to Home
-              </button>
-            </div>
-          </section>
+              </motion.button>
+            </motion.div>
+          </motion.section>
 
           {/* Pillars Detailed Grid */}
-          <section className="services-grid-section" style={{ maxWidth: '1240px', margin: '0 auto 80px', padding: '0 24px' }}>
+          <motion.section
+            className="services-grid-section"
+            style={{ maxWidth: '1240px', margin: '0 auto 80px', padding: '0 24px' }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={staggerContainer}
+          >
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
               {/* Pillar 1: BUILD */}
-              <div className="service-pillar-box">
+              <motion.div
+                className="service-pillar-box"
+                variants={fadeInUp}
+                whileHover={{ y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.08)' }}
+                transition={TRANSITIONS.cardSpring}
+                data-cursor="explore"
+              >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <div className="empty-icon-box" style={{ width: '48px', height: '48px', margin: 0 }}>
                     <Code2 size={24} color="var(--ink)" />
@@ -556,19 +655,27 @@ export default function ServicesPages({
                   <li><Check size={14} color="#15803d" /> Admin Portals & API Webhooks</li>
                 </ul>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-                  <button
+                  <motion.button
                     type="button"
                     className="primary"
                     style={{ flex: 1, height: '38px', fontSize: '12px' }}
                     onClick={() => onNavigate('/services/build')}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     View Packages <ArrowRight size={13} />
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Pillar 2: GROW */}
-              <div className="service-pillar-box">
+              <motion.div
+                className="service-pillar-box"
+                variants={fadeInUp}
+                whileHover={{ y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.08)' }}
+                transition={TRANSITIONS.cardSpring}
+                data-cursor="explore"
+              >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <div className="empty-icon-box" style={{ width: '48px', height: '48px', margin: 0 }}>
                     <BriefcaseBusiness size={24} color="var(--ink)" />
@@ -588,19 +695,27 @@ export default function ServicesPages({
                   <li><Check size={14} color="#15803d" /> Targeted Lead Generation Campaigns</li>
                 </ul>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-                  <button
+                  <motion.button
                     type="button"
                     className="primary"
                     style={{ flex: 1, height: '38px', fontSize: '12px' }}
                     onClick={() => onNavigate('/services/grow')}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     View Packages <ArrowRight size={13} />
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Pillar 3: AUTOMATE */}
-              <div className="service-pillar-box">
+              <motion.div
+                className="service-pillar-box"
+                variants={fadeInUp}
+                whileHover={{ y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.08)' }}
+                transition={TRANSITIONS.cardSpring}
+                data-cursor="explore"
+              >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <div className="empty-icon-box" style={{ width: '48px', height: '48px', margin: 0 }}>
                     <Bot size={24} color="var(--ink)" />
@@ -620,19 +735,27 @@ export default function ServicesPages({
                   <li><Check size={14} color="#15803d" /> Document & Invoice Automation</li>
                 </ul>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-                  <button
+                  <motion.button
                     type="button"
                     className="primary"
                     style={{ flex: 1, height: '38px', fontSize: '12px' }}
                     onClick={() => onNavigate('/services/automate')}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     View Packages <ArrowRight size={13} />
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Pillar 4: HIRE */}
-              <div className="service-pillar-box">
+              <motion.div
+                className="service-pillar-box"
+                variants={fadeInUp}
+                whileHover={{ y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.08)' }}
+                transition={TRANSITIONS.cardSpring}
+                data-cursor="explore"
+              >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <div className="empty-icon-box" style={{ width: '48px', height: '48px', margin: 0 }}>
                     <Users size={24} color="var(--ink)" />
@@ -652,18 +775,20 @@ export default function ServicesPages({
                   <li><Check size={14} color="#15803d" /> 90-Day Free Replacement Guarantee</li>
                 </ul>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-                  <button
+                  <motion.button
                     type="button"
                     className="primary"
                     style={{ flex: 1, height: '38px', fontSize: '12px' }}
                     onClick={() => onNavigate('/services/hire')}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     Explore Hiring <ArrowRight size={13} />
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </section>
+          </motion.section>
         </main>
       ) : (
         /* =====================================================================
@@ -671,46 +796,79 @@ export default function ServicesPages({
         ===================================================================== */
         <main className="pillar-detail-main">
           {/* Pillar Hero */}
-          <section className="hero" style={{ padding: '70px 20px 50px' }}>
-            <div className="hero-orbit orbit-one" />
-            <div className="eyebrow">
+          <motion.section
+            className="hero"
+            style={{ padding: '70px 20px 50px' }}
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
+            <motion.div
+              className="hero-orbit orbit-one"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 60, ease: 'linear' }}
+            />
+            <motion.div className="eyebrow" variants={fadeInUp}>
               {pillarData.eyebrow}
               <span className="live-dot" />
-            </div>
-            <h1 style={{ fontSize: 'clamp(36px, 6vw, 68px)' }}>
+            </motion.div>
+            <motion.h1 style={{ fontSize: 'clamp(36px, 6vw, 68px)' }} variants={fadeInUp}>
               {pillarData.title}.<br />
               <em>{pillarData.subtitle}</em>
-            </h1>
-            <p className="hero-copy" style={{ maxWidth: '680px' }}>
+            </motion.h1>
+            <motion.p className="hero-copy" style={{ maxWidth: '680px' }} variants={fadeInUp}>
               {pillarData.heroDesc}
-            </p>
-            <div className="actions">
-              <button
+            </motion.p>
+            <motion.div className="actions" variants={fadeInUp}>
+              <motion.button
                 className="primary"
                 onClick={() => onOpenInquiry(pillarData.serviceName)}
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={TRANSITIONS.buttonSpring}
               >
                 Get Started with {pillarData.title} <ArrowRight size={18} />
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 className="secondary"
                 onClick={() => onNavigate('/services')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
               >
                 <ArrowLeft size={16} /> All Services
-              </button>
-            </div>
-          </section>
+              </motion.button>
+            </motion.div>
+          </motion.section>
 
           {/* Section: Problems We Solve & Who It's For */}
-          <section style={{ maxWidth: '1100px', margin: '0 auto 60px', padding: '0 24px' }}>
+          <motion.section
+            style={{ maxWidth: '1100px', margin: '0 auto 60px', padding: '0 24px' }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={staggerContainer}
+          >
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
-              <div className="drawer-section" style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: '12px', padding: '28px' }}>
+              <motion.div
+                className="drawer-section"
+                style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: '12px', padding: '28px' }}
+                variants={fadeInUp}
+                whileHover={{ y: -4, boxShadow: '0 12px 28px rgba(0,0,0,0.04)' }}
+                transition={TRANSITIONS.cardSpring}
+              >
                 <label className="section-subtitle">WHO THIS IS FOR</label>
                 <p style={{ font: '500 15px/1.6 "Space Grotesk", sans-serif', color: 'var(--ink)', margin: '8px 0 0' }}>
                   {pillarData.whoFor}
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="drawer-section" style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: '12px', padding: '28px' }}>
+              <motion.div
+                className="drawer-section"
+                style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: '12px', padding: '28px' }}
+                variants={fadeInUp}
+                whileHover={{ y: -4, boxShadow: '0 12px 28px rgba(0,0,0,0.04)' }}
+                transition={TRANSITIONS.cardSpring}
+              >
                 <label className="section-subtitle">COMMON ROADBLOCKS WE ELIMINATE</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
                   {pillarData.problemsSolved.map((prob, idx) => (
@@ -720,21 +878,27 @@ export default function ServicesPages({
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </section>
+          </motion.section>
 
           {/* Section: What We Deliver */}
-          <section style={{ maxWidth: '1100px', margin: '0 auto 70px', padding: '0 24px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+          <motion.section
+            style={{ maxWidth: '1100px', margin: '0 auto 70px', padding: '0 24px' }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={staggerContainer}
+          >
+            <motion.div style={{ textAlign: 'center', marginBottom: '36px' }} variants={fadeInUp}>
               <label className="section-subtitle">CAPABILITIES & DELIVERABLES</label>
               <h2 style={{ font: '700 32px "Space Grotesk"', margin: '4px 0 0' }}>
                 What We Deliver in {pillarData.title}
               </h2>
-            </div>
+            </motion.div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
               {pillarData.offerings.map((off, idx) => (
-                <div
+                <motion.div
                   key={idx}
                   style={{
                     background: '#fff',
@@ -743,6 +907,9 @@ export default function ServicesPages({
                     padding: '22px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
                   }}
+                  variants={fadeInUp}
+                  whileHover={{ y: -4, boxShadow: '0 10px 24px rgba(0,0,0,0.06)' }}
+                  transition={TRANSITIONS.cardSpring}
                 >
                   <h4 style={{ font: '700 16px "Space Grotesk"', margin: '0 0 6px', color: 'var(--ink)' }}>
                     {off.title}
@@ -750,14 +917,20 @@ export default function ServicesPages({
                   <p style={{ fontSize: '13px', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
                     {off.desc}
                   </p>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </section>
+          </motion.section>
 
           {/* Section: Productized Packages & Pricing */}
-          <section style={{ maxWidth: '1100px', margin: '0 auto 80px', padding: '0 24px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <motion.section
+            style={{ maxWidth: '1100px', margin: '0 auto 80px', padding: '0 24px' }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={staggerContainer}
+          >
+            <motion.div style={{ textAlign: 'center', marginBottom: '40px' }} variants={fadeInUp}>
               <label className="section-subtitle">TRANSPARENT PACKAGES</label>
               <h2 style={{ font: '700 32px "Space Grotesk"', margin: '4px 0 0' }}>
                 Choose Your {pillarData.title} Package
@@ -767,29 +940,33 @@ export default function ServicesPages({
               </p>
               {pillarData.id === 'build' && (
                 <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button
+                  <motion.button
                     type="button"
                     className="secondary"
                     style={{ fontSize: '12px', height: '34px', padding: '0 14px' }}
                     onClick={() => onNavigate('/pricing')}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     View All 6 Packages &amp; Comparison Matrix →
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     type="button"
                     className="secondary"
                     style={{ fontSize: '12px', height: '34px', padding: '0 14px', background: 'var(--acid)', color: '#10100f', border: 'none' }}
                     onClick={() => onOpenInquiry({ service: 'Website / Build' })}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
                   >
                     <Sparkles size={12} style={{ marginRight: '4px' }} /> Request Free Consultation
-                  </button>
+                  </motion.button>
                 </div>
               )}
-            </div>
+            </motion.div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
               {pillarData.packages.map((pkg, idx) => (
-                <div
+                <motion.div
                   key={idx}
                   className="package-card"
                   style={{
@@ -803,6 +980,9 @@ export default function ServicesPages({
                     position: 'relative',
                     boxShadow: pkg.popular ? '0 10px 30px rgba(0,0,0,0.06)' : 'none'
                   }}
+                  variants={fadeInUp}
+                  whileHover={{ y: -6, boxShadow: pkg.popular ? '0 16px 40px rgba(0,0,0,0.12)' : '0 10px 24px rgba(0,0,0,0.06)' }}
+                  transition={TRANSITIONS.cardSpring}
                 >
                   {pkg.badge && (
                     <span
@@ -847,15 +1027,17 @@ export default function ServicesPages({
                     </div>
                   </div>
 
-                  <button
+                  <motion.button
                     type="button"
                     className="primary"
                     style={{ width: '100%', height: '42px', fontSize: '13px' }}
                     onClick={() => onOpenInquiry(pillarData.serviceName)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     {pkg.ctaText} <ArrowRight size={14} />
-                  </button>
-                </div>
+                  </motion.button>
+                </motion.div>
               ))}
             </div>
 
@@ -875,19 +1057,25 @@ export default function ServicesPages({
                 ✨ {pillarData.techNote}
               </div>
             )}
-          </section>
+          </motion.section>
 
           {/* Section: 4-Step Delivery Workflow */}
-          <section style={{ maxWidth: '1100px', margin: '0 auto 80px', padding: '0 24px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <motion.section
+            style={{ maxWidth: '1100px', margin: '0 auto 80px', padding: '0 24px' }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={staggerContainer}
+          >
+            <motion.div style={{ textAlign: 'center', marginBottom: '40px' }} variants={fadeInUp}>
               <label className="section-subtitle">DELIVERY ENGINE</label>
               <h2 style={{ font: '700 32px "Space Grotesk"', margin: '4px 0 0' }}>
                 How We Get It Sorted
               </h2>
-            </div>
+            </motion.div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
               {pillarData.workflow.map((st, idx) => (
-                <div
+                <motion.div
                   key={idx}
                   style={{
                     background: '#fff',
@@ -896,6 +1084,9 @@ export default function ServicesPages({
                     padding: '24px 20px',
                     position: 'relative'
                   }}
+                  variants={fadeInUp}
+                  whileHover={{ y: -4, boxShadow: '0 8px 20px rgba(0,0,0,0.05)' }}
+                  transition={TRANSITIONS.cardSpring}
                 >
                   <span style={{ font: '700 28px/1 "Space Grotesk"', color: 'var(--muted)', opacity: 0.4, display: 'block', marginBottom: '10px' }}>
                     {st.step}
@@ -906,26 +1097,33 @@ export default function ServicesPages({
                   <p style={{ fontSize: '12px', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
                     {st.desc}
                   </p>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </section>
+          </motion.section>
 
           {/* Section: FAQs Accordion */}
-          <section style={{ maxWidth: '800px', margin: '0 auto 80px', padding: '0 24px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <motion.section
+            style={{ maxWidth: '800px', margin: '0 auto 80px', padding: '0 24px' }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={staggerContainer}
+          >
+            <motion.div style={{ textAlign: 'center', marginBottom: '32px' }} variants={fadeInUp}>
               <label className="section-subtitle">COMMONLY ASKED</label>
               <h2 style={{ font: '700 28px "Space Grotesk"', margin: '4px 0 0' }}>
                 Frequently Asked Questions
               </h2>
-            </div>
+            </motion.div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {pillarData.faqs.map((faq, idx) => {
                 const isOpen = openFaqIndex === idx;
                 return (
-                  <div
+                  <motion.div
                     key={idx}
+                    variants={fadeInUp}
                     style={{
                       background: '#fff',
                       border: '1px solid var(--line)',
@@ -952,37 +1150,66 @@ export default function ServicesPages({
                       }}
                     >
                       <span>{faq.q}</span>
-                      {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      <motion.div
+                        animate={{ rotate: isOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown size={16} />
+                      </motion.div>
                     </button>
-                    {isOpen && (
-                      <div style={{ padding: '0 20px 16px', fontSize: '13px', color: '#55534c', lineHeight: 1.6 }}>
-                        {faq.a}
-                      </div>
-                    )}
-                  </div>
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.div
+                          variants={accordionVariants}
+                          initial="collapsed"
+                          animate="expanded"
+                          exit="collapsed"
+                          style={{ overflow: 'hidden' }}
+                        >
+                          <div style={{ padding: '0 20px 16px', fontSize: '13px', color: '#55534c', lineHeight: 1.6 }}>
+                            {faq.a}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
                 );
               })}
             </div>
-          </section>
+          </motion.section>
 
           {/* Final Callout */}
-          <section style={{ maxWidth: '900px', margin: '0 auto 80px', padding: '0 24px', textAlign: 'center' }}>
-            <div style={{ background: '#10100f', color: '#fff', borderRadius: '16px', padding: '50px 30px' }}>
+          <motion.section
+            style={{ maxWidth: '900px', margin: '0 auto 80px', padding: '0 24px', textAlign: 'center' }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={staggerContainer}
+          >
+            <motion.div
+              style={{ background: '#10100f', color: '#fff', borderRadius: '16px', padding: '50px 30px' }}
+              variants={scaleIn}
+              whileHover={{ scale: 1.01 }}
+              transition={TRANSITIONS.cardSpring}
+            >
               <h2 style={{ font: '700 36px "Space Grotesk"', margin: '0 0 12px' }}>
                 Ready to get your {pillarData.title.toLowerCase()} sorted?
               </h2>
               <p style={{ color: '#a09f98', fontSize: '15px', maxWidth: '500px', margin: '0 auto 28px' }}>
                 Submit a brief in under 60 seconds. Our team will review and share a tailored proposal.
               </p>
-              <button
+              <motion.button
                 className="primary"
                 style={{ background: 'var(--acid)', color: '#10100f', height: '46px', padding: '0 24px', fontSize: '14px' }}
                 onClick={() => onOpenInquiry(pillarData.serviceName)}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                transition={TRANSITIONS.buttonSpring}
               >
                 Get Sorted Now <ArrowRight size={16} />
-              </button>
-            </div>
-          </section>
+              </motion.button>
+            </motion.div>
+          </motion.section>
         </main>
       )}
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -38,6 +39,12 @@ import {
   Heart
 } from 'lucide-react';
 import { TEMPLATES } from './templatesData';
+import {
+  fadeInUp,
+  fadeIn,
+  scaleIn,
+  TRANSITIONS
+} from '../utils/motion';
 
 export default function TemplateLiveDemo({ slug, onNavigate, onOpenInquiry }) {
   const template = TEMPLATES.find((t) => t.slug === slug) || TEMPLATES[0];
@@ -214,17 +221,25 @@ console.log('Pipeline active:', pipeline.id);`,
   return (
     <div className="live-demo-fullscreen-wrapper">
       {/* Floating Demo Navigation Header */}
-      <header className="demo-floating-bar" role="banner">
+      <motion.header
+        className="demo-floating-bar"
+        role="banner"
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={TRANSITIONS.editorial}
+      >
         <div className="demo-bar-left">
-          <button
+          <motion.button
             type="button"
             className="demo-back-btn"
+            whileHover={{ scale: 1.03, x: -2 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => onNavigate(`/templates/${template.slug}`)}
             title="Return to template detail page"
           >
             <ArrowLeft size={16} />
             <span className="hide-on-small">Back to Details</span>
-          </button>
+          </motion.button>
 
           <div className="demo-badge-group">
             <span className="demo-live-indicator">
@@ -237,49 +252,58 @@ console.log('Pipeline active:', pipeline.id);`,
 
         {/* Viewport Width Controls */}
         <div className="demo-viewport-controls" role="group" aria-label="Device viewport switcher">
-          <button
+          <motion.button
             type="button"
             className={`viewport-btn ${viewportMode === 'desktop' ? 'active' : ''}`}
             onClick={() => setViewportMode('desktop')}
             title="Desktop 100% Full Width"
             aria-label="Desktop view"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
             <Laptop size={15} />
             <span className="hide-on-small">Desktop</span>
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className={`viewport-btn ${viewportMode === 'tablet' ? 'active' : ''}`}
             onClick={() => setViewportMode('tablet')}
             title="Tablet 768px View"
             aria-label="Tablet view"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
             <Tablet size={15} />
             <span className="hide-on-small">Tablet (768px)</span>
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className={`viewport-btn ${viewportMode === 'mobile' ? 'active' : ''}`}
             onClick={() => setViewportMode('mobile')}
             title="Mobile 390px View"
             aria-label="Mobile view"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
           >
             <Smartphone size={15} />
             <span className="hide-on-small">Mobile (390px)</span>
-          </button>
+          </motion.button>
         </div>
 
         <div className="demo-bar-right">
-          <button
+          <motion.button
             type="button"
             className="demo-build-btn"
+            whileHover={{ scale: 1.03, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
             onClick={() => onOpenInquiry({ template })}
             title="Request a website build based on this template"
           >
             Build this Website <ArrowRight size={15} />
-          </button>
+          </motion.button>
         </div>
-      </header>
+      </motion.header>
 
       {/* Simulated Device Frame Container */}
       <div className={`demo-viewport-canvas viewport-${viewportMode}`}>

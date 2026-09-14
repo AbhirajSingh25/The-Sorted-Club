@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowRight,
   ArrowLeft,
@@ -10,8 +11,17 @@ import {
   Clock,
   Layers,
   Send,
-  AlertCircle
+  AlertCircle,
+  Menu,
+  X
 } from 'lucide-react';
+import {
+  fadeInUp,
+  fadeIn,
+  scaleIn,
+  staggerContainer,
+  TRANSITIONS
+} from '../utils/motion';
 import { submitLead } from '../api/client';
 
 const BUSINESS_TYPES = [
@@ -94,6 +104,7 @@ export default function DiscoveryQuestionnaire({
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handlePageToggle = (pageName) => {
     setFormData((prev) => {
@@ -213,25 +224,38 @@ export default function DiscoveryQuestionnaire({
           </div>
         </nav>
 
-        <main style={{ maxWidth: '720px', margin: '60px auto 100px', padding: '0 24px', textAlign: 'center' }}>
-          <div style={{ background: '#fff', border: '2px solid var(--line)', borderRadius: '16px', padding: '48px 32px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)' }}>
-            <div style={{ width: '64px', height: '64px', background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+        <motion.main
+          style={{ maxWidth: '720px', margin: '60px auto 100px', padding: '0 24px', textAlign: 'center' }}
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
+          <motion.div
+            style={{ background: '#fff', border: '2px solid var(--line)', borderRadius: '16px', padding: '48px 32px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)' }}
+            variants={scaleIn}
+          >
+            <motion.div
+              style={{ width: '64px', height: '64px', background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+            >
               <CheckCircle2 size={36} color="#15803d" />
-            </div>
+            </motion.div>
 
-            <span className="client-code-tag" style={{ background: 'var(--acid)', color: '#10100f', marginBottom: '12px', display: 'inline-block' }}>
+            <motion.span className="client-code-tag" style={{ background: 'var(--acid)', color: '#10100f', marginBottom: '12px', display: 'inline-block' }} variants={fadeInUp}>
               DISCOVERY BRIEF RECEIVED
-            </span>
+            </motion.span>
 
-            <h1 style={{ font: '700 32px "Space Grotesk"', margin: '0 0 12px', color: 'var(--ink)' }}>
+            <motion.h1 style={{ font: '700 32px "Space Grotesk"', margin: '0 0 12px', color: 'var(--ink)' }} variants={fadeInUp}>
               We've Got Your Brief Sorted!
-            </h1>
+            </motion.h1>
 
-            <p style={{ color: 'var(--muted)', fontSize: '15px', lineHeight: 1.6, margin: '0 auto 28px', maxWidth: '540px' }}>
+            <motion.p style={{ color: 'var(--muted)', fontSize: '15px', lineHeight: 1.6, margin: '0 auto 28px', maxWidth: '540px' }} variants={fadeInUp}>
               Thank you, <strong>{formData.name}</strong>. Our digital architecture squad is reviewing your requirements for <strong>{formData.business_name}</strong>. We will formulate a tailored blueprint and proposal within <strong>24 business hours</strong>.
-            </p>
+            </motion.p>
 
-            <div style={{ background: '#faf9f5', border: '1px solid var(--line)', borderRadius: '10px', padding: '20px', textAlign: 'left', margin: '0 0 32px' }}>
+            <motion.div style={{ background: '#faf9f5', border: '1px solid var(--line)', borderRadius: '10px', padding: '20px', textAlign: 'left', margin: '0 0 32px' }} variants={fadeInUp}>
               <label className="section-subtitle" style={{ fontSize: '11px', marginBottom: '8px' }}>WHAT HAPPENS NEXT</label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: 'var(--ink)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -247,26 +271,31 @@ export default function DiscoveryQuestionnaire({
                   <span>Kickoff sprint lock-in with 50% milestone terms.</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button
+            <motion.div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }} variants={fadeInUp}>
+              <motion.button
                 type="button"
                 className="primary"
                 onClick={() => onNavigate('/templates')}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                transition={TRANSITIONS.buttonSpring}
               >
                 Browse Design Blueprints <ArrowRight size={14} />
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 type="button"
                 className="secondary"
                 onClick={() => onNavigate('/')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <ArrowLeft size={14} /> Back to Homepage
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
-            <div style={{ marginTop: '24px', fontSize: '12px', color: 'var(--muted)' }}>
+            <motion.div style={{ marginTop: '24px', fontSize: '12px', color: 'var(--muted)' }} variants={fadeInUp}>
               Need immediate assistance?{' '}
               <a
                 href="https://wa.me/919643820888?text=Hi%20The%20Sorted%20Club%2C%20I%20just%20submitted%20a%20discovery%20brief."
@@ -276,9 +305,9 @@ export default function DiscoveryQuestionnaire({
               >
                 Chat directly on WhatsApp →
               </a>
-            </div>
-          </div>
-        </main>
+            </motion.div>
+          </motion.div>
+        </motion.main>
       </div>
     );
   }
@@ -286,7 +315,11 @@ export default function DiscoveryQuestionnaire({
   return (
     <div className="discovery-page-root">
       {/* Public Navbar */}
-      <nav>
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={TRANSITIONS.editorial}
+      >
         <div
           className="brand"
           style={{ cursor: 'pointer' }}
@@ -295,72 +328,133 @@ export default function DiscoveryQuestionnaire({
           THE SORTED <span>CLUB</span>
         </div>
 
-        <div className="navlinks">
-          <button
+        <button
+          className="menu-button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        <div className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
+          <motion.button
             type="button"
             className="nav-sublink"
-            onClick={() => onNavigate('/services')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/services');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Services
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className="nav-sublink"
-            onClick={() => onNavigate('/templates')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/templates');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Templates &amp; Portfolio
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className="nav-sublink"
-            onClick={() => onNavigate('/pricing')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/pricing');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Pricing
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             className="nav-sublink active"
-            onClick={() => onNavigate('/discovery')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/discovery');
+            }}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
           >
             Discovery Brief
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             className="navcta"
-            onClick={() => onOpenInquiry({ service: 'Website / Build' })}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenInquiry({ service: 'Website / Build' });
+            }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
           >
             Free Consultation <ArrowRight size={16} />
-          </button>
+          </motion.button>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Hero Header */}
-      <section className="hero" style={{ padding: '60px 20px 30px' }}>
-        <div className="hero-orbit orbit-one" />
-        <div className="eyebrow">
+      <motion.section
+        className="hero"
+        style={{ padding: '60px 20px 30px' }}
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer}
+      >
+        <motion.div
+          className="hero-orbit orbit-one"
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 60, ease: 'linear' }}
+        />
+        <motion.div className="eyebrow" variants={fadeInUp}>
           CLIENT INTAKE &amp; TECHNICAL DISCOVERY
           <span className="live-dot" />
-        </div>
-        <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)' }}>
+        </motion.div>
+        <motion.h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)' }} variants={fadeInUp}>
           Tell us about your project.<br />
           <em>We'll get it sorted.</em>
-        </h1>
-        <p className="hero-copy" style={{ maxWidth: '620px' }}>
+        </motion.h1>
+        <motion.p className="hero-copy" style={{ maxWidth: '620px' }} variants={fadeInUp}>
           Complete this quick 9-question discovery intake questionnaire. We'll analyze your specifications and prepare a fixed-price proposal within 24 hours.
-        </p>
-      </section>
+        </motion.p>
+      </motion.section>
 
       {/* Questionnaire Form Container */}
       <main style={{ maxWidth: '860px', margin: '0 auto 100px', padding: '0 20px' }}>
         {errorMessage && (
-          <div className="form-error-banner" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+          <motion.div
+            className="form-error-banner"
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
             <AlertCircle size={18} color="#dc2626" />
             <span>{errorMessage}</span>
-          </div>
+          </motion.div>
         )}
 
-        <form onSubmit={handleSubmit} className="discovery-form-card">
+        <motion.form
+          onSubmit={handleSubmit}
+          className="discovery-form-card"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
           {/* SECTION 1: BUSINESS PROFILE & CONTACT */}
-          <div className="discovery-section">
+          <motion.div
+            className="discovery-section"
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+          >
             <div className="discovery-section-header">
               <span className="discovery-step-num">01</span>
               <div>
@@ -426,15 +520,18 @@ export default function DiscoveryQuestionnaire({
                 {BUSINESS_TYPES.map((bt) => {
                   const isSelected = formData.business_type === bt;
                   return (
-                    <button
+                    <motion.button
                       key={bt}
                       type="button"
                       className={`chip-btn ${isSelected ? 'selected' : ''}`}
                       onClick={() => setFormData({ ...formData, business_type: bt })}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      transition={TRANSITIONS.buttonSpring}
                     >
                       {isSelected && <Check size={12} style={{ marginRight: '4px' }} />}
                       {bt}
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
@@ -451,10 +548,17 @@ export default function DiscoveryQuestionnaire({
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* SECTION 2: CURRENT PRESENCE & TARGET AUDIENCE */}
-          <div className="discovery-section" style={{ marginTop: '36px' }}>
+          <motion.div
+            className="discovery-section"
+            style={{ marginTop: '36px' }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+          >
             <div className="discovery-section-header">
               <span className="discovery-step-num">02</span>
               <div>
@@ -485,10 +589,17 @@ export default function DiscoveryQuestionnaire({
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* SECTION 3: PAGES & SCOPE */}
-          <div className="discovery-section" style={{ marginTop: '36px' }}>
+          <motion.div
+            className="discovery-section"
+            style={{ marginTop: '36px' }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+          >
             <div className="discovery-section-header">
               <span className="discovery-step-num">03</span>
               <div>
@@ -501,24 +612,34 @@ export default function DiscoveryQuestionnaire({
               {AVAILABLE_PAGES.map((page) => {
                 const isChecked = formData.selected_pages.includes(page);
                 return (
-                  <div
+                  <motion.div
                     key={page}
                     className={`checkbox-card ${isChecked ? 'checked' : ''}`}
                     onClick={() => handlePageToggle(page)}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={TRANSITIONS.cardSpring}
                   >
                     <div className="checkbox-indicator">
                       {isChecked && <Check size={12} color="#10100f" />}
                     </div>
                     <span>{page}</span>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
             {fieldErrors.selected_pages && <small className="error-text">{fieldErrors.selected_pages}</small>}
-          </div>
+          </motion.div>
 
           {/* SECTION 4: REQUIRED FEATURES */}
-          <div className="discovery-section" style={{ marginTop: '36px' }}>
+          <motion.div
+            className="discovery-section"
+            style={{ marginTop: '36px' }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+          >
             <div className="discovery-section-header">
               <span className="discovery-step-num">04</span>
               <div>
@@ -531,23 +652,33 @@ export default function DiscoveryQuestionnaire({
               {AVAILABLE_FEATURES.map((feat) => {
                 const isChecked = formData.selected_features.includes(feat);
                 return (
-                  <div
+                  <motion.div
                     key={feat}
                     className={`checkbox-card ${isChecked ? 'checked' : ''}`}
                     onClick={() => handleFeatureToggle(feat)}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={TRANSITIONS.cardSpring}
                   >
                     <div className="checkbox-indicator">
                       {isChecked && <Check size={12} color="#10100f" />}
                     </div>
                     <span>{feat}</span>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
-          </div>
+          </motion.div>
 
           {/* SECTION 5: INSPIRATIONS & REFERENCE SITES */}
-          <div className="discovery-section" style={{ marginTop: '36px' }}>
+          <motion.div
+            className="discovery-section"
+            style={{ marginTop: '36px' }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+          >
             <div className="discovery-section-header">
               <span className="discovery-step-num">05</span>
               <div>
@@ -564,10 +695,17 @@ export default function DiscoveryQuestionnaire({
                 onChange={(e) => setFormData({ ...formData, reference_websites: e.target.value })}
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* SECTION 6: BUDGET & TIMELINE */}
-          <div className="discovery-section" style={{ marginTop: '36px' }}>
+          <motion.div
+            className="discovery-section"
+            style={{ marginTop: '36px' }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-40px' }}
+          >
             <div className="discovery-section-header">
               <span className="discovery-step-num">06</span>
               <div>
@@ -615,7 +753,7 @@ export default function DiscoveryQuestionnaire({
                 onChange={(e) => setFormData({ ...formData, additional_notes: e.target.value })}
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* SUBMIT BUTTON */}
           <div style={{ marginTop: '40px', borderTop: '1px solid var(--line)', paddingTop: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
@@ -623,11 +761,14 @@ export default function DiscoveryQuestionnaire({
               🔒 Information is kept strictly confidential. 24h proposal turnaround SLA.
             </div>
 
-            <button
+            <motion.button
               type="submit"
               className="primary"
               disabled={isSubmitting}
               style={{ background: 'var(--acid)', color: '#10100f', height: '46px', padding: '0 28px', fontSize: '14px' }}
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
             >
               {isSubmitting ? (
                 'Submitting Discovery Brief...'
@@ -636,9 +777,9 @@ export default function DiscoveryQuestionnaire({
                   Submit Discovery Brief <Send size={15} style={{ marginLeft: '6px' }} />
                 </>
               )}
-            </button>
+            </motion.button>
           </div>
-        </form>
+        </motion.form>
       </main>
 
       {/* Footer */}

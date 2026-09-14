@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -18,13 +19,23 @@ import {
   Globe,
   Sliders,
   Check,
-  Plus
+  Plus,
+  Menu,
+  X
 } from 'lucide-react';
 import { TEMPLATES } from './templatesData';
+import {
+  fadeInUp,
+  fadeIn,
+  scaleIn,
+  staggerContainer,
+  TRANSITIONS
+} from '../utils/motion';
 
 export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavigateToAdmin }) {
   const template = TEMPLATES.find((t) => t.slug === slug) || TEMPLATES[0];
   const [devicePreviewMode, setDevicePreviewMode] = useState('desktop'); // 'desktop' | 'mobile'
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Update SEO Title & Meta tags
   useEffect(() => {
@@ -38,35 +49,59 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
   return (
     <div className="template-detail-page">
       {/* Navigation */}
-      <nav>
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={TRANSITIONS.editorial}
+      >
         <div className="brand" style={{ cursor: 'pointer' }} onClick={() => onNavigate('/')}>
           THE SORTED <span>CLUB</span>
         </div>
 
-        <div className="navlinks">
+        <button
+          className="menu-button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        <div className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
           <button
             type="button"
             className="navlink-btn"
-            onClick={() => onNavigate('/templates')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/templates');
+            }}
           >
             ← All Templates
           </button>
           <button
             type="button"
             className="navlink-btn"
-            onClick={() => onNavigate('/pricing')}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigate('/pricing');
+            }}
           >
             Pricing &amp; Packages
           </button>
-          <button
+          <motion.button
             type="button"
             className="navcta"
-            onClick={() => onOpenInquiry({ template })}
+            whileHover={{ scale: 1.03, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenInquiry({ template });
+            }}
           >
             Build this Website <ArrowRight size={16} />
-          </button>
+          </motion.button>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Breadcrumb Row */}
       <div className="detail-breadcrumb-bar">
@@ -86,18 +121,23 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
       </div>
 
       {/* Main Detail Header */}
-      <header className="detail-header-section">
+      <motion.header
+        className="detail-header-section"
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer(0.08, 0.05)}
+      >
         <div className="detail-header-inner">
-          <div className="detail-header-meta">
+          <motion.div className="detail-header-meta" variants={fadeInUp}>
             <span className="concept-badge">{template.badge}</span>
             <span className="category-pill-tag">{template.category}</span>
             <span className="style-pill-tag">{template.designStyle} Style</span>
-          </div>
+          </motion.div>
 
-          <h1 className="detail-main-title">{template.name}</h1>
-          <p className="detail-tagline">{template.tagline}</p>
+          <motion.h1 className="detail-main-title" variants={fadeInUp}>{template.name}</motion.h1>
+          <motion.p className="detail-tagline" variants={fadeInUp}>{template.tagline}</motion.p>
 
-          <div className="detail-hero-stats">
+          <motion.div className="detail-hero-stats" variants={fadeInUp}>
             <div className="stat-pill">
               <span className="stat-label">Starting Investment</span>
               <strong className="stat-val">{template.startingPrice} <small>({template.startingPriceUSD})</small></strong>
@@ -110,55 +150,74 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
               <span className="stat-label">Performance</span>
               <strong className="stat-val"><Zap size={15} color="#22c55e" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />98+ PageSpeed Score</strong>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="detail-header-actions">
-            <button
+          <motion.div className="detail-header-actions" variants={fadeInUp}>
+            <motion.button
               type="button"
               className="primary large-btn"
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
               onClick={() => onOpenInquiry({ template })}
             >
               Build a website like this <ArrowRight size={18} />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               className="btn-live-demo-hero"
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
               onClick={() => onNavigate(`/demo/${template.slug}`)}
             >
               <Sparkles size={16} /> Launch Interactive Live Demo
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Interactive Device Viewport Presentation Canvas */}
-      <section className="detail-preview-showcase" aria-label="Template interactive mockup presentation">
+      <motion.section
+        className="detail-preview-showcase"
+        aria-label="Template interactive mockup presentation"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
         <div className="preview-showcase-card">
           <div className="showcase-top-bar">
             <div className="device-switcher-tabs" role="group" aria-label="Switch preview device">
-              <button
+              <motion.button
                 type="button"
                 className={`device-tab ${devicePreviewMode === 'desktop' ? 'active' : ''}`}
                 onClick={() => setDevicePreviewMode('desktop')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <Laptop size={16} /> Desktop View
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 type="button"
                 className={`device-tab ${devicePreviewMode === 'mobile' ? 'active' : ''}`}
                 onClick={() => setDevicePreviewMode('mobile')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <Smartphone size={16} /> Mobile View
-              </button>
+              </motion.button>
             </div>
 
-            <button
+            <motion.button
               type="button"
               className="open-fullscreen-demo-btn"
+              whileHover={{ scale: 1.02, x: 2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={TRANSITIONS.buttonSpring}
               onClick={() => onNavigate(`/demo/${template.slug}`)}
             >
               <ExternalLink size={14} /> Fullscreen Interactive Demo
-            </button>
+            </motion.button>
           </div>
 
           {/* Framed Device Container */}
@@ -186,18 +245,26 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                   }}
                 >
                   <div className="mockup-watermark-overlay">
-                    <div className="mockup-text-preview">
+                    <motion.div
+                      className="mockup-text-preview"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                    >
                       <span className="preview-eyebrow">{template.category}</span>
                       <h2>{template.demoData?.heroHeading || template.name}</h2>
                       <p>{template.demoData?.heroSub || template.shortDesc}</p>
-                      <button
+                      <motion.button
                         type="button"
                         className="mockup-cta-btn"
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.96 }}
+                        transition={TRANSITIONS.buttonSpring}
                         onClick={() => onNavigate(`/demo/${template.slug}`)}
                       >
                         Launch Interactive Sandbox →
-                      </button>
-                    </div>
+                      </motion.button>
+                    </motion.div>
                   </div>
                 </div>
               </div>
@@ -215,25 +282,33 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                     backgroundSize: 'cover'
                   }}
                 >
-                  <div className="phone-screen-inner">
+                  <motion.div
+                    className="phone-screen-inner"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4 }}
+                  >
                     <span className="phone-badge">{template.badge}</span>
                     <h3>{template.name}</h3>
                     <p>{template.shortDesc}</p>
-                    <button
+                    <motion.button
                       type="button"
                       className="phone-demo-btn"
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.96 }}
+                      transition={TRANSITIONS.buttonSpring}
                       onClick={() => onNavigate(`/demo/${template.slug}`)}
                     >
                       Test Mobile Demo
-                    </button>
-                  </div>
+                    </motion.button>
+                  </motion.div>
                 </div>
                 <div className="phone-home-indicator" />
               </div>
             )}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Deep Dive Specification Architecture */}
       <section className="detail-specs-container">
@@ -241,7 +316,13 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
           {/* Left Column: Deep Breakdown */}
           <div className="specs-main-col">
             {/* 1. Suitable Business Types */}
-            <div className="spec-card">
+            <motion.div
+              className="spec-card"
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               <div className="spec-card-head">
                 <Globe size={20} className="spec-icon" />
                 <h3>Recommended Business Types</h3>
@@ -254,10 +335,16 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                   </span>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* 2. Included Sections & Architecture */}
-            <div className="spec-card">
+            <motion.div
+              className="spec-card"
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               <div className="spec-card-head">
                 <Layers size={20} className="spec-icon" />
                 <h3>Included Pages &amp; Sections Checklist</h3>
@@ -276,10 +363,16 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* 3. Core Features & Capabilities */}
-            <div className="spec-card">
+            <motion.div
+              className="spec-card"
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               <div className="spec-card-head">
                 <Zap size={20} className="spec-icon" />
                 <h3>Key Features &amp; Technical Capabilities</h3>
@@ -292,10 +385,16 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* 4. Delivery Scope & Timeline */}
-            <div className="spec-card">
+            <motion.div
+              className="spec-card"
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               <div className="spec-card-head">
                 <Clock size={20} className="spec-icon" />
                 <h3>Estimated Delivery Scope</h3>
@@ -311,10 +410,16 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                   <strong>Included Services:</strong> Custom UI styling, mobile optimization, SEO meta tags, Google Maps embed, WhatsApp chat hook, SSL deployment, 30 days post-launch warranty.
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* 5. Customization Options */}
-            <div className="spec-card">
+            <motion.div
+              className="spec-card"
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               <div className="spec-card-head">
                 <Palette size={20} className="spec-icon" />
                 <h3>Customization &amp; Extension Add-ons</h3>
@@ -330,12 +435,17 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Right Column: Sticky Request Card */}
           <aside className="specs-sidebar-col">
-            <div className="sticky-build-card">
+            <motion.div
+              className="sticky-build-card"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+            >
               <div className="sidebar-card-badge">Selected Blueprint</div>
               <h3 className="sidebar-template-name">{template.name}</h3>
               <p className="sidebar-category">{template.category} • {template.badge}</p>
@@ -356,22 +466,28 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                 <div>✓ Zero Agency Overhead</div>
               </div>
 
-              <button
+              <motion.button
                 type="button"
                 className="primary full-width-cta"
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={TRANSITIONS.buttonSpring}
                 onClick={() => onOpenInquiry({ template })}
               >
                 Build a website like this <ArrowRight size={16} />
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
                 type="button"
                 className="btn-secondary full-width-cta"
                 style={{ marginTop: '10px' }}
+                whileHover={{ scale: 1.02, x: 2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={TRANSITIONS.buttonSpring}
                 onClick={() => onNavigate(`/demo/${template.slug}`)}
               >
                 <Sparkles size={15} /> Open Live Interactive Demo
-              </button>
+              </motion.button>
 
               <div className="sidebar-wa-box">
                 <span>Prefer a direct conversation?</span>
@@ -384,24 +500,33 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                   Chat on WhatsApp (+91 9643820888) →
                 </a>
               </div>
-            </div>
+            </motion.div>
           </aside>
         </div>
       </section>
 
       {/* Related Templates Carousel */}
-      <section className="related-templates-section">
+      <motion.section
+        className="related-templates-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer(0.08, 0.05)}
+      >
         <div className="related-inner">
-          <div className="section-head" style={{ marginBottom: '28px' }}>
+          <motion.div className="section-head" style={{ marginBottom: '28px' }} variants={fadeInUp}>
             <p className="eyebrow" style={{ color: 'var(--muted)' }}>EXPLORE MORE BLUEPRINTS</p>
             <h2>Related website concepts</h2>
-          </div>
+          </motion.div>
 
-          <div className="related-grid">
+          <motion.div className="related-grid" variants={staggerContainer(0.08, 0.08)}>
             {relatedTemplates.map((rel) => (
-              <div
+              <motion.div
                 key={rel.id}
                 className="related-card"
+                variants={fadeInUp}
+                whileHover={{ y: -6, boxShadow: '0 20px 40px -15px rgba(0,0,0,0.12)' }}
+                transition={TRANSITIONS.cardSpring}
                 onClick={() => onNavigate(`/templates/${rel.slug}`)}
                 role="button"
                 tabIndex={0}
@@ -411,6 +536,7 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                     onNavigate(`/templates/${rel.slug}`);
                   }
                 }}
+                data-cursor={`View ${rel.name}`}
               >
                 <div
                   className="related-img"
@@ -427,11 +553,11 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
                   <h4>{rel.name}</h4>
                   <div className="related-price">{rel.startingPrice}</div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Footer */}
       <footer>
