@@ -135,7 +135,7 @@ export default function PricingPage({
               onOpenInquiry({ service: 'Website / Build' });
             }}
           >
-            Free Consultation <ArrowRight size={16} />
+            Get in Touch <ArrowRight size={16} />
           </motion.button>
         </div>
       </motion.nav>

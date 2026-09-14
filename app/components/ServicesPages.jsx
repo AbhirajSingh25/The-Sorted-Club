@@ -563,7 +563,7 @@ export default function ServicesPages({
             whileTap={{ scale: 0.97 }}
             transition={TRANSITIONS.buttonSpring}
           >
-            Free Consultation <ArrowRight size={16} />
+            Get in Touch <ArrowRight size={16} />
           </motion.button>
         </div>
       </motion.nav>

@@ -156,7 +156,7 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
               onOpenInquiry({ service: 'Website / Build' });
             }}
           >
-            Free Consultation <ArrowRight size={16} />
+            Get in Touch <ArrowRight size={16} />
           </motion.button>
         </div>
       </motion.nav>
