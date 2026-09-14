@@ -89,18 +89,52 @@ nav {
   font-size: 14px;
 }
 
-.navlinks > a, .navlinks > button {
+.navlinks > a, .navlinks > button:not(.navcta) {
   transition: opacity 0.2s;
   background: transparent;
   border: none;
   cursor: pointer;
+  color: inherit;
 }
 
-.navlinks > a:hover, .navlinks > button:hover {
+.navlinks > a:hover, .navlinks > button:not(.navcta):hover {
   opacity: 0.55;
 }
 
-.navcta, .primary {
+.navcta,
+.navlinks .navcta,
+.navlinks > button.navcta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--ink, #10100f);
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  opacity: 1;
+  box-shadow: 0 2px 8px rgba(16, 16, 15, 0.15);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, box-shadow 0.2s;
+}
+
+.navcta:hover,
+.navlinks .navcta:hover,
+.navlinks > button.navcta:hover {
+  background: #242422;
+  color: #ffffff;
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16, 16, 15, 0.25);
+}
+
+.primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -115,7 +149,7 @@ nav {
   transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
 }
 
-.navcta:hover, .primary:hover {
+.primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(16, 16, 15, 0.15);
 }
