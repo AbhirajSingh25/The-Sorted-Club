@@ -49,14 +49,20 @@ import {
   clearAdminAuth,
   getAdminUsername
 } from '../api/client';
-import { ClientStatusBadge, OnboardingStatusBadge, ProjectStatusBadge } from './StatusBadge';
+import StatusBadge, {
+  ClientStatusBadge,
+  OnboardingStatusBadge,
+  ProjectStatusBadge
+} from './StatusBadge';
 import NotificationCenter from './NotificationCenter';
+import AdminNavbar from './AdminNavbar';
 
 const CLIENT_STATUSES = ['ALL', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'ARCHIVED'];
 const ONBOARDING_STATUSES = ['ALL', 'NOT_STARTED', 'IN_PROGRESS', 'WAITING_FOR_CLIENT', 'COMPLETED'];
 
-const CATEGORY_TITLES = {
-  LEGAL_FINANCE: 'Phase 1 • Legal & Financial Activation',
+// Phase display names
+const PHASE_LABELS = {
+  BRAND_STRATEGY: 'Phase 1 • Strategy, Vision & Briefing',
   ACCESS_ASSETS: 'Phase 2 • Assets & Access Handover',
   ALIGNMENT_SETUP: 'Phase 3 • Alignment & Project Setup'
 };
@@ -408,112 +414,18 @@ export default function ClientDashboard({
 
   return (
     <div className="admin-app-root">
-      {/* Top Admin Navbar with Tab Switcher */}
-      <header className="admin-navbar">
-        <div className="admin-nav-left">
-          <div className="brand">THE SORTED <span>CLUB</span></div>
-          <span className="admin-badge">CLIENT HUB</span>
-
-          {/* Navigation Switcher with 6 Tabs */}
-          <div className="admin-nav-tabs">
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => (onNavigateToCommandCenter ? onNavigateToCommandCenter() : onNavigateToInquiries && onNavigateToInquiries())}
-            >
-              <Layers size={14} />
-              <span>Command Center</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToInquiries && onNavigateToInquiries()}
-            >
-              <Inbox size={14} />
-              <span>Inquiries</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToCRM && onNavigateToCRM()}
-            >
-              <Kanban size={14} />
-              <span>Sales Pipeline</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn active"
-            >
-              <Users size={14} />
-              <span>Clients & Onboarding</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToFinance && onNavigateToFinance('overview')}
-            >
-              <DollarSign size={14} />
-              <span>Commercial & Finance</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToProjects && onNavigateToProjects()}
-            >
-              <FolderKanban size={14} />
-              <span>Projects & Delivery</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="admin-nav-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <NotificationCenter
-            onNavigate={(url) => {
-              if (url.startsWith('/admin/crm')) {
-                onNavigateToCRM && onNavigateToCRM();
-              } else if (url.startsWith('/admin/finance')) {
-                const tab = new URLSearchParams(url.split('?')[1] || '').get('tab');
-                onNavigateToFinance && onNavigateToFinance(tab || 'overview');
-              } else if (url.startsWith('/admin/clients')) {
-                const cid = new URLSearchParams(url.split('?')[1] || '').get('selectedClient');
-                if (cid) {
-                  const target = clients.find(c => String(c.id) === cid);
-                  if (target) openClientDrawer(target);
-                }
-              } else if (url.startsWith('/admin/projects')) {
-                const pid = new URLSearchParams(url.split('?')[1] || '').get('selectedProject');
-                onNavigateToProjects && onNavigateToProjects(pid);
-              } else if (url.startsWith('/admin')) {
-                onNavigateToInquiries && onNavigateToInquiries();
-              }
-            }}
-          />
-          <button
-            onClick={onBackToSite}
-            className="admin-link-btn"
-            title="Return to public site"
-            type="button"
-          >
-            <ArrowLeft size={16} /> View Website
-          </button>
-          <div className="admin-user-info">
-            <span className="admin-user-dot" />
-            <span>{adminUser}</span>
-          </div>
-          <button
-            onClick={() => {
-              clearAdminAuth();
-              onLogout();
-            }}
-            className="admin-logout-btn"
-            title="Log out of admin session"
-            type="button"
-          >
-            <LogOut size={16} />
-            <span>Log out</span>
-          </button>
-        </div>
-      </header>
+      <AdminNavbar
+        activeTab="clients"
+        badge="CLIENT HUB"
+        onNavigateToCommandCenter={onNavigateToCommandCenter}
+        onNavigateToInquiries={onNavigateToInquiries}
+        onNavigateToCRM={onNavigateToCRM}
+        onNavigateToClients={() => {}}
+        onNavigateToFinance={onNavigateToFinance}
+        onNavigateToProjects={onNavigateToProjects}
+        onBackToSite={onBackToSite}
+        onLogout={onLogout}
+      />
 
       <main className="admin-main-content">
         {/* Head Section */}
@@ -537,7 +449,7 @@ export default function ClientDashboard({
         </div>
 
         {/* Client Metrics Grid */}
-        <div className="crm-metrics-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+        <div className="crm-metrics-grid">
           <div className="crm-metric-card highlight-metric">
             <div className="crm-metric-label">TOTAL CLIENTS</div>
             <div className="crm-metric-val">{stats.total_clients}</div>

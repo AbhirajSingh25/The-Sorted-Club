@@ -62,6 +62,7 @@ import {
 } from '../api/client';
 import StatusBadge, { PriorityBadge, FollowUpBadge, QualificationScoreBadge } from './StatusBadge';
 import NotificationCenter from './NotificationCenter';
+import AdminNavbar from './AdminNavbar';
 import {
   generateOutreachMessages,
   DISCOVERY_CALL_CHECKLIST_ITEMS,
@@ -132,6 +133,7 @@ export default function CRMView({
   onNavigateToCommandCenter,
   onNavigateToInquiries,
   onNavigateToAdmin,
+  onNavigateToCRM,
   onNavigateToClients,
   onNavigateToFinance,
   onNavigateToProjects,
@@ -660,100 +662,18 @@ export default function CRMView({
 
   return (
     <div className="admin-app-root">
-      {/* Top Admin Navbar */}
-      <header className="admin-navbar">
-        <div className="admin-nav-left">
-          <div className="brand">THE SORTED <span>CLUB</span></div>
-          <span className="admin-badge">SALES & OUTREACH PIPELINE</span>
-
-          {/* Navigation Switcher */}
-          <div className="admin-nav-tabs">
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={onNavigateToCommandCenter || onNavigateToAdmin}
-            >
-              <Layers size={14} />
-              <span>Command Center</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={onNavigateToInquiries || onNavigateToAdmin}
-            >
-              <Inbox size={14} />
-              <span>Inquiries</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn active"
-            >
-              <Kanban size={14} />
-              <span>Sales & Outreach</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToClients && onNavigateToClients()}
-            >
-              <Users size={14} />
-              <span>Clients & Accounts</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToFinance && onNavigateToFinance('overview')}
-            >
-              <DollarSign size={14} />
-              <span>Finance & Invoices</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToProjects && onNavigateToProjects()}
-            >
-              <FolderKanban size={14} />
-              <span>Projects & Delivery</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="admin-nav-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <NotificationCenter
-            onNavigate={(url) => {
-              if (url.startsWith('/admin/crm')) {
-                const leadId = new URLSearchParams(url.split('?')[1] || '').get('selectedLead');
-                if (leadId) {
-                  const target = leads.find(l => String(l.id) === leadId);
-                  if (target) openLeadDrawer(target);
-                }
-              } else if (url.startsWith('/admin/finance')) {
-                const tab = new URLSearchParams(url.split('?')[1] || '').get('tab');
-                onNavigateToFinance && onNavigateToFinance(tab || 'overview');
-              } else if (url.startsWith('/admin/clients')) {
-                const cid = new URLSearchParams(url.split('?')[1] || '').get('selectedClient');
-                onNavigateToClients && onNavigateToClients(cid);
-              } else if (url.startsWith('/admin/projects')) {
-                const pid = new URLSearchParams(url.split('?')[1] || '').get('selectedProject');
-                onNavigateToProjects && onNavigateToProjects(pid);
-              } else if (url.startsWith('/admin')) {
-                onNavigateToAdmin && onNavigateToAdmin();
-              }
-            }}
-          />
-          <button onClick={onBackToSite} className="admin-link-btn" title="Return to public site" type="button">
-            <ArrowLeft size={14} /> View Website
-          </button>
-          <div className="admin-user-info">
-            <span className="admin-user-dot" />
-            <span>{adminUser}</span>
-          </div>
-          <button onClick={onLogout} className="admin-logout-btn" title="Log out of admin session" type="button">
-            <LogOut size={14} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </header>
+      <AdminNavbar
+        activeTab="crm"
+        badge="SALES & OUTREACH PIPELINE"
+        onNavigateToCommandCenter={onNavigateToCommandCenter || onNavigateToAdmin}
+        onNavigateToInquiries={onNavigateToInquiries || onNavigateToAdmin}
+        onNavigateToCRM={onNavigateToCRM}
+        onNavigateToClients={onNavigateToClients}
+        onNavigateToFinance={onNavigateToFinance}
+        onNavigateToProjects={onNavigateToProjects}
+        onBackToSite={onBackToSite}
+        onLogout={onLogout}
+      />
 
       {/* Main CRM Content */}
       <main className="admin-main-content">
@@ -880,7 +800,7 @@ export default function CRMView({
 
         {/* Lead Source & Service Breakdown Panel */}
         {showBreakdowns && (
-          <div style={{ background: '#fdfcf9', border: '1px solid var(--line)', borderRadius: '10px', padding: '16px', marginBottom: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div style={{ background: '#fdfcf9', border: '1px solid var(--line)', borderRadius: '10px', padding: '16px', marginBottom: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '20px' }}>
             <div>
               <strong style={{ fontSize: '13px', display: 'block', marginBottom: '8px', color: 'var(--ink)' }}>
                 Prospects by Channel
@@ -1414,7 +1334,7 @@ export default function CRMView({
                       <label className="section-subtitle" style={{ margin: 0 }}>PROSPECT AUDIT & INTELLIGENCE</label>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '12px', marginBottom: '12px' }}>
                       <div>
                         <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '4px' }}>PROBLEM NOTICED ON CURRENT SITE / SOCIAL</label>
                         <textarea
@@ -1441,7 +1361,7 @@ export default function CRMView({
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '12px' }}>
                       <div>
                         <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '4px' }}>WEBSITE / PROFILE URL</label>
                         <div style={{ display: 'flex', gap: '6px' }}>

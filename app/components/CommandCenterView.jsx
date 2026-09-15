@@ -27,6 +27,7 @@ import {
   getAdminUsername
 } from '../api/client';
 import NotificationCenter from './NotificationCenter';
+import AdminNavbar from './AdminNavbar';
 
 export default function CommandCenterView({
   onLogout,
@@ -138,121 +139,18 @@ export default function CommandCenterView({
 
   return (
     <div className="admin-app-root">
-      {/* Top Admin Navbar with 6 Tabs */}
-      <header className="admin-navbar">
-        <div className="admin-nav-left">
-          <div className="brand">THE SORTED <span>CLUB</span></div>
-          <span className="admin-badge">COMMAND CENTER</span>
-
-          <div className="admin-nav-tabs">
-            {/* 1. Command Center */}
-            <button
-              type="button"
-              className="admin-tab-btn active"
-            >
-              <Layers size={14} />
-              <span>Command Center</span>
-            </button>
-
-            {/* 2. Inquiries */}
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToInquiries && onNavigateToInquiries()}
-            >
-              <Inbox size={14} />
-              <span>Inquiries</span>
-            </button>
-
-            {/* 3. Sales Pipeline */}
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToCRM && onNavigateToCRM()}
-            >
-              <Kanban size={14} />
-              <span>Sales Pipeline</span>
-            </button>
-
-            {/* 4. Clients & Onboarding */}
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToClients && onNavigateToClients()}
-            >
-              <Users size={14} />
-              <span>Clients & Onboarding</span>
-            </button>
-
-            {/* 5. Commercial & Finance */}
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToFinance && onNavigateToFinance('overview')}
-            >
-              <DollarSign size={14} />
-              <span>Commercial & Finance</span>
-            </button>
-
-            {/* 6. Projects & Delivery */}
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToProjects && onNavigateToProjects()}
-            >
-              <FolderKanban size={14} />
-              <span>Projects & Delivery</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="admin-nav-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <NotificationCenter
-            onNavigate={(url) => {
-              if (url.startsWith('/admin/command-center')) {
-                onNavigateToCommandCenter && onNavigateToCommandCenter();
-              } else if (url.startsWith('/admin/crm')) {
-                onNavigateToCRM && onNavigateToCRM();
-              } else if (url.startsWith('/admin/finance')) {
-                const tab = new URLSearchParams(url.split('?')[1] || '').get('tab');
-                onNavigateToFinance && onNavigateToFinance(tab || 'overview');
-              } else if (url.startsWith('/admin/clients')) {
-                const cid = new URLSearchParams(url.split('?')[1] || '').get('selectedClient');
-                onNavigateToClients && onNavigateToClients(cid);
-              } else if (url.startsWith('/admin/projects')) {
-                const pid = new URLSearchParams(url.split('?')[1] || '').get('selectedProject');
-                onNavigateToProjects && onNavigateToProjects(pid);
-              } else if (url.startsWith('/admin')) {
-                onNavigateToInquiries && onNavigateToInquiries();
-              }
-            }}
-          />
-          <button
-            onClick={onBackToSite}
-            className="admin-link-btn"
-            title="Return to public site"
-            type="button"
-          >
-            <ArrowLeft size={16} /> View Website
-          </button>
-          <div className="admin-user-info">
-            <span className="admin-user-dot" />
-            <span>{adminUser}</span>
-          </div>
-          <button
-            onClick={() => {
-              clearAdminAuth();
-              onLogout();
-            }}
-            className="admin-logout-btn"
-            title="Log out of admin session"
-            type="button"
-          >
-            <LogOut size={16} />
-            <span>Log out</span>
-          </button>
-        </div>
-      </header>
+      <AdminNavbar
+        activeTab="command-center"
+        badge="COMMAND CENTER"
+        onNavigateToCommandCenter={onNavigateToCommandCenter}
+        onNavigateToInquiries={onNavigateToInquiries}
+        onNavigateToCRM={onNavigateToCRM}
+        onNavigateToClients={onNavigateToClients}
+        onNavigateToFinance={onNavigateToFinance}
+        onNavigateToProjects={onNavigateToProjects}
+        onBackToSite={onBackToSite}
+        onLogout={onLogout}
+      />
 
       {/* Main Content: Dedicated Operational Cockpit */}
       <main className="admin-main-content">
@@ -294,7 +192,7 @@ export default function CommandCenterView({
         </div>
 
         {/* 10 Operational Cockpit Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '28px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: '14px', marginBottom: '28px' }}>
           {/* 1. New Inquiries */}
           <div
             className="stat-card stat-card-clickable"
@@ -455,7 +353,7 @@ export default function CommandCenterView({
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '12px' }}>
               {commandCenter.attention_items.map((item) => {
                 const isUrgent = item.priority === 'URGENT';
                 const isHigh = item.priority === 'HIGH';

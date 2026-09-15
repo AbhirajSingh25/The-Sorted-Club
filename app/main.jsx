@@ -529,8 +529,24 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleNavigateToCRM = () => {
-    navigateTo('/admin/crm');
+  const handleNavigateToCRM = (stageOrOptions, maybeFollowup) => {
+    let url = '/admin/crm';
+    if (typeof stageOrOptions === 'string') {
+      const params = new URLSearchParams();
+      params.set('stage', stageOrOptions);
+      if (maybeFollowup) params.set('followup', maybeFollowup);
+      url += `?${params.toString()}`;
+    } else if (stageOrOptions && typeof stageOrOptions === 'object') {
+      const params = new URLSearchParams();
+      if (stageOrOptions.stage) params.set('stage', stageOrOptions.stage);
+      if (stageOrOptions.followup) params.set('followup', stageOrOptions.followup);
+      if (stageOrOptions.selectedLead || stageOrOptions.leadId) {
+        params.set('selectedLead', stageOrOptions.selectedLead || stageOrOptions.leadId);
+      }
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
+    }
+    navigateTo(url);
   };
 
   const handleNavigateToClients = (clientIdOrOptions) => {
@@ -747,6 +763,7 @@ export default function App() {
             onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
             onNavigateToInquiries={() => navigateTo('/admin')}
             onNavigateToAdmin={() => navigateTo('/admin')}
+            onNavigateToCRM={handleNavigateToCRM}
             onNavigateToClients={handleNavigateToClients}
             onNavigateToFinance={handleNavigateToFinance}
             onNavigateToProjects={handleNavigateToProjects}

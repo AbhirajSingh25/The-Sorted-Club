@@ -77,6 +77,7 @@ import StatusBadge, {
 } from './StatusBadge';
 import EmailComposerModal from './EmailComposerModal';
 import NotificationCenter from './NotificationCenter';
+import AdminNavbar from './AdminNavbar';
 
 export function formatMoney(amount, currency = 'INR') {
   const num = typeof amount === 'number' ? amount : parseFloat(amount || 0);
@@ -748,109 +749,20 @@ export default function FinanceDashboard({
 
   return (
     <div className="admin-app-root">
-      {/* Top Admin Navbar with Tab Switcher */}
-      <header className="admin-navbar">
-        <div className="admin-nav-left">
-          <div className="brand">THE SORTED <span>CLUB</span></div>
-          <span className="admin-badge">COMMERCIAL & FINANCE</span>
-
-          {/* Navigation Switcher with 6 Tabs */}
-          <div className="admin-nav-tabs">
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => (onNavigateToCommandCenter ? onNavigateToCommandCenter() : onNavigateToInquiries && onNavigateToInquiries())}
-            >
-              <Layers size={14} />
-              <span>Command Center</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToInquiries && onNavigateToInquiries()}
-            >
-              <Inbox size={14} />
-              <span>Inquiries</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToCRM && onNavigateToCRM()}
-            >
-              <Kanban size={14} />
-              <span>Sales Pipeline</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToClients && onNavigateToClients()}
-            >
-              <Users size={14} />
-              <span>Clients & Onboarding</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn active"
-            >
-              <DollarSign size={14} />
-              <span>Commercial & Finance</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToProjects && onNavigateToProjects()}
-            >
-              <FolderKanban size={14} />
-              <span>Projects & Delivery</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="admin-nav-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <NotificationCenter
-            onNavigate={(url) => {
-              if (url.startsWith('/admin/crm')) {
-                onNavigateToCRM && onNavigateToCRM();
-              } else if (url.startsWith('/admin/finance')) {
-                const tab = new URLSearchParams(url.split('?')[1] || '').get('tab');
-                if (tab) setActiveTab(tab);
-              } else if (url.startsWith('/admin/clients')) {
-                const cid = new URLSearchParams(url.split('?')[1] || '').get('selectedClient');
-                onNavigateToClients && onNavigateToClients(cid);
-              } else if (url.startsWith('/admin/projects')) {
-                const pid = new URLSearchParams(url.split('?')[1] || '').get('selectedProject');
-                onNavigateToProjects && onNavigateToProjects(pid);
-              } else if (url.startsWith('/admin')) {
-                onNavigateToInquiries && onNavigateToInquiries();
-              }
-            }}
-          />
-          <button
-            onClick={onBackToSite}
-            className="admin-link-btn"
-            title="Return to public site"
-            type="button"
-          >
-            <ArrowLeft size={16} /> View Website
-          </button>
-          <div className="admin-user-info">
-            <span className="admin-user-dot" />
-            <span>{adminUser}</span>
-          </div>
-          <button
-            onClick={() => {
-              clearAdminAuth();
-              onLogout();
-            }}
-            className="admin-logout-btn"
-            title="Log out of admin session"
-            type="button"
-          >
-            <LogOut size={16} />
-            <span>Log out</span>
-          </button>
-        </div>
-      </header>
+      <AdminNavbar
+        activeTab="finance"
+        badge="COMMERCIAL & FINANCE"
+        onNavigateToCommandCenter={onNavigateToCommandCenter}
+        onNavigateToInquiries={onNavigateToInquiries}
+        onNavigateToCRM={onNavigateToCRM}
+        onNavigateToClients={onNavigateToClients}
+        onNavigateToFinance={(tab) => {
+          if (tab) setActiveTab(tab);
+        }}
+        onNavigateToProjects={onNavigateToProjects}
+        onBackToSite={onBackToSite}
+        onLogout={onLogout}
+      />
 
       {/* Main Content Area */}
       <main className="admin-main-content">
@@ -975,7 +887,7 @@ export default function FinanceDashboard({
         {activeTab === 'overview' && (
           <div>
             {/* 6 Real Financial Metric Cards */}
-            <div className="crm-metrics-grid" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+            <div className="crm-metrics-grid">
               <div className="crm-metric-card highlight-metric">
                 <div className="crm-metric-label">TOTAL INVOICED</div>
                 <div className="crm-metric-val">

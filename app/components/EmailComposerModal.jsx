@@ -292,18 +292,20 @@ billing@thesortedclub.com`);
             />
           </div>
 
-          <div className="modal-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+          <div className="modal-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
             <button
               type="button"
               className="btn-secondary"
               onClick={onClose}
+              style={{ minHeight: '38px' }}
             >
               Close
             </button>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 className="btn-secondary"
+                style={{ minHeight: '38px' }}
                 onClick={() => {
                   navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`);
                   setCopiedBody(true);
@@ -316,6 +318,7 @@ billing@thesortedclub.com`);
               <button
                 type="button"
                 className="btn-primary"
+                style={{ minHeight: '38px' }}
                 onClick={handleOpenMailto}
               >
                 <Send size={15} />

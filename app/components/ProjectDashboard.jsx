@@ -82,6 +82,7 @@ import {
 } from './StatusBadge';
 import EmailComposerModal from './EmailComposerModal';
 import NotificationCenter from './NotificationCenter';
+import AdminNavbar from './AdminNavbar';
 
 const SERVICE_TYPES = [
   { value: 'ALL', label: 'All Services' },
@@ -719,99 +720,18 @@ export default function ProjectDashboard({
 
   return (
     <div className="admin-app-root">
-      {/* Top Admin Navbar */}
-      <header className="admin-navbar">
-        <div className="admin-nav-left">
-          <div className="brand">THE SORTED <span>CLUB</span></div>
-          <span className="admin-badge">BUILD DELIVERY ENGINE</span>
-
-          {/* Navigation Switcher with 6 Tabs */}
-          <div className="admin-nav-tabs">
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => (onNavigateToCommandCenter ? onNavigateToCommandCenter() : onNavigateToInquiries && onNavigateToInquiries())}
-            >
-              <Layers size={14} />
-              <span>Command Center</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={onNavigateToInquiries}
-            >
-              <Inbox size={14} />
-              <span>Inquiries</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={onNavigateToCRM}
-            >
-              <Kanban size={14} />
-              <span>Sales Pipeline</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToClients && onNavigateToClients()}
-            >
-              <Users size={14} />
-              <span>Clients & Onboarding</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn"
-              onClick={() => onNavigateToFinance && onNavigateToFinance('overview')}
-            >
-              <DollarSign size={14} />
-              <span>Commercial & Finance</span>
-            </button>
-            <button
-              type="button"
-              className="admin-tab-btn active"
-            >
-              <FolderKanban size={14} />
-              <span>Projects & Delivery</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="admin-nav-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <NotificationCenter
-            onNavigate={(url) => {
-              if (url.startsWith('/admin/crm')) {
-                onNavigateToCRM && onNavigateToCRM();
-              } else if (url.startsWith('/admin/finance')) {
-                const tab = new URLSearchParams(url.split('?')[1] || '').get('tab');
-                onNavigateToFinance && onNavigateToFinance(tab || 'overview');
-              } else if (url.startsWith('/admin/clients')) {
-                const cid = new URLSearchParams(url.split('?')[1] || '').get('selectedClient');
-                onNavigateToClients && onNavigateToClients(cid);
-              } else if (url.startsWith('/admin/projects')) {
-                const pid = new URLSearchParams(url.split('?')[1] || '').get('selectedProject');
-                if (pid) {
-                  const target = projects.find(p => String(p.id) === pid);
-                  if (target) setSelectedProject(target);
-                }
-              } else if (url.startsWith('/admin')) {
-                onNavigateToInquiries && onNavigateToInquiries();
-              }
-            }}
-          />
-          <button onClick={onBackToSite} className="admin-link-btn" title="Return to public site" type="button">
-            <ArrowLeft size={14} /> View Website
-          </button>
-          <div className="admin-user-info">
-            <span className="admin-user-dot" />
-            <span>{adminUser}</span>
-          </div>
-          <button onClick={onLogout} className="admin-logout-btn" title="Log out of admin session" type="button">
-            <LogOut size={14} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </header>
+      <AdminNavbar
+        activeTab="projects"
+        badge="BUILD DELIVERY ENGINE"
+        onNavigateToCommandCenter={onNavigateToCommandCenter}
+        onNavigateToInquiries={onNavigateToInquiries}
+        onNavigateToCRM={onNavigateToCRM}
+        onNavigateToClients={onNavigateToClients}
+        onNavigateToFinance={onNavigateToFinance}
+        onNavigateToProjects={() => {}}
+        onBackToSite={onBackToSite}
+        onLogout={onLogout}
+      />
 
       {/* Main Container */}
       <main className="admin-main-content">
@@ -862,7 +782,7 @@ export default function ProjectDashboard({
         </div>
 
         {/* Metrics Grid */}
-        <div className="crm-metrics-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+        <div className="crm-metrics-grid">
           <div className="crm-metric-card highlight-metric">
             <div className="crm-metric-label">ACTIVE BUILD ENGAGEMENTS</div>
             <div className="crm-metric-val">{stats.active_build_projects || stats.in_progress}</div>
@@ -1459,7 +1379,7 @@ export default function ProjectDashboard({
                     <strong style={{ fontSize: '13px', display: 'block', marginBottom: '12px', color: 'var(--ink)' }}>
                       12-Point Build Discovery Checklist
                     </strong>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '10px' }}>
                       {(briefDraft.discovery_checklist || []).map(item => (
                         <div
                           key={item.key}
@@ -1494,7 +1414,7 @@ export default function ProjectDashboard({
                   </div>
 
                   {/* Structured Brief Fields */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '14px' }}>
                     <div>
                       <label className="filter-label">Primary Business Goal</label>
                       <input
@@ -1539,7 +1459,7 @@ export default function ProjectDashboard({
                         placeholder="e.g. Custom React + Headless CMS"
                       />
                     </div>
-                    <div style={{ gridColumn: 'span 2' }}>
+                    <div>
                       <label className="filter-label">Required Integrations & Analytics</label>
                       <input
                         type="text"
