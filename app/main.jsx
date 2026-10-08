@@ -32,6 +32,8 @@ import TemplateLiveDemo from './components/TemplateLiveDemo';
 import PricingPage from './components/PricingPage';
 import DiscoveryQuestionnaire from './components/DiscoveryQuestionnaire';
 import AdminLogin from './components/AdminLogin';
+import MobileAdminShell from './components/mobile/MobileAdminShell';
+import { useIsMobile } from './utils/responsive';
 import { getAdminToken, verifyAdminSession, clearAdminAuth } from './api/client';
 
 const pillars = [
@@ -497,6 +499,8 @@ export default function App() {
   const [selectedService, setSelectedService] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(Boolean(getAdminToken()));
+  const [forceDesktop, setForceDesktop] = useState(false);
+  const isMobile = useIsMobile(768);
 
   // Synchronize route changes
   useEffect(() => {
@@ -676,6 +680,48 @@ export default function App() {
           <AdminLogin
             onLoginSuccess={() => setIsAdminAuthenticated(true)}
             onBackToSite={() => navigateTo('/')}
+          />
+        );
+      }
+
+      // Dedicated Mobile-First Admin Experience on mobile devices
+      if (isMobile && !forceDesktop) {
+        let initialTab = 'home';
+        let selLeadId = null;
+        let selProjId = null;
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+        if (currentPath === '/admin/crm' || currentPath.startsWith('/admin/crm')) {
+          initialTab = 'leads';
+          selLeadId = urlParams.get('selectedLead') || null;
+        } else if (currentPath === '/admin/projects' || currentPath.startsWith('/admin/projects')) {
+          initialTab = 'projects';
+          selProjId = urlParams.get('selectedProject') || null;
+        } else if (
+          currentPath === '/admin/clients' ||
+          currentPath.startsWith('/admin/clients') ||
+          currentPath === '/admin/finance' ||
+          currentPath.startsWith('/admin/finance') ||
+          currentPath === '/admin/more'
+        ) {
+          initialTab = 'more';
+        }
+
+        return (
+          <MobileAdminShell
+            initialTab={initialTab}
+            initialSelectedLeadId={selLeadId}
+            initialSelectedProjectId={selProjId}
+            onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
+            onNavigateToCRM={handleNavigateToCRM}
+            onNavigateToProjects={handleNavigateToProjects}
+            onNavigateToFinance={handleNavigateToFinance}
+            onNavigateToClients={handleNavigateToClients}
+            onNavigateToTemplates={() => navigateTo('/templates')}
+            onSwitchToDesktop={() => setForceDesktop(true)}
+            onBackToSite={() => navigateTo('/')}
+            onLogout={() => setIsAdminAuthenticated(false)}
           />
         );
       }
@@ -909,6 +955,15 @@ export default function App() {
       />
     </>
   );
+}
+
+// Register PWA Service Worker safely (Never cache admin dynamic API)
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.log('SW registration note:', err);
+    });
+  });
 }
 
 createRoot(document.getElementById('root')).render(<App />);

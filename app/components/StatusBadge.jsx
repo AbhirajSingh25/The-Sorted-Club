@@ -584,6 +584,52 @@ export function ProjectStatusBadge({ status, size = 'normal' }) {
   );
 }
 
+const PROJECT_HEALTH_CONFIG = {
+  ON_TRACK: { label: 'ON TRACK', bg: '#dcfce7', text: '#15803d', border: '#bbf7d0' },
+  AT_RISK: { label: 'AT RISK', bg: '#fef3c7', text: '#b45309', border: '#fde68a' },
+  BLOCKED: { label: 'BLOCKED', bg: '#fee2e2', text: '#dc2626', border: '#fca5a5' },
+  OVERDUE: { label: 'OVERDUE', bg: '#fee2e2', text: '#dc2626', border: '#fca5a5' }
+};
+
+export function ProjectHealthBadge({ health, size = 'normal' }) {
+  const normalized = (health || 'ON_TRACK').toUpperCase();
+  const config = PROJECT_HEALTH_CONFIG[normalized] || PROJECT_HEALTH_CONFIG.ON_TRACK;
+  const isSmall = size === 'small';
+
+  return (
+    <span
+      className={`project-health-badge health-${normalized.toLowerCase()}`}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '4px',
+        padding: isSmall ? '2px 6px' : '3px 8px',
+        borderRadius: '4px',
+        fontSize: isSmall ? '9px' : '10px',
+        fontWeight: 700,
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+        backgroundColor: config.bg,
+        color: config.text,
+        border: `1px solid ${config.border}`,
+        lineHeight: 1,
+        whiteSpace: 'nowrap'
+      }}
+    >
+      <span
+        style={{
+          width: '5px',
+          height: '5px',
+          borderRadius: '50%',
+          backgroundColor: config.text,
+          opacity: 0.85
+        }}
+      />
+      {config.label}
+    </span>
+  );
+}
+
 const TASK_STATUS_CONFIG = {
   TODO: { label: 'TO DO', bg: '#f4f1e9', text: '#68665e', border: '#d4d0c5' },
   IN_PROGRESS: { label: 'IN PROGRESS', bg: '#e0f2fe', text: '#0369a1', border: '#bae6fd' },
