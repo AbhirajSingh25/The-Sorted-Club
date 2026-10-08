@@ -13,7 +13,26 @@ env_path = Path(__file__).resolve().parent / ".env"
 is_test = os.environ.get("APP_ENV") == "test"
 load_dotenv(dotenv_path=env_path, override=not is_test)
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./sorted_club.db")
+def normalize_database_url(db_url: str) -> str:
+    """
+    Normalizes PostgreSQL database connection URLs to use the psycopg2 driver:
+    - postgres:// -> postgresql+psycopg2://
+    - postgresql+psycopg:// -> postgresql+psycopg2://
+    - postgresql:// -> postgresql+psycopg2://
+    Leaves SQLite and already-specified psycopg2 URLs intact.
+    """
+    if not db_url:
+        return db_url
+    if db_url.startswith("postgres://"):
+        return "postgresql+psycopg2://" + db_url[len("postgres://"):]
+    if db_url.startswith("postgresql+psycopg://"):
+        return "postgresql+psycopg2://" + db_url[len("postgresql+psycopg://"):]
+    if db_url.startswith("postgresql://"):
+        return "postgresql+psycopg2://" + db_url[len("postgresql://"):]
+    return db_url
+
+
+DATABASE_URL = normalize_database_url(os.getenv("DATABASE_URL", "sqlite:///./sorted_club.db"))
 
 
 def create_db_engine(db_url: str = DATABASE_URL):
@@ -22,6 +41,7 @@ def create_db_engine(db_url: str = DATABASE_URL):
     - PostgreSQL: connection pooling (pool_size=10, max_overflow=20), pool_pre_ping=True, pool_recycle=3600.
     - SQLite: check_same_thread=False, WAL journal mode, foreign keys ON.
     """
+    db_url = normalize_database_url(db_url)
     if db_url.startswith("postgresql") or db_url.startswith("postgres"):
         return create_engine(
             db_url,
