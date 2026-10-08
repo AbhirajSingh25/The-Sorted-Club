@@ -10209,7 +10209,7 @@ textarea:focus-visible {
 .mobile-splash-screen {
   position: fixed;
   inset: 0;
-  background: var(--paper);
+  background: #000000;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -10233,11 +10233,10 @@ textarea:focus-visible {
 }
 
 .mobile-splash-logo-img {
-  width: 84px;
-  height: 84px;
+  width: 96px;
+  height: 96px;
   object-fit: contain;
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(16, 16, 15, 0.08);
+  display: block;
 }
 
 .mobile-splash-text-wrap {
@@ -10250,13 +10249,13 @@ textarea:focus-visible {
 .mobile-splash-brand-title {
   font: 800 19px/1 "Space Grotesk", sans-serif;
   letter-spacing: 0.08em;
-  color: var(--ink);
+  color: #ffffff;
 }
 
 .mobile-splash-brand-tagline {
   font: 600 11px/1 "DM Sans", sans-serif;
   letter-spacing: 0.14em;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.65);
   text-transform: uppercase;
 }
 

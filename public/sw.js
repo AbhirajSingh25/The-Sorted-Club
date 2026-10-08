@@ -1,13 +1,14 @@
 // The Sorted Club - Service Worker
 // Ultra-safe caching strategy: NEVER cache dynamic admin API calls. Fresh data always.
 
-const CACHE_NAME = 'sorted-club-static-v1';
+const CACHE_NAME = 'sorted-club-static-v2';
 const STATIC_ASSETS = [
   '/',
-  '/favicon.svg',
+  '/favicon-32.png',
   '/icon-192.png',
   '/icon-512.png',
   '/apple-touch-icon.png',
+  '/app-logo.png',
   '/manifest.webmanifest'
 ];
 
