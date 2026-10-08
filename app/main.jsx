@@ -932,20 +932,30 @@ export default function App() {
     );
   };
 
+  const isMobileAdminView =
+    isMobile &&
+    !forceDesktop &&
+    isAdminAuthenticated &&
+    (currentPath === '/admin' || currentPath.startsWith('/admin'));
+
   return (
     <>
       <CustomCursor />
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentPath}
-          variants={routeVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-        >
-          {renderCurrentView()}
-        </motion.div>
-      </AnimatePresence>
+      {isMobileAdminView ? (
+        renderCurrentView()
+      ) : (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPath}
+            variants={routeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            {renderCurrentView()}
+          </motion.div>
+        </AnimatePresence>
+      )}
 
       <InquiryModal
         isOpen={inquiryModalOpen}

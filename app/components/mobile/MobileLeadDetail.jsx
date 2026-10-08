@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  ArrowLeft,
+  X,
   Phone,
   MessageSquare,
   Mail,
@@ -9,17 +9,10 @@ import {
   CheckCircle2,
   Clock,
   Sparkles,
-  UserCheck,
-  Building2,
-  Globe,
   Tag,
   DollarSign,
-  FileText,
-  AlertCircle,
-  Plus,
   Send,
   Loader2,
-  ChevronRight,
   ExternalLink,
   ShieldCheck,
   Check
@@ -31,8 +24,7 @@ import {
   convertLeadToClient
 } from '../../api/client';
 import StatusBadge, { PriorityBadge, FollowUpBadge } from '../StatusBadge';
-import { formatMobileDate, formatINR } from '../../utils/responsive';
-import { TRANSITIONS } from '../../utils/motion';
+import { formatMobileDate } from '../../utils/responsive';
 
 export default function MobileLeadDetail({
   lead,
@@ -76,7 +68,6 @@ export default function MobileLeadDetail({
 
   if (!currentLead) return null;
 
-  // Clean phone number for tel: and WhatsApp:
   const rawPhone = currentLead.phone || '';
   const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
   const waPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
@@ -87,7 +78,7 @@ export default function MobileLeadDetail({
 
   const showToast = (msg) => {
     setStatusMessage(msg);
-    setTimeout(() => setStatusMessage(null), 3500);
+    setTimeout(() => setStatusMessage(null), 3200);
   };
 
   const handleStatusUpdate = async (newStatus) => {
@@ -115,7 +106,7 @@ export default function MobileLeadDetail({
       setCurrentLead(updated);
       if (onLeadUpdated) onLeadUpdated(updated);
       setShowFollowUpPicker(false);
-      showToast('Follow-up scheduled successfully');
+      showToast('Follow-up scheduled');
     } catch (err) {
       alert(`Failed to schedule follow-up: ${err.message}`);
     } finally {
@@ -150,7 +141,7 @@ export default function MobileLeadDetail({
     setIsUpdatingStatus(true);
     try {
       const result = await convertLeadToClient(currentLead.id);
-      showToast('Lead converted to Client successfully!');
+      showToast('Lead converted to Client!');
       if (onConvertToClient) onConvertToClient(result);
     } catch (err) {
       alert(`Failed to convert client: ${err.message}`);
@@ -160,331 +151,351 @@ export default function MobileLeadDetail({
   };
 
   return (
-    <motion.div
-      className="mobile-lead-detail-view"
-      initial={{ opacity: 0, x: '100%' }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: '100%' }}
-      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {/* Top Header Bar */}
-      <div className="mobile-detail-topbar">
-        <button
-          type="button"
-          className="mobile-icon-btn"
-          onClick={onClose}
-          aria-label="Back to leads list"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <span className="mobile-detail-topbar-title">Lead Details</span>
-        <div style={{ width: 36 }} />
-      </div>
+    <div className="mobile-sheet-backdrop" onClick={onClose}>
+      <motion.div
+        className="mobile-detail-bottom-sheet"
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Lead details"
+      >
+        {/* Pull Handle */}
+        <div className="mobile-sheet-pill" />
 
-      {statusMessage && (
-        <div className="mobile-toast-notification">
-          <Check size={16} />
-          <span>{statusMessage}</span>
+        {/* Header Bar */}
+        <div className="mobile-detail-sheet-header">
+          <span className="mobile-detail-topbar-title">Lead Details</span>
+          <button
+            type="button"
+            className="mobile-icon-btn"
+            onClick={onClose}
+            aria-label="Close lead details"
+          >
+            <X size={20} />
+          </button>
         </div>
-      )}
 
-      {/* Main Content Body */}
-      <div className="mobile-detail-scroll-area">
-        {/* Lead Hero Card */}
-        <div className="mobile-card mobile-lead-hero-card">
-          <div className="mobile-lead-hero-badges">
-            <StatusBadge status={currentLead.status} />
-            {currentLead.priority && currentLead.priority !== 'MEDIUM' && (
-              <PriorityBadge priority={currentLead.priority} />
-            )}
-            {currentLead.next_follow_up_at && (
-              <FollowUpBadge nextFollowUpAt={currentLead.next_follow_up_at} />
-            )}
-          </div>
+        {statusMessage && (
+          <motion.div
+            className="mobile-toast-notification"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Check size={16} />
+            <span>{statusMessage}</span>
+          </motion.div>
+        )}
 
-          <h1 className="mobile-lead-name">
-            {currentLead.business_name || currentLead.name || 'Unnamed Prospect'}
-          </h1>
-
-          {currentLead.business_name && currentLead.name && (
-            <div className="mobile-lead-person">
-              <span>Contact: </span>
-              <strong>{currentLead.name}</strong>
+        {/* Scrollable Sheet Body */}
+        <div className="mobile-detail-scroll-area">
+          {/* Lead Hero Card */}
+          <div className="mobile-card mobile-lead-hero-card">
+            <div className="mobile-lead-hero-badges">
+              <StatusBadge status={currentLead.status} />
+              {currentLead.priority && currentLead.priority !== 'MEDIUM' && (
+                <PriorityBadge priority={currentLead.priority} />
+              )}
+              {currentLead.next_follow_up_at && (
+                <FollowUpBadge nextFollowUpAt={currentLead.next_follow_up_at} />
+              )}
             </div>
-          )}
 
-          <div className="mobile-lead-meta-row">
-            <span className="mobile-meta-item">
-              <Tag size={13} /> {currentLead.service_interest || 'General Inquiry'}
-            </span>
-            {currentLead.budget && (
-              <span className="mobile-meta-item highlight">
-                <DollarSign size={13} /> {currentLead.budget}
-              </span>
+            <h2 className="mobile-lead-name">
+              {currentLead.business_name || currentLead.name || 'Unnamed Prospect'}
+            </h2>
+
+            {currentLead.business_name && currentLead.name && (
+              <div className="mobile-lead-person">
+                <span>Contact: </span>
+                <strong>{currentLead.name}</strong>
+              </div>
             )}
+
+            <div className="mobile-lead-meta-row">
+              <span className="mobile-meta-item">
+                <Tag size={13} /> {currentLead.service_interest || 'General Inquiry'}
+              </span>
+              {currentLead.budget && (
+                <span className="mobile-meta-item highlight">
+                  <DollarSign size={13} /> {currentLead.budget}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* PRIMARY TOUCH-FRIENDLY ACTION BUTTONS (Min 48px height) */}
-        <div className="mobile-lead-touch-actions">
-          {currentLead.phone ? (
-            <a
-              href={`tel:${cleanPhone}`}
-              className="mobile-touch-btn mobile-call-btn"
-              title="Call Prospect"
-            >
-              <Phone size={18} />
-              <span>Call</span>
-            </a>
-          ) : (
-            <button className="mobile-touch-btn disabled" disabled>
-              <Phone size={18} />
-              <span>No Phone</span>
-            </button>
-          )}
+          {/* PRIMARY TOUCH-FRIENDLY ACTION BUTTONS (>= 48px) */}
+          <div className="mobile-lead-touch-actions">
+            {currentLead.phone ? (
+              <motion.a
+                href={`tel:${cleanPhone}`}
+                className="mobile-touch-btn mobile-call-btn"
+                whileTap={{ scale: 0.96 }}
+                title="Call Prospect"
+              >
+                <Phone size={18} />
+                <span>Call</span>
+              </motion.a>
+            ) : (
+              <button className="mobile-touch-btn disabled" disabled>
+                <Phone size={18} />
+                <span>No Phone</span>
+              </button>
+            )}
 
-          {currentLead.phone ? (
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mobile-touch-btn mobile-whatsapp-btn"
-              title="WhatsApp Prospect"
-            >
-              <MessageSquare size={18} />
-              <span>WhatsApp</span>
-            </a>
-          ) : null}
+            {currentLead.phone ? (
+              <motion.a
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mobile-touch-btn mobile-whatsapp-btn"
+                whileTap={{ scale: 0.96 }}
+                title="WhatsApp Prospect"
+              >
+                <MessageSquare size={18} />
+                <span>WhatsApp</span>
+              </motion.a>
+            ) : null}
 
-          {currentLead.email ? (
-            <a
-              href={`mailto:${currentLead.email}?subject=The%20Sorted%20Club%20Inquiry%20-%20${encodeURIComponent(currentLead.business_name || '')}`}
-              className="mobile-touch-btn mobile-email-btn"
-              title="Email Prospect"
-            >
-              <Mail size={18} />
-              <span>Email</span>
-            </a>
-          ) : null}
-        </div>
+            {currentLead.email ? (
+              <motion.a
+                href={`mailto:${currentLead.email}?subject=The%20Sorted%20Club%20Inquiry%20-%20${encodeURIComponent(currentLead.business_name || '')}`}
+                className="mobile-touch-btn mobile-email-btn"
+                whileTap={{ scale: 0.96 }}
+                title="Email Prospect"
+              >
+                <Mail size={18} />
+                <span>Email</span>
+              </motion.a>
+            ) : null}
+          </div>
 
-        {/* SECONDARY PIPELINE ACTIONS */}
-        <div className="mobile-card mobile-secondary-actions-card">
-          <div className="mobile-card-title">PIPELINE ACTIONS</div>
-          <div className="mobile-pipeline-buttons-grid">
-            {currentLead.status !== 'CONTACTED' && (
-              <button
+          {/* SECONDARY PIPELINE ACTIONS */}
+          <div className="mobile-card mobile-secondary-actions-card">
+            <div className="mobile-card-title">PIPELINE ACTIONS</div>
+            <div className="mobile-pipeline-buttons-grid">
+              {currentLead.status !== 'CONTACTED' && (
+                <motion.button
+                  type="button"
+                  className="mobile-action-pill"
+                  onClick={() => handleStatusUpdate('CONTACTED')}
+                  disabled={isUpdatingStatus}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  <CheckCircle2 size={15} /> Mark Contacted
+                </motion.button>
+              )}
+
+              {currentLead.status !== 'QUALIFIED' && (
+                <motion.button
+                  type="button"
+                  className="mobile-action-pill highlight"
+                  onClick={() => handleStatusUpdate('QUALIFIED')}
+                  disabled={isUpdatingStatus}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  <Sparkles size={15} /> Qualify Lead
+                </motion.button>
+              )}
+
+              <motion.button
                 type="button"
                 className="mobile-action-pill"
-                onClick={() => handleStatusUpdate('CONTACTED')}
+                onClick={() => setShowFollowUpPicker(!showFollowUpPicker)}
                 disabled={isUpdatingStatus}
+                whileTap={{ scale: 0.96 }}
               >
-                <CheckCircle2 size={15} /> Mark Contacted
-              </button>
-            )}
+                <Clock size={15} /> Schedule Follow-up
+              </motion.button>
 
-            {currentLead.status !== 'QUALIFIED' && (
-              <button
-                type="button"
-                className="mobile-action-pill highlight"
-                onClick={() => handleStatusUpdate('QUALIFIED')}
-                disabled={isUpdatingStatus}
-              >
-                <Sparkles size={15} /> Qualify Lead
-              </button>
-            )}
+              {currentLead.status !== 'WON' && (
+                <motion.button
+                  type="button"
+                  className="mobile-action-pill success"
+                  onClick={handleConvertClient}
+                  disabled={isUpdatingStatus}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  <ShieldCheck size={15} /> Convert to Client
+                </motion.button>
+              )}
+            </div>
 
-            <button
-              type="button"
-              className="mobile-action-pill"
-              onClick={() => setShowFollowUpPicker(!showFollowUpPicker)}
-              disabled={isUpdatingStatus}
-            >
-              <Clock size={15} /> Schedule Follow-up
-            </button>
-
-            {currentLead.status !== 'WON' && (
-              <button
-                type="button"
-                className="mobile-action-pill success"
-                onClick={handleConvertClient}
-                disabled={isUpdatingStatus}
-              >
-                <ShieldCheck size={15} /> Convert to Client
-              </button>
+            {/* Follow-up Picker */}
+            {showFollowUpPicker && (
+              <div className="mobile-followup-box">
+                <label htmlFor="mobile-followup-input">Select Follow-up Date & Time:</label>
+                <div className="mobile-followup-row">
+                  <input
+                    id="mobile-followup-input"
+                    type="datetime-local"
+                    value={followUpDate}
+                    onChange={(e) => setFollowUpDate(e.target.value)}
+                    className="mobile-input"
+                  />
+                  <button
+                    type="button"
+                    className="mobile-primary-btn"
+                    onClick={handleScheduleFollowUp}
+                    disabled={!followUpDate || isUpdatingStatus}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Follow-up Picker Dialog */}
-          {showFollowUpPicker && (
-            <div className="mobile-followup-box">
-              <label htmlFor="mobile-followup-input">Select Follow-up Date & Time:</label>
-              <div className="mobile-followup-row">
-                <input
-                  id="mobile-followup-input"
-                  type="datetime-local"
-                  value={followUpDate}
-                  onChange={(e) => setFollowUpDate(e.target.value)}
-                  className="mobile-input"
-                />
-                <button
-                  type="button"
-                  className="mobile-primary-btn"
-                  onClick={handleScheduleFollowUp}
-                  disabled={!followUpDate || isUpdatingStatus}
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* CONTACT & BUSINESS DETAILS */}
-        <div className="mobile-card">
-          <div className="mobile-card-title">CONTACT INFORMATION</div>
-          <div className="mobile-info-list">
-            <div className="mobile-info-row">
-              <span className="mobile-info-label">Contact Name</span>
-              <span className="mobile-info-val">{currentLead.name || '—'}</span>
-            </div>
-            <div className="mobile-info-row">
-              <span className="mobile-info-label">Email</span>
-              <span className="mobile-info-val">
-                {currentLead.email ? (
-                  <a href={`mailto:${currentLead.email}`} className="mobile-link">
-                    {currentLead.email}
-                  </a>
-                ) : (
-                  '—'
-                )}
-              </span>
-            </div>
-            <div className="mobile-info-row">
-              <span className="mobile-info-label">Phone</span>
-              <span className="mobile-info-val">
-                {currentLead.phone ? (
-                  <a href={`tel:${cleanPhone}`} className="mobile-link">
-                    {currentLead.phone}
-                  </a>
-                ) : (
-                  '—'
-                )}
-              </span>
-            </div>
-            {currentLead.website && (
+          {/* CONTACT & BUSINESS DETAILS */}
+          <div className="mobile-card">
+            <div className="mobile-card-title">CONTACT INFORMATION</div>
+            <div className="mobile-info-list">
               <div className="mobile-info-row">
-                <span className="mobile-info-label">Website</span>
+                <span className="mobile-info-label">Contact Name</span>
+                <span className="mobile-info-val">{currentLead.name || '—'}</span>
+              </div>
+              <div className="mobile-info-row">
+                <span className="mobile-info-label">Email</span>
                 <span className="mobile-info-val">
-                  <a
-                    href={
-                      currentLead.website.startsWith('http')
-                        ? currentLead.website
-                        : `https://${currentLead.website}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mobile-link"
-                  >
-                    {currentLead.website} <ExternalLink size={12} style={{ display: 'inline' }} />
-                  </a>
+                  {currentLead.email ? (
+                    <a href={`mailto:${currentLead.email}`} className="mobile-link">
+                      {currentLead.email}
+                    </a>
+                  ) : (
+                    '—'
+                  )}
                 </span>
               </div>
-            )}
-            <div className="mobile-info-row">
-              <span className="mobile-info-label">Received</span>
-              <span className="mobile-info-val">{formatMobileDate(currentLead.created_at)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* PROJECT REQUIREMENTS & SCOPE */}
-        <div className="mobile-card">
-          <div className="mobile-card-title">PROJECT SPECIFICATIONS</div>
-          <div className="mobile-info-list">
-            <div className="mobile-info-row">
-              <span className="mobile-info-label">Service</span>
-              <span className="mobile-info-val">{currentLead.service_interest || 'General'}</span>
-            </div>
-            <div className="mobile-info-row">
-              <span className="mobile-info-label">Budget</span>
-              <span className="mobile-info-val highlight">{currentLead.budget || 'Not specified'}</span>
-            </div>
-            <div className="mobile-info-row">
-              <span className="mobile-info-label">Timeline</span>
-              <span className="mobile-info-val">{currentLead.timeline || 'Flexible'}</span>
-            </div>
-            {currentLead.source && (
               <div className="mobile-info-row">
-                <span className="mobile-info-label">Source</span>
-                <span className="mobile-info-val">{currentLead.source}</span>
+                <span className="mobile-info-label">Phone</span>
+                <span className="mobile-info-val">
+                  {currentLead.phone ? (
+                    <a href={`tel:${cleanPhone}`} className="mobile-link">
+                      {currentLead.phone}
+                    </a>
+                  ) : (
+                    '—'
+                  )}
+                </span>
               </div>
-            )}
-          </div>
-
-          {currentLead.message && (
-            <div className="mobile-notes-box">
-              <div className="mobile-notes-label">Original Inquiry Message:</div>
-              <p className="mobile-notes-content">{currentLead.message}</p>
-            </div>
-          )}
-        </div>
-
-        {/* ACTIVITY HISTORY & ADD NOTE */}
-        <div className="mobile-card">
-          <div className="mobile-card-title">ACTIVITY & NOTES</div>
-
-          {/* Quick Add Note Form */}
-          <form onSubmit={handleAddNote} className="mobile-add-note-form">
-            <textarea
-              className="mobile-textarea"
-              placeholder="Add an internal note or call summary..."
-              rows={2}
-              value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-            />
-            <div className="mobile-note-submit-row">
-              <button
-                type="submit"
-                className="mobile-primary-btn"
-                disabled={!newNote.trim() || submittingNote}
-              >
-                {submittingNote ? (
-                  <Loader2 size={16} className="spinner" />
-                ) : (
-                  <>
-                    <Send size={14} /> Log Note
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-
-          {/* Activity Timeline List */}
-          <div className="mobile-timeline-list">
-            {loadingActivities ? (
-              <div className="mobile-loading-center">
-                <Loader2 size={20} className="spinner" />
-              </div>
-            ) : activities.length === 0 ? (
-              <div className="mobile-empty-hint">No activity logged yet. Add your first note above.</div>
-            ) : (
-              activities.map((act) => (
-                <div key={act.id} className="mobile-timeline-item">
-                  <div className="mobile-timeline-dot" />
-                  <div className="mobile-timeline-content">
-                    <div className="mobile-timeline-header">
-                      <span className="mobile-timeline-type">{act.activity_type || 'NOTE'}</span>
-                      <span className="mobile-timeline-time">{formatMobileDate(act.created_at)}</span>
-                    </div>
-                    <p className="mobile-timeline-notes">{act.notes || act.summary || 'Logged action'}</p>
-                  </div>
+              {currentLead.website && (
+                <div className="mobile-info-row">
+                  <span className="mobile-info-label">Website</span>
+                  <span className="mobile-info-val">
+                    <a
+                      href={
+                        currentLead.website.startsWith('http')
+                          ? currentLead.website
+                          : `https://${currentLead.website}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mobile-link"
+                    >
+                      {currentLead.website} <ExternalLink size={12} style={{ display: 'inline' }} />
+                    </a>
+                  </span>
                 </div>
-              ))
+              )}
+              <div className="mobile-info-row">
+                <span className="mobile-info-label">Received</span>
+                <span className="mobile-info-val">{formatMobileDate(currentLead.created_at)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* PROJECT REQUIREMENTS */}
+          <div className="mobile-card">
+            <div className="mobile-card-title">PROJECT SPECIFICATIONS</div>
+            <div className="mobile-info-list">
+              <div className="mobile-info-row">
+                <span className="mobile-info-label">Service</span>
+                <span className="mobile-info-val">{currentLead.service_interest || 'General'}</span>
+              </div>
+              <div className="mobile-info-row">
+                <span className="mobile-info-label">Budget</span>
+                <span className="mobile-info-val highlight">{currentLead.budget || 'Not specified'}</span>
+              </div>
+              <div className="mobile-info-row">
+                <span className="mobile-info-label">Timeline</span>
+                <span className="mobile-info-val">{currentLead.timeline || 'Flexible'}</span>
+              </div>
+              {currentLead.source && (
+                <div className="mobile-info-row">
+                  <span className="mobile-info-label">Source</span>
+                  <span className="mobile-info-val">{currentLead.source}</span>
+                </div>
+              )}
+            </div>
+
+            {currentLead.message && (
+              <div className="mobile-notes-box">
+                <div className="mobile-notes-label">Original Inquiry Message:</div>
+                <p className="mobile-notes-content">{currentLead.message}</p>
+              </div>
             )}
           </div>
+
+          {/* ACTIVITY & NOTES */}
+          <div className="mobile-card">
+            <div className="mobile-card-title">ACTIVITY & NOTES</div>
+
+            {/* Quick Add Note Form */}
+            <form onSubmit={handleAddNote} className="mobile-add-note-form">
+              <textarea
+                className="mobile-textarea"
+                placeholder="Add an internal note or call summary..."
+                rows={2}
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+              />
+              <div className="mobile-note-submit-row">
+                <motion.button
+                  type="submit"
+                  className="mobile-primary-btn"
+                  disabled={!newNote.trim() || submittingNote}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {submittingNote ? (
+                    <Loader2 size={16} className="spinner" />
+                  ) : (
+                    <>
+                      <Send size={14} /> Log Note
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            </form>
+
+            {/* Timeline */}
+            <div className="mobile-timeline-list">
+              {loadingActivities ? (
+                <div className="mobile-loading-center">
+                  <Loader2 size={20} className="spinner" />
+                </div>
+              ) : activities.length === 0 ? (
+                <div className="mobile-empty-hint">No activity logged yet. Add your first note above.</div>
+              ) : (
+                activities.map((act) => (
+                  <div key={act.id} className="mobile-timeline-item">
+                    <div className="mobile-timeline-dot" />
+                    <div className="mobile-timeline-content">
+                      <div className="mobile-timeline-header">
+                        <span className="mobile-timeline-type">{act.activity_type || 'NOTE'}</span>
+                        <span className="mobile-timeline-time">{formatMobileDate(act.created_at)}</span>
+                      </div>
+                      <p className="mobile-timeline-notes">{act.notes || act.summary || 'Logged action'}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }

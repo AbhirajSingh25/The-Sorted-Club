@@ -7,14 +7,12 @@ import {
   FolderKanban,
   User,
   Tag,
-  Calendar,
   ChevronRight,
-  Loader2,
   AlertCircle,
   Plus
 } from 'lucide-react';
 import { fetchProjects } from '../../api/client';
-import { ProjectStatusBadge, ProjectHealthBadge } from '../StatusBadge';
+import { ProjectStatusBadge } from '../StatusBadge';
 import MobileProjectDetail from './MobileProjectDetail';
 import { formatMobileDate, formatINR } from '../../utils/responsive';
 
@@ -104,14 +102,16 @@ export default function MobileProjectsView({ initialSelectedProjectId = null, on
               </button>
             )}
           </div>
-          <button
+          <motion.button
             type="button"
             className={`mobile-refresh-btn ${refreshing ? 'spinning' : ''}`}
+            whileTap={{ scale: 0.94 }}
             onClick={handleRefresh}
             title="Refresh Projects"
+            aria-label="Refresh projects"
           >
             <RefreshCw size={16} />
-          </button>
+          </motion.button>
         </div>
 
         {/* Status Pills */}
@@ -132,9 +132,9 @@ export default function MobileProjectsView({ initialSelectedProjectId = null, on
       {/* Projects List */}
       <div className="mobile-leads-list">
         {loading ? (
-          <div className="mobile-loading-center">
-            <Loader2 size={24} className="spinner" />
-            <span>Loading projects...</span>
+          <div className="mobile-skeleton-list">
+            <div className="mobile-skeleton-lead-card" />
+            <div className="mobile-skeleton-lead-card" />
           </div>
         ) : error ? (
           <div className="mobile-error-box">
@@ -145,7 +145,12 @@ export default function MobileProjectsView({ initialSelectedProjectId = null, on
             </button>
           </div>
         ) : projects.length === 0 ? (
-          <div className="mobile-empty-state">
+          <motion.div
+            className="mobile-empty-state"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+          >
             <div className="mobile-empty-icon">📁</div>
             <div className="mobile-empty-title">No projects found</div>
             <p className="mobile-empty-desc">
@@ -163,9 +168,9 @@ export default function MobileProjectsView({ initialSelectedProjectId = null, on
                 <Plus size={16} /> Create First Project
               </button>
             )}
-          </div>
+          </motion.div>
         ) : (
-          projects.map((proj) => {
+          projects.map((proj, idx) => {
             const progress = proj.progress_percent || 0;
             return (
               <motion.div
@@ -173,7 +178,9 @@ export default function MobileProjectsView({ initialSelectedProjectId = null, on
                 className="mobile-lead-card"
                 onClick={() => setSelectedProject(proj)}
                 whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.12 }}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: Math.min(idx * 0.03, 0.2) }}
                 role="button"
                 tabIndex={0}
               >

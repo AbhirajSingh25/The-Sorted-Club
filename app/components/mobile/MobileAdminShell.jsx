@@ -6,17 +6,14 @@ import {
   FolderKanban,
   Grid,
   Plus,
-  Shield,
-  Layers,
-  Sparkles,
-  DollarSign,
-  Users
+  Shield
 } from 'lucide-react';
 import MobileAdminHome from './MobileAdminHome';
 import MobileLeadsView from './MobileLeadsView';
 import MobileProjectsView from './MobileProjectsView';
 import MobileMoreView from './MobileMoreView';
 import MobileQuickModals from './MobileQuickModals';
+import MobileSplashScreen from './MobileSplashScreen';
 import NotificationCenter from '../NotificationCenter';
 import { getAdminUsername, fetchLeadStats } from '../../api/client';
 
@@ -41,6 +38,16 @@ export default function MobileAdminShell({
   const [activeQuickModal, setActiveQuickModal] = useState(null);
   const [newLeadsCount, setNewLeadsCount] = useState(0);
 
+  // Splash screen state (shown once per session)
+  const [showSplash, setShowSplash] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return sessionStorage.getItem('tsc_mobile_splash_shown') !== 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
   const username = getAdminUsername() || 'Abhiraj';
 
   useEffect(() => {
@@ -54,6 +61,13 @@ export default function MobileAdminShell({
       })
       .catch(() => {});
   }, [activeTab]);
+
+  const handleSplashComplete = () => {
+    try {
+      sessionStorage.setItem('tsc_mobile_splash_shown', 'true');
+    } catch (e) {}
+    setShowSplash(false);
+  };
 
   const handleNotificationNavigate = (url) => {
     if (!url) return;
@@ -79,13 +93,13 @@ export default function MobileAdminShell({
   const getPageTitle = () => {
     switch (activeTab) {
       case 'home':
-        return 'Overview';
+        return 'Home';
       case 'leads':
-        return 'Leads Pipeline';
+        return 'Leads';
       case 'projects':
-        return 'Active Projects';
+        return 'Projects';
       case 'more':
-        return 'More & Settings';
+        return 'More';
       default:
         return 'Admin';
     }
@@ -93,26 +107,34 @@ export default function MobileAdminShell({
 
   return (
     <div className="mobile-admin-shell-layout">
-      {/* 1. COMPACT TOP HEADER */}
+      {/* Session Splash Screen (First Launch Only) */}
+      <AnimatePresence>
+        {showSplash && (
+          <MobileSplashScreen onComplete={handleSplashComplete} />
+        )}
+      </AnimatePresence>
+
+      {/* 1. TOP APP HEADER (Fixed / Sticky at Top) */}
       <header className="mobile-top-header">
-        {/* Left: Brand / SC Logo */}
+        {/* Left: Supplied Sorted Club Logo Asset */}
         <div
           className="mobile-header-brand"
           onClick={() => setActiveTab('home')}
           role="button"
           tabIndex={0}
+          aria-label="Return to Overview"
         >
-          <div className="mobile-brand-icon">
-            <span>SC</span>
-            <span className="mobile-brand-dot" />
-          </div>
-          <span className="mobile-brand-text">SORTED <strong>CLUB</strong></span>
+          <img
+            src="/app-logo.png"
+            alt="The Sorted Club"
+            className="mobile-header-logo-img"
+          />
         </div>
 
-        {/* Center: Page Title */}
-        <div className="mobile-header-title">{getPageTitle()}</div>
+        {/* Center: Current Section / Page Title */}
+        <h1 className="mobile-header-title">{getPageTitle()}</h1>
 
-        {/* Right: Notifications & Profile Avatar */}
+        {/* Right: Notifications & Profile Action */}
         <div className="mobile-header-actions">
           <NotificationCenter onNavigate={handleNotificationNavigate} />
           <div
@@ -121,6 +143,7 @@ export default function MobileAdminShell({
             role="button"
             tabIndex={0}
             title={`Logged in as ${username}`}
+            aria-label="Account details and settings"
           >
             <Shield size={14} />
             <span className="mobile-avatar-online-dot" />
@@ -128,16 +151,16 @@ export default function MobileAdminShell({
         </div>
       </header>
 
-      {/* 2. SCROLLABLE MAIN VIEWPORT */}
+      {/* 2. SCROLLABLE MAIN PAGE CONTAINER */}
       <main className="mobile-viewport-content">
         <AnimatePresence mode="wait">
           {activeTab === 'home' && (
             <motion.div
               key="home"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
               <MobileAdminHome
                 onNavigateToLeads={() => setActiveTab('leads')}
@@ -155,10 +178,10 @@ export default function MobileAdminShell({
           {activeTab === 'leads' && (
             <motion.div
               key="leads"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
               <MobileLeadsView
                 initialSelectedLeadId={selectedLeadId}
@@ -176,10 +199,10 @@ export default function MobileAdminShell({
           {activeTab === 'projects' && (
             <motion.div
               key="projects"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
               <MobileProjectsView
                 initialSelectedProjectId={selectedProjectId}
@@ -194,10 +217,10 @@ export default function MobileAdminShell({
           {activeTab === 'more' && (
             <motion.div
               key="more"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
               <MobileMoreView
                 onNavigateToClients={onNavigateToClients}
@@ -215,64 +238,108 @@ export default function MobileAdminShell({
       {/* 3. FLOATING ACTION BUTTON (+) */}
       <motion.button
         type="button"
-        className="mobile-fab-btn"
-        whileTap={{ scale: 0.92 }}
+        className={`mobile-fab-btn ${quickMenuOpen ? 'open' : ''}`}
+        whileTap={{ scale: 0.94 }}
         onClick={() => {
           setActiveQuickModal(null);
-          setQuickMenuOpen(true);
+          setQuickMenuOpen(!quickMenuOpen);
         }}
-        aria-label="Quick Action Menu"
+        aria-label="Quick Actions Menu"
       >
-        <Plus size={24} />
+        <motion.div
+          animate={{ rotate: quickMenuOpen ? 45 : 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Plus size={24} />
+        </motion.div>
       </motion.button>
 
-      {/* 4. FIXED BOTTOM NAVIGATION BAR */}
-      <nav className="mobile-bottom-nav">
+      {/* 4. PRIMARY FIXED BOTTOM NAVIGATION BAR */}
+      <nav className="mobile-bottom-nav" aria-label="Mobile Bottom Navigation">
         <button
           type="button"
           className={`mobile-nav-tab ${activeTab === 'home' ? 'active' : ''}`}
           onClick={() => setActiveTab('home')}
+          aria-selected={activeTab === 'home'}
+          role="tab"
         >
-          <Home size={20} className="mobile-nav-icon" />
+          <div className="mobile-nav-icon-wrap">
+            <Home size={20} className="mobile-nav-icon" />
+          </div>
           <span className="mobile-nav-label">Home</span>
-          {activeTab === 'home' && <span className="mobile-nav-indicator" />}
+          {activeTab === 'home' && (
+            <motion.span
+              layoutId="mobile-nav-indicator"
+              className="mobile-nav-indicator"
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            />
+          )}
         </button>
 
         <button
           type="button"
           className={`mobile-nav-tab ${activeTab === 'leads' ? 'active' : ''}`}
           onClick={() => setActiveTab('leads')}
+          aria-selected={activeTab === 'leads'}
+          role="tab"
         >
-          <div style={{ position: 'relative' }}>
+          <div className="mobile-nav-icon-wrap" style={{ position: 'relative' }}>
             <Inbox size={20} className="mobile-nav-icon" />
             {newLeadsCount > 0 && <span className="mobile-tab-badge">{newLeadsCount}</span>}
           </div>
           <span className="mobile-nav-label">Leads</span>
-          {activeTab === 'leads' && <span className="mobile-nav-indicator" />}
+          {activeTab === 'leads' && (
+            <motion.span
+              layoutId="mobile-nav-indicator"
+              className="mobile-nav-indicator"
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            />
+          )}
         </button>
 
         <button
           type="button"
           className={`mobile-nav-tab ${activeTab === 'projects' ? 'active' : ''}`}
           onClick={() => setActiveTab('projects')}
+          aria-selected={activeTab === 'projects'}
+          role="tab"
         >
-          <FolderKanban size={20} className="mobile-nav-icon" />
+          <div className="mobile-nav-icon-wrap">
+            <FolderKanban size={20} className="mobile-nav-icon" />
+          </div>
           <span className="mobile-nav-label">Projects</span>
-          {activeTab === 'projects' && <span className="mobile-nav-indicator" />}
+          {activeTab === 'projects' && (
+            <motion.span
+              layoutId="mobile-nav-indicator"
+              className="mobile-nav-indicator"
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            />
+          )}
         </button>
 
         <button
           type="button"
           className={`mobile-nav-tab ${activeTab === 'more' ? 'active' : ''}`}
           onClick={() => setActiveTab('more')}
+          aria-selected={activeTab === 'more'}
+          role="tab"
         >
-          <Grid size={20} className="mobile-nav-icon" />
+          <div className="mobile-nav-icon-wrap">
+            <Grid size={20} className="mobile-nav-icon" />
+          </div>
           <span className="mobile-nav-label">More</span>
-          {activeTab === 'more' && <span className="mobile-nav-indicator" />}
+          {activeTab === 'more' && (
+            <motion.span
+              layoutId="mobile-nav-indicator"
+              className="mobile-nav-indicator"
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            />
+          )}
         </button>
       </nav>
 
-      {/* 5. QUICK ACTIONS MODAL DIALOGS */}
+      {/* 5. QUICK ACTIONS BOTTOM SHEET MODAL */}
       <MobileQuickModals
         isOpen={quickMenuOpen}
         onClose={() => setQuickMenuOpen(false)}

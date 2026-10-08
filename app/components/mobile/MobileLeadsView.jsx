@@ -3,20 +3,15 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Search,
   X,
-  Filter,
   RefreshCw,
   Plus,
-  Phone,
-  MessageSquare,
   ChevronRight,
-  Loader2,
   AlertCircle,
   Tag,
-  DollarSign,
   User
 } from 'lucide-react';
-import { fetchLeads, updateLead } from '../../api/client';
-import StatusBadge, { PriorityBadge, FollowUpBadge } from '../StatusBadge';
+import { fetchLeads } from '../../api/client';
+import StatusBadge from '../StatusBadge';
 import MobileLeadDetail from './MobileLeadDetail';
 import { formatMobileDate } from '../../utils/responsive';
 
@@ -51,7 +46,6 @@ export default function MobileLeadsView({
       });
       setLeads(data || []);
 
-      // If initialSelectedLeadId was passed and not selected yet, find and set it
       if (initialSelectedLeadId && !selectedLead) {
         const found = (data || []).find((l) => String(l.id) === String(initialSelectedLeadId));
         if (found) setSelectedLead(found);
@@ -68,7 +62,6 @@ export default function MobileLeadsView({
     loadLeads(true);
   }, [activeTab]);
 
-  // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       loadLeads(false);
@@ -113,14 +106,16 @@ export default function MobileLeadsView({
               </button>
             )}
           </div>
-          <button
+          <motion.button
             type="button"
             className={`mobile-refresh-btn ${refreshing ? 'spinning' : ''}`}
+            whileTap={{ scale: 0.94 }}
             onClick={handleRefresh}
             title="Refresh Leads"
+            aria-label="Refresh leads"
           >
             <RefreshCw size={16} />
-          </button>
+          </motion.button>
         </div>
 
         {/* Segmented Filter Pills */}
@@ -141,9 +136,10 @@ export default function MobileLeadsView({
       {/* Leads List Body */}
       <div className="mobile-leads-list">
         {loading ? (
-          <div className="mobile-loading-center">
-            <Loader2 size={24} className="spinner" />
-            <span>Loading pipeline...</span>
+          <div className="mobile-skeleton-list">
+            <div className="mobile-skeleton-lead-card" />
+            <div className="mobile-skeleton-lead-card" />
+            <div className="mobile-skeleton-lead-card" />
           </div>
         ) : error ? (
           <div className="mobile-error-box">
@@ -154,7 +150,12 @@ export default function MobileLeadsView({
             </button>
           </div>
         ) : leads.length === 0 ? (
-          <div className="mobile-empty-state">
+          <motion.div
+            className="mobile-empty-state"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+          >
             <div className="mobile-empty-icon">📭</div>
             <div className="mobile-empty-title">No leads found</div>
             <p className="mobile-empty-desc">
@@ -174,9 +175,9 @@ export default function MobileLeadsView({
                 <Plus size={16} /> Add First Lead
               </button>
             )}
-          </div>
+          </motion.div>
         ) : (
-          leads.map((lead) => {
+          leads.map((lead, idx) => {
             const isNew = lead.status === 'NEW';
             return (
               <motion.div
@@ -184,7 +185,9 @@ export default function MobileLeadsView({
                 className={`mobile-lead-card ${isNew ? 'is-new' : ''}`}
                 onClick={() => setSelectedLead(lead)}
                 whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.12 }}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: Math.min(idx * 0.03, 0.2) }}
                 role="button"
                 tabIndex={0}
               >
@@ -232,7 +235,7 @@ export default function MobileLeadsView({
         )}
       </div>
 
-      {/* Lead Detail Slide-over */}
+      {/* Lead Detail Sheet */}
       <AnimatePresence>
         {selectedLead && (
           <MobileLeadDetail
