@@ -116,7 +116,7 @@ export default function MobileAdminShell({
 
       {/* 1. TOP APP HEADER (Fixed / Sticky at Top) */}
       <header className="mobile-top-header">
-        {/* Left: Supplied Sorted Club Logo Asset */}
+        {/* Left: Original THE SORTED CLUB brand wordmark */}
         <div
           className="mobile-header-brand"
           onClick={() => setActiveTab('home')}
@@ -124,11 +124,7 @@ export default function MobileAdminShell({
           tabIndex={0}
           aria-label="Return to Overview"
         >
-          <img
-            src="/app-logo.png"
-            alt="The Sorted Club"
-            className="mobile-header-logo-img"
-          />
+          <span className="mobile-brand-text">THE SORTED CLUB</span>
         </div>
 
         {/* Center: Current Section / Page Title */}

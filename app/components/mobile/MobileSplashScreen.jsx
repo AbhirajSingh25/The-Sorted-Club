@@ -47,26 +47,12 @@ export default function MobileSplashScreen({ onComplete }) {
       aria-hidden="true"
     >
       <div className="mobile-splash-content">
-        {/* Exact supplied brand logo */}
-        <motion.div
-          className="mobile-splash-logo-wrap"
-          initial={{ opacity: 0, y: 12, scale: 0.94 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-        >
-          <img
-            src="/app-logo.png"
-            alt="The Sorted Club Logo"
-            className="mobile-splash-logo-img"
-          />
-        </motion.div>
-
         {/* Brand identity titles */}
         <motion.div
           className="mobile-splash-text-wrap"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.35 }}
+          initial={{ opacity: 0, y: 10, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
         >
           <div className="mobile-splash-brand-title">THE SORTED CLUB</div>
           <div className="mobile-splash-brand-tagline">YOUR BUSINESS. SORTED.</div>
