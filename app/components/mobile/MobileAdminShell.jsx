@@ -105,6 +105,21 @@ export default function MobileAdminShell({
     }
   };
 
+  const handleTabChange = (newTab) => {
+    setActiveTab(newTab);
+    if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
+      if (newTab === 'home') {
+        window.history.replaceState({}, '', '/admin');
+      } else if (newTab === 'leads') {
+        window.history.replaceState({}, '', '/admin/crm');
+      } else if (newTab === 'projects') {
+        window.history.replaceState({}, '', '/admin/projects');
+      } else if (newTab === 'more') {
+        window.history.replaceState({}, '', '/admin/more');
+      }
+    }
+  };
+
   return (
     <div className="mobile-admin-shell-layout">
       {/* Session Splash Screen (First Launch Only) */}
@@ -119,7 +134,7 @@ export default function MobileAdminShell({
         {/* Left: Original THE SORTED CLUB brand wordmark */}
         <div
           className="mobile-header-brand"
-          onClick={() => setActiveTab('home')}
+          onClick={() => handleTabChange('home')}
           role="button"
           tabIndex={0}
           aria-label="Return to Overview"
@@ -135,7 +150,7 @@ export default function MobileAdminShell({
           <NotificationCenter onNavigate={handleNotificationNavigate} />
           <div
             className="mobile-avatar-badge"
-            onClick={() => setActiveTab('more')}
+            onClick={() => handleTabChange('more')}
             role="button"
             tabIndex={0}
             title={`Logged in as ${username}`}
@@ -251,12 +266,16 @@ export default function MobileAdminShell({
         </motion.div>
       </motion.button>
 
-      {/* 4. PRIMARY FIXED BOTTOM NAVIGATION BAR */}
-      <nav className="mobile-bottom-nav" aria-label="Mobile Bottom Navigation">
+      {/* 3. PRIMARY FIXED / IN-FLOW BOTTOM NAVIGATION BAR (GRID ROW 3) */}
+      <div
+        className="mobile-bottom-tabs"
+        role="navigation"
+        aria-label="Admin sections"
+      >
         <button
           type="button"
           className={`mobile-nav-tab ${activeTab === 'home' ? 'active' : ''}`}
-          onClick={() => setActiveTab('home')}
+          onClick={() => handleTabChange('home')}
           aria-selected={activeTab === 'home'}
           role="tab"
         >
@@ -276,7 +295,7 @@ export default function MobileAdminShell({
         <button
           type="button"
           className={`mobile-nav-tab ${activeTab === 'leads' ? 'active' : ''}`}
-          onClick={() => setActiveTab('leads')}
+          onClick={() => handleTabChange('leads')}
           aria-selected={activeTab === 'leads'}
           role="tab"
         >
@@ -297,7 +316,7 @@ export default function MobileAdminShell({
         <button
           type="button"
           className={`mobile-nav-tab ${activeTab === 'projects' ? 'active' : ''}`}
-          onClick={() => setActiveTab('projects')}
+          onClick={() => handleTabChange('projects')}
           aria-selected={activeTab === 'projects'}
           role="tab"
         >
@@ -317,7 +336,7 @@ export default function MobileAdminShell({
         <button
           type="button"
           className={`mobile-nav-tab ${activeTab === 'more' ? 'active' : ''}`}
-          onClick={() => setActiveTab('more')}
+          onClick={() => handleTabChange('more')}
           aria-selected={activeTab === 'more'}
           role="tab"
         >
@@ -333,7 +352,7 @@ export default function MobileAdminShell({
             />
           )}
         </button>
-      </nav>
+      </div>
 
       {/* 5. QUICK ACTIONS BOTTOM SHEET MODAL */}
       <MobileQuickModals
