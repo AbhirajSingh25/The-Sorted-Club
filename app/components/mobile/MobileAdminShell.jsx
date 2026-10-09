@@ -124,7 +124,7 @@ export default function MobileAdminShell({
           tabIndex={0}
           aria-label="Return to Overview"
         >
-          <span className="mobile-brand-text">THE SORTED CLUB</span>
+          <span className="mobile-brand-text">THE SORTED <span>CLUB</span></span>
         </div>
 
         {/* Center: Current Section / Page Title */}

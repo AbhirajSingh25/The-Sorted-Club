@@ -932,16 +932,15 @@ export default function App() {
     );
   };
 
-  const isMobileAdminView =
+  const isMobileAdminRoute =
     isMobile &&
     !forceDesktop &&
-    isAdminAuthenticated &&
     (currentPath === '/admin' || currentPath.startsWith('/admin'));
 
   return (
     <>
       <CustomCursor />
-      {isMobileAdminView ? (
+      {isMobileAdminRoute ? (
         renderCurrentView()
       ) : (
         <AnimatePresence mode="wait">
