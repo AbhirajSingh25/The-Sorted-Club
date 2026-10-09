@@ -514,6 +514,15 @@ export default function App() {
     return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
 
+  // Register service worker for PWA & push notifications
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch((err) => {
+        console.log('SW registration note:', err);
+      });
+    }
+  }, []);
+
   // Check admin session if token exists
   useEffect(() => {
     const token = getAdminToken();
