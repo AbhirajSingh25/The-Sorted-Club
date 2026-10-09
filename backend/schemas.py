@@ -741,6 +741,21 @@ class AdminLoginResponse(BaseModel):
     token_type: str = "bearer"
     username: str
 
+class AdminChangeUsernameRequest(BaseModel):
+    current_password: str = Field(..., min_length=1, description="Current admin password for verification")
+    new_username: str = Field(..., min_length=3, max_length=100, description="New admin username or email")
+
+class AdminChangePasswordRequest(BaseModel):
+    current_password: str = Field(..., min_length=1, description="Current admin password for verification")
+    new_password: str = Field(..., min_length=8, max_length=128, description="New secure password")
+    confirm_password: Optional[str] = Field(None, description="Password confirmation match")
+
+class AdminCredentialChangeResponse(BaseModel):
+    message: str
+    access_token: str
+    username: str
+    token_type: str = "bearer"
+
 # Project Delivery & Service Management Schemas
 
 class ProjectTaskCreate(BaseModel):
@@ -1293,6 +1308,50 @@ class CommandCenterMetrics(BaseModel):
     unread_notifications_count: int
     attention_items: List[AttentionItem] = []
     recent_activities: List[RecentActivityItem] = []
+
+
+# ==============================================================================
+# WEB PUSH & ADMIN SETTINGS SCHEMAS
+# ==============================================================================
+
+class VapidPublicKeyResponse(BaseModel):
+    public_key: Optional[str] = None
+    configured: bool = False
+
+class PushSubscriptionKeys(BaseModel):
+    p256dh: str
+    auth: str
+
+class PushSubscriptionCreate(BaseModel):
+    endpoint: str = Field(..., min_length=5)
+    keys: PushSubscriptionKeys
+    user_agent: Optional[str] = None
+    device_label: Optional[str] = None
+
+class PushSubscriptionDelete(BaseModel):
+    endpoint: Optional[str] = None
+
+class PushLogOut(BaseModel):
+    id: int
+    event_type: str
+    recipient: str
+    title: str
+    status: str
+    error_message: Optional[str] = None
+    sent_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class AdminSettingsOut(BaseModel):
+    username: str
+    email_configured: bool
+    email_enabled: bool
+    business_email: str
+    push_configured: bool
+    active_push_subscriptions_count: int
+    db_connected: bool
+    app_version: str = "v2.4.0"
+    environment: str
 
 
 

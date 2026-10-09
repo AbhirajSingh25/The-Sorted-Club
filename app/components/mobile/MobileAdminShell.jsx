@@ -15,12 +15,17 @@ import MobileMoreView from './MobileMoreView';
 import MobileQuickModals from './MobileQuickModals';
 import MobileSplashScreen from './MobileSplashScreen';
 import NotificationCenter from '../NotificationCenter';
+import ClientDashboard from '../ClientDashboard';
+import FinanceDashboard from '../FinanceDashboard';
+import AdminAccountSettings from '../AdminAccountSettings';
 import { getAdminUsername, fetchLeadStats } from '../../api/client';
 
 export default function MobileAdminShell({
   initialTab = 'home',
   initialSelectedLeadId = null,
   initialSelectedProjectId = null,
+  initialSelectedClientId = null,
+  initialFinanceTab = 'overview',
   onNavigateToCommandCenter,
   onNavigateToCRM,
   onNavigateToProjects,
@@ -31,9 +36,11 @@ export default function MobileAdminShell({
   onBackToSite,
   onLogout
 }) {
-  const [activeTab, setActiveTab] = useState(initialTab); // 'home' | 'leads' | 'projects' | 'more'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'home' | 'leads' | 'projects' | 'more' | 'clients' | 'finance' | 'settings'
   const [selectedLeadId, setSelectedLeadId] = useState(initialSelectedLeadId);
   const [selectedProjectId, setSelectedProjectId] = useState(initialSelectedProjectId);
+  const [selectedClientId, setSelectedClientId] = useState(initialSelectedClientId);
+  const [financeSubTab, setFinanceSubTab] = useState(initialFinanceTab);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [activeQuickModal, setActiveQuickModal] = useState(null);
   const [newLeadsCount, setNewLeadsCount] = useState(0);
@@ -48,7 +55,7 @@ export default function MobileAdminShell({
     }
   });
 
-  const username = getAdminUsername() || 'Abhiraj';
+  const username = getAdminUsername() || 'Founder';
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -75,18 +82,26 @@ export default function MobileAdminShell({
       const params = new URLSearchParams(url.split('?')[1] || '');
       const leadId = params.get('selectedLead');
       if (leadId) setSelectedLeadId(leadId);
-      setActiveTab('leads');
+      handleTabChange('leads');
     } else if (url.startsWith('/admin/projects')) {
       const params = new URLSearchParams(url.split('?')[1] || '');
       const projId = params.get('selectedProject');
       if (projId) setSelectedProjectId(projId);
-      setActiveTab('projects');
+      handleTabChange('projects');
     } else if (url.startsWith('/admin/finance')) {
-      if (onNavigateToFinance) onNavigateToFinance();
+      const params = new URLSearchParams(url.split('?')[1] || '');
+      const tab = params.get('tab') || 'overview';
+      setFinanceSubTab(tab);
+      handleTabChange('finance');
     } else if (url.startsWith('/admin/clients')) {
-      if (onNavigateToClients) onNavigateToClients();
+      const params = new URLSearchParams(url.split('?')[1] || '');
+      const cId = params.get('selectedClient');
+      if (cId) setSelectedClientId(cId);
+      handleTabChange('clients');
+    } else if (url.startsWith('/admin/settings')) {
+      handleTabChange('settings');
     } else {
-      setActiveTab('home');
+      handleTabChange('home');
     }
   };
 
@@ -98,6 +113,12 @@ export default function MobileAdminShell({
         return 'Leads';
       case 'projects':
         return 'Projects';
+      case 'clients':
+        return 'Clients & Onboarding';
+      case 'finance':
+        return 'Finance & Invoices';
+      case 'settings':
+        return 'Account & Settings';
       case 'more':
         return 'More';
       default:
@@ -114,11 +135,37 @@ export default function MobileAdminShell({
         window.history.replaceState({}, '', '/admin/crm');
       } else if (newTab === 'projects') {
         window.history.replaceState({}, '', '/admin/projects');
+      } else if (newTab === 'clients') {
+        window.history.replaceState({}, '', '/admin/clients');
+      } else if (newTab === 'finance') {
+        window.history.replaceState({}, '', '/admin/finance');
+      } else if (newTab === 'settings') {
+        window.history.replaceState({}, '', '/admin/settings');
       } else if (newTab === 'more') {
         window.history.replaceState({}, '', '/admin/more');
       }
     }
   };
+
+  const handleOpenClients = (clientIdOrOpts) => {
+    if (typeof clientIdOrOpts === 'string' || typeof clientIdOrOpts === 'number') {
+      setSelectedClientId(clientIdOrOpts);
+    } else if (clientIdOrOpts && typeof clientIdOrOpts === 'object') {
+      setSelectedClientId(clientIdOrOpts.selectedClient || clientIdOrOpts.clientId || null);
+    }
+    handleTabChange('clients');
+  };
+
+  const handleOpenFinance = (tabOrOpts) => {
+    if (typeof tabOrOpts === 'string') {
+      setFinanceSubTab(tabOrOpts);
+    } else if (tabOrOpts && typeof tabOrOpts === 'object') {
+      setFinanceSubTab(tabOrOpts.tab || 'overview');
+    }
+    handleTabChange('finance');
+  };
+
+  const isMoreFamilyActive = activeTab === 'more' || activeTab === 'clients' || activeTab === 'finance' || activeTab === 'settings';
 
   return (
     <div className="mobile-admin-shell-layout">
@@ -150,10 +197,10 @@ export default function MobileAdminShell({
           <NotificationCenter onNavigate={handleNotificationNavigate} />
           <div
             className="mobile-avatar-badge"
-            onClick={() => handleTabChange('more')}
+            onClick={() => handleTabChange('settings')}
             role="button"
             tabIndex={0}
-            title={`Logged in as ${username}`}
+            title={`Logged in as ${username} — Account & Settings`}
             aria-label="Account details and settings"
           >
             <Shield size={14} />
@@ -174,13 +221,13 @@ export default function MobileAdminShell({
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
               <MobileAdminHome
-                onNavigateToLeads={() => setActiveTab('leads')}
-                onNavigateToProjects={() => setActiveTab('projects')}
-                onNavigateToFinance={onNavigateToFinance}
-                onNavigateToClients={onNavigateToClients}
+                onNavigateToLeads={() => handleTabChange('leads')}
+                onNavigateToProjects={() => handleTabChange('projects')}
+                onNavigateToFinance={handleOpenFinance}
+                onNavigateToClients={handleOpenClients}
                 onOpenLeadDetail={(id) => {
                   setSelectedLeadId(id);
-                  setActiveTab('leads');
+                  handleTabChange('leads');
                 }}
               />
             </motion.div>
@@ -201,7 +248,7 @@ export default function MobileAdminShell({
                   setQuickMenuOpen(true);
                 }}
                 onConvertToClient={(client) => {
-                  if (onNavigateToClients) onNavigateToClients(client?.id);
+                  handleOpenClients(client?.id);
                 }}
               />
             </motion.div>
@@ -234,12 +281,82 @@ export default function MobileAdminShell({
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
               <MobileMoreView
-                onNavigateToClients={onNavigateToClients}
-                onNavigateToFinance={onNavigateToFinance}
+                onNavigateToClients={handleOpenClients}
+                onNavigateToFinance={handleOpenFinance}
                 onNavigateToTemplates={onNavigateToTemplates}
+                onNavigateToSettings={() => handleTabChange('settings')}
                 onSwitchToDesktop={onSwitchToDesktop}
                 onBackToSite={onBackToSite}
                 onLogout={onLogout}
+              />
+            </motion.div>
+          )}
+
+          {activeTab === 'clients' && (
+            <motion.div
+              key="clients"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <ClientDashboard
+                hideNavbar={true}
+                onBack={() => handleTabChange('more')}
+                initialSelectedClientId={selectedClientId}
+                onLogout={onLogout}
+                onNavigateToCommandCenter={onNavigateToCommandCenter}
+                onNavigateToInquiries={() => handleTabChange('home')}
+                onNavigateToCRM={() => handleTabChange('leads')}
+                onNavigateToFinance={handleOpenFinance}
+                onNavigateToProjects={() => handleTabChange('projects')}
+                onBackToSite={onBackToSite}
+              />
+            </motion.div>
+          )}
+
+          {activeTab === 'finance' && (
+            <motion.div
+              key="finance"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <FinanceDashboard
+                hideNavbar={true}
+                onBack={() => handleTabChange('more')}
+                initialTab={financeSubTab || 'overview'}
+                onLogout={onLogout}
+                onNavigateToCommandCenter={onNavigateToCommandCenter}
+                onNavigateToInquiries={() => handleTabChange('home')}
+                onNavigateToCRM={() => handleTabChange('leads')}
+                onNavigateToClients={handleOpenClients}
+                onNavigateToProjects={() => handleTabChange('projects')}
+                onBackToSite={onBackToSite}
+              />
+            </motion.div>
+          )}
+
+          {activeTab === 'settings' && (
+            <motion.div
+              key="settings"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <AdminAccountSettings
+                isMobile={true}
+                onBack={() => handleTabChange('more')}
+                onLogout={onLogout}
+                onNavigateToCommandCenter={onNavigateToCommandCenter}
+                onNavigateToInquiries={() => handleTabChange('home')}
+                onNavigateToCRM={() => handleTabChange('leads')}
+                onNavigateToClients={handleOpenClients}
+                onNavigateToFinance={handleOpenFinance}
+                onNavigateToProjects={() => handleTabChange('projects')}
+                onBackToSite={onBackToSite}
               />
             </motion.div>
           )}
@@ -266,7 +383,7 @@ export default function MobileAdminShell({
         </motion.div>
       </motion.button>
 
-      {/* 3. PRIMARY FIXED / IN-FLOW BOTTOM NAVIGATION BAR (GRID ROW 3) */}
+      {/* 4. PRIMARY FIXED / IN-FLOW BOTTOM NAVIGATION BAR (GRID ROW 3) */}
       <div
         className="mobile-bottom-tabs"
         role="navigation"
@@ -335,16 +452,16 @@ export default function MobileAdminShell({
 
         <button
           type="button"
-          className={`mobile-nav-tab ${activeTab === 'more' ? 'active' : ''}`}
+          className={`mobile-nav-tab ${isMoreFamilyActive ? 'active' : ''}`}
           onClick={() => handleTabChange('more')}
-          aria-selected={activeTab === 'more'}
+          aria-selected={isMoreFamilyActive}
           role="tab"
         >
           <div className="mobile-nav-icon-wrap">
             <Grid size={20} className="mobile-nav-icon" />
           </div>
           <span className="mobile-nav-label">More</span>
-          {activeTab === 'more' && (
+          {isMoreFamilyActive && (
             <motion.span
               layoutId="mobile-nav-indicator"
               className="mobile-nav-indicator"
@@ -361,8 +478,8 @@ export default function MobileAdminShell({
         activeModal={activeQuickModal}
         setActiveModal={setActiveQuickModal}
         onActionComplete={(type) => {
-          if (type === 'lead') setActiveTab('leads');
-          if (type === 'project' || type === 'task') setActiveTab('projects');
+          if (type === 'lead') handleTabChange('leads');
+          if (type === 'project' || type === 'task') handleTabChange('projects');
         }}
       />
     </div>

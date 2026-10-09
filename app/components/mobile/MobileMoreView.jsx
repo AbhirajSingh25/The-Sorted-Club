@@ -20,6 +20,7 @@ export default function MobileMoreView({
   onNavigateToClients,
   onNavigateToFinance,
   onNavigateToTemplates,
+  onNavigateToSettings,
   onSwitchToDesktop,
   onBackToSite,
   onLogout
@@ -109,6 +110,24 @@ export default function MobileMoreView({
       </div>
 
       <div className="mobile-more-list">
+        {onNavigateToSettings && (
+          <motion.button
+            type="button"
+            className="mobile-more-item"
+            onClick={onNavigateToSettings}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className="mobile-more-item-icon">
+              <Shield size={18} />
+            </div>
+            <div className="mobile-more-item-text">
+              <strong>Account &amp; Security Settings</strong>
+              <span>Change login ID, password &amp; Web Push setup</span>
+            </div>
+            <ChevronRight size={18} className="mobile-more-item-arrow" />
+          </motion.button>
+        )}
+
         {onSwitchToDesktop && (
           <motion.button
             type="button"

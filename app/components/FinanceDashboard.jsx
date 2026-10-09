@@ -99,7 +99,9 @@ export default function FinanceDashboard({
   onNavigateToClients,
   onNavigateToProjects,
   onBackToSite,
-  initialTab = 'overview'
+  initialTab = 'overview',
+  hideNavbar = false,
+  onBack = null
 }) {
   // Navigation Sub-tab: 'overview' | 'proposals' | 'contracts' | 'invoices' | 'verifications'
   const [activeTab, setActiveTab] = useState(() => {
@@ -749,20 +751,22 @@ export default function FinanceDashboard({
 
   return (
     <div className="admin-app-root">
-      <AdminNavbar
-        activeTab="finance"
-        badge="COMMERCIAL & FINANCE"
-        onNavigateToCommandCenter={onNavigateToCommandCenter}
-        onNavigateToInquiries={onNavigateToInquiries}
-        onNavigateToCRM={onNavigateToCRM}
-        onNavigateToClients={onNavigateToClients}
-        onNavigateToFinance={(tab) => {
-          if (tab) setActiveTab(tab);
-        }}
-        onNavigateToProjects={onNavigateToProjects}
-        onBackToSite={onBackToSite}
-        onLogout={onLogout}
-      />
+      {!hideNavbar && (
+        <AdminNavbar
+          activeTab="finance"
+          badge="COMMERCIAL & FINANCE"
+          onNavigateToCommandCenter={onNavigateToCommandCenter}
+          onNavigateToInquiries={onNavigateToInquiries}
+          onNavigateToCRM={onNavigateToCRM}
+          onNavigateToClients={onNavigateToClients}
+          onNavigateToFinance={(tab) => {
+            if (tab) setActiveTab(tab);
+          }}
+          onNavigateToProjects={onNavigateToProjects}
+          onBackToSite={onBackToSite}
+          onLogout={onLogout}
+        />
+      )}
 
       {/* Main Content Area */}
       <main className="admin-main-content">
@@ -776,12 +780,24 @@ export default function FinanceDashboard({
 
         {/* Page Head */}
         <div className="admin-page-head">
-          <div>
-            <p className="eyebrow" style={{ color: 'var(--muted)' }}>FINANCIAL OPERATIONS & REVENUE ENGINE</p>
-            <h1>Commercial & Finance</h1>
-            <p style={{ color: 'var(--muted)', fontSize: '14px', margin: '4px 0 0' }}>
-              Manage proposals, contracts, invoices and payments.
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center' }}
+                aria-label="Back"
+              >
+                <ArrowLeft size={18} />
+              </button>
+            )}
+            <div>
+              <p className="eyebrow" style={{ color: 'var(--muted)', margin: 0 }}>FINANCIAL OPERATIONS & REVENUE ENGINE</p>
+              <h1 style={{ margin: 0 }}>Commercial & Finance</h1>
+              <p style={{ color: 'var(--muted)', fontSize: '14px', margin: '4px 0 0' }}>
+                Manage proposals, contracts, invoices and payments.
+              </p>
+            </div>
           </div>
           <div className="admin-head-actions">
             <button

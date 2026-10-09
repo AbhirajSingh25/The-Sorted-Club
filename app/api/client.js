@@ -760,5 +760,63 @@ export async function completeLeadFollowUp(leadId, followUpData = {}) {
   });
 }
 
+// ==============================================================================
+// ADMIN ACCOUNT SECURITY, WEB PUSH & SETTINGS API
+// ==============================================================================
+
+export async function changeAdminUsername(data) {
+  const res = await request('/api/admin/change-username', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+  if (res && res.access_token) {
+    setAdminAuth(res.access_token, res.username);
+  }
+  return res;
+}
+
+export async function changeAdminPassword(data) {
+  const res = await request('/api/admin/change-password', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+  if (res && res.access_token) {
+    setAdminAuth(res.access_token, res.username);
+  }
+  return res;
+}
+
+export async function fetchAdminSettings() {
+  return request('/api/admin/settings');
+}
+
+export async function fetchVapidPublicKey() {
+  return request('/api/notifications/vapid-public-key');
+}
+
+export async function subscribeToPushNotifications(subscriptionData) {
+  return request('/api/notifications/push-subscriptions', {
+    method: 'POST',
+    body: JSON.stringify(subscriptionData)
+  });
+}
+
+export async function unsubscribeFromPushNotifications(endpoint) {
+  return request('/api/notifications/push-subscriptions', {
+    method: 'DELETE',
+    body: JSON.stringify({ endpoint })
+  });
+}
+
+export async function testPushNotification() {
+  return request('/api/notifications/test-push', {
+    method: 'POST'
+  });
+}
+
+export async function fetchPushLogs(limit = 50) {
+  return request(`/api/notifications/push-logs?limit=${limit}`);
+}
+
 
 

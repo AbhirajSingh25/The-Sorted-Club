@@ -783,3 +783,59 @@ class EmailLog(Base):
         return f"<EmailLog id={self.id} event_type='{self.event_type}' recipient='{self.recipient}' status='{self.status}'>"
 
 
+class AdminUser(Base):
+    __tablename__ = "admin_users"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    username = Column(String(100), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        server_default=func.now()
+    )
+
+    def __repr__(self):
+        return f"<AdminUser id={self.id} username='{self.username}'>"
+
+
+class AdminPushSubscription(Base):
+    __tablename__ = "admin_push_subscriptions"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    endpoint = Column(Text, unique=True, nullable=False, index=True)
+    p256dh = Column(Text, nullable=False)
+    auth = Column(Text, nullable=False)
+    admin_username = Column(String(100), nullable=False, default="admin", index=True)
+    user_agent = Column(String(255), nullable=True)
+    device_label = Column(String(255), nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True, index=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        server_default=func.now()
+    )
+
+    def __repr__(self):
+        return f"<AdminPushSubscription id={self.id} admin='{self.admin_username}' is_active={self.is_active}>"
+
+
+class PushLog(Base):
+    __tablename__ = "push_logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    event_type = Column(String(100), nullable=False, index=True)
+    recipient = Column(String(255), nullable=False)
+    title = Column(String(255), nullable=False)
+    status = Column(String(50), nullable=False, default="SENT", index=True)  # SENT, FAILED, SKIPPED
+    error_message = Column(Text, nullable=True)
+    sent_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), server_default=func.now())
+
+    def __repr__(self):
+        return f"<PushLog id={self.id} event_type='{self.event_type}' status='{self.status}'>"
+
+

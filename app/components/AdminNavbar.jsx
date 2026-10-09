@@ -25,6 +25,7 @@ export default function AdminNavbar({
   onNavigateToClients,
   onNavigateToFinance,
   onNavigateToProjects,
+  onNavigateToSettings,
   onBackToSite,
   onLogout
 }) {
@@ -190,7 +191,14 @@ export default function AdminNavbar({
             <span>View Website</span>
           </button>
 
-          <div className="admin-user-info">
+          <div
+            className="admin-user-info"
+            onClick={() => onNavigateToSettings ? onNavigateToSettings() : (window.location.href = '/admin/settings')}
+            style={{ cursor: 'pointer' }}
+            title="Account & Security Settings"
+            role="button"
+            tabIndex={0}
+          >
             <span className="admin-user-dot" />
             <span>{adminUser}</span>
           </div>

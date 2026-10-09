@@ -75,7 +75,9 @@ export default function ClientDashboard({
   onNavigateToFinance,
   onNavigateToProjects,
   onBackToSite,
-  initialSelectedClientId = null
+  initialSelectedClientId = null,
+  hideNavbar = false,
+  onBack = null
 }) {
   const [stats, setStats] = useState({
     total_clients: 0,
@@ -414,25 +416,39 @@ export default function ClientDashboard({
 
   return (
     <div className="admin-app-root">
-      <AdminNavbar
-        activeTab="clients"
-        badge="CLIENT HUB"
-        onNavigateToCommandCenter={onNavigateToCommandCenter}
-        onNavigateToInquiries={onNavigateToInquiries}
-        onNavigateToCRM={onNavigateToCRM}
-        onNavigateToClients={() => {}}
-        onNavigateToFinance={onNavigateToFinance}
-        onNavigateToProjects={onNavigateToProjects}
-        onBackToSite={onBackToSite}
-        onLogout={onLogout}
-      />
+      {!hideNavbar && (
+        <AdminNavbar
+          activeTab="clients"
+          badge="CLIENT HUB"
+          onNavigateToCommandCenter={onNavigateToCommandCenter}
+          onNavigateToInquiries={onNavigateToInquiries}
+          onNavigateToCRM={onNavigateToCRM}
+          onNavigateToClients={() => {}}
+          onNavigateToFinance={onNavigateToFinance}
+          onNavigateToProjects={onNavigateToProjects}
+          onBackToSite={onBackToSite}
+          onLogout={onLogout}
+        />
+      )}
 
       <main className="admin-main-content">
         {/* Head Section */}
         <div className="admin-page-head">
-          <div>
-            <p className="eyebrow" style={{ color: 'var(--muted)' }}>CLIENT SUCCESS & RELATIONSHIP MANAGEMENT</p>
-            <h1>Client Onboarding & Accounts</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center' }}
+                aria-label="Back"
+              >
+                <ArrowLeft size={18} />
+              </button>
+            )}
+            <div>
+              <p className="eyebrow" style={{ color: 'var(--muted)', margin: 0 }}>CLIENT SUCCESS & RELATIONSHIP MANAGEMENT</p>
+              <h1 style={{ margin: 0 }}>Client Onboarding & Accounts</h1>
+            </div>
           </div>
           <div className="admin-head-actions">
             <button

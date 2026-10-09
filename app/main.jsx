@@ -32,6 +32,7 @@ import TemplateLiveDemo from './components/TemplateLiveDemo';
 import PricingPage from './components/PricingPage';
 import DiscoveryQuestionnaire from './components/DiscoveryQuestionnaire';
 import AdminLogin from './components/AdminLogin';
+import AdminAccountSettings from './components/AdminAccountSettings';
 import MobileAdminShell from './components/mobile/MobileAdminShell';
 import { useIsMobile } from './utils/responsive';
 import { getAdminToken, verifyAdminSession, clearAdminAuth } from './api/client';
@@ -690,6 +691,8 @@ export default function App() {
         let initialTab = 'home';
         let selLeadId = null;
         let selProjId = null;
+        let selClientId = null;
+        let selFinanceTab = 'overview';
 
         const urlParams = new URLSearchParams(window.location.search);
 
@@ -699,13 +702,22 @@ export default function App() {
         } else if (currentPath === '/admin/projects' || currentPath.startsWith('/admin/projects')) {
           initialTab = 'projects';
           selProjId = urlParams.get('selectedProject') || null;
+        } else if (currentPath === '/admin/clients' || currentPath.startsWith('/admin/clients')) {
+          initialTab = 'clients';
+          selClientId = urlParams.get('selectedClient') || null;
         } else if (
-          currentPath === '/admin/clients' ||
-          currentPath.startsWith('/admin/clients') ||
           currentPath === '/admin/finance' ||
           currentPath.startsWith('/admin/finance') ||
-          currentPath === '/admin/more'
+          currentPath === '/admin/proposals' ||
+          currentPath === '/admin/contracts' ||
+          currentPath === '/admin/invoices' ||
+          currentPath === '/admin/verifications'
         ) {
+          initialTab = 'finance';
+          selFinanceTab = urlParams.get('tab') || (currentPath.includes('proposals') ? 'proposals' : currentPath.includes('contracts') ? 'contracts' : currentPath.includes('invoices') ? 'invoices' : currentPath.includes('verifications') ? 'verifications' : 'overview');
+        } else if (currentPath === '/admin/settings' || currentPath.startsWith('/admin/settings')) {
+          initialTab = 'settings';
+        } else if (currentPath === '/admin/more') {
           initialTab = 'more';
         }
 
@@ -714,6 +726,8 @@ export default function App() {
             initialTab={initialTab}
             initialSelectedLeadId={selLeadId}
             initialSelectedProjectId={selProjId}
+            initialSelectedClientId={selClientId}
+            initialFinanceTab={selFinanceTab}
             onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
             onNavigateToCRM={handleNavigateToCRM}
             onNavigateToProjects={handleNavigateToProjects}
@@ -723,6 +737,22 @@ export default function App() {
             onSwitchToDesktop={() => setForceDesktop(true)}
             onBackToSite={() => navigateTo('/')}
             onLogout={() => setIsAdminAuthenticated(false)}
+          />
+        );
+      }
+
+      if (currentPath === '/admin/settings' || currentPath.startsWith('/admin/settings')) {
+        return (
+          <AdminAccountSettings
+            onBack={() => navigateTo('/admin')}
+            onLogout={() => setIsAdminAuthenticated(false)}
+            onNavigateToCommandCenter={() => navigateTo('/admin/command-center')}
+            onNavigateToInquiries={() => navigateTo('/admin')}
+            onNavigateToCRM={handleNavigateToCRM}
+            onNavigateToClients={handleNavigateToClients}
+            onNavigateToFinance={handleNavigateToFinance}
+            onNavigateToProjects={handleNavigateToProjects}
+            onBackToSite={() => navigateTo('/')}
           />
         );
       }
@@ -843,6 +873,7 @@ export default function App() {
           onNavigateToClients={handleNavigateToClients}
           onNavigateToFinance={handleNavigateToFinance}
           onNavigateToProjects={handleNavigateToProjects}
+          onNavigateToSettings={() => navigateTo('/admin/settings')}
           onBackToSite={() => navigateTo('/')}
         />
       );

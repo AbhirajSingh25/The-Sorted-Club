@@ -62,11 +62,60 @@ def validate_production_auth_config():
 
 security = HTTPBearer(auto_error=False)
 
-def authenticate_admin(username: str, password: str) -> bool:
+def hash_password(password: str) -> str:
     """
-    Check if provided username and password match configured admin credentials.
+    Hash a password using PBKDF2-HMAC-SHA256 with a cryptographically secure random salt.
+    Format: pbkdf2_sha256$iterations$salt_hex$hash_hex
+    """
+    salt = os.urandom(16)
+    iterations = 100_000
+    derived = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations)
+    return f"pbkdf2_sha256${iterations}${salt.hex()}${derived.hex()}"
+
+def verify_password(password: str, hashed: str) -> bool:
+    """
+    Verify a password against a PBKDF2-HMAC-SHA256 hash in constant time.
+    """
+    try:
+        if not hashed or not hashed.startswith("pbkdf2_sha256$"):
+            # If not PBKDF2 formatted (e.g. plaintext env comparison fallback)
+            return hmac.compare_digest(password.encode("utf-8"), hashed.encode("utf-8"))
+        
+        parts = hashed.split("$")
+        if len(parts) != 4:
+            return False
+        
+        iterations = int(parts[1])
+        salt = bytes.fromhex(parts[2])
+        expected_hash = parts[3]
+        
+        derived = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations)
+        return hmac.compare_digest(derived.hex().encode("utf-8"), expected_hash.encode("utf-8"))
+    except Exception:
+        return False
+
+def authenticate_admin(username: str, password: str, db=None) -> bool:
+    """
+    Check if provided username and password match admin credentials.
+    First checks database AdminUser table if db session provided.
+    Falls back to environment variables.
     Uses timing-safe comparisons to protect against timing attacks.
     """
+    if db is not None:
+        try:
+            from models import AdminUser
+            admin_record = db.query(AdminUser).filter(AdminUser.username == username.strip()).first()
+            if admin_record and admin_record.password_hash:
+                return verify_password(password, admin_record.password_hash)
+            
+            # If any AdminUser records exist in DB, only allow DB users
+            any_admin = db.query(AdminUser).first()
+            if any_admin:
+                return False
+        except Exception:
+            # If database table not yet created, fall back to environment variables
+            pass
+
     expected_username = get_admin_username()
     expected_password = get_admin_password()
 

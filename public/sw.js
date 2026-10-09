@@ -65,3 +65,63 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+// ==============================================================================
+// WEB PUSH & LOCK-SCREEN NOTIFICATION HANDLERS (iOS & Standalone Web App)
+// ==============================================================================
+
+self.addEventListener('push', (event) => {
+  let data = {
+    title: 'New inquiry · The Sorted Club',
+    body: 'A new website inquiry has arrived. Tap to review it.',
+    url: '/admin/crm',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    tag: 'tsc-notification'
+  };
+
+  if (event.data) {
+    try {
+      const payload = event.data.json();
+      data = { ...data, ...payload };
+    } catch (e) {
+      const text = event.data.text();
+      if (text) data.body = text;
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: data.icon || '/icon-192.png',
+    badge: data.badge || '/icon-192.png',
+    tag: data.tag || 'tsc-notification',
+    data: {
+      url: data.url || '/admin/crm'
+    },
+    vibrate: [100, 50, 100]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || '/admin';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      for (let i = 0; i < windowClients.length; i++) {
+        const client = windowClients[i];
+        if (client.url.includes('/admin') && 'focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});

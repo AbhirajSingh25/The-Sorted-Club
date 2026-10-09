@@ -55,6 +55,7 @@ export default function AdminDashboard({
   onNavigateToClients,
   onNavigateToFinance,
   onNavigateToProjects,
+  onNavigateToSettings,
   onBackToSite
 }) {
   const [stats, setStats] = useState({
@@ -198,6 +199,7 @@ export default function AdminDashboard({
         onNavigateToClients={onNavigateToClients}
         onNavigateToFinance={onNavigateToFinance}
         onNavigateToProjects={onNavigateToProjects}
+        onNavigateToSettings={onNavigateToSettings}
         onBackToSite={onBackToSite}
         onLogout={onLogout}
       />

@@ -127,6 +127,20 @@ def create_lead(lead_in: LeadCreate, request: Request, db: Session = Depends(get
             action_url=f"/admin/crm?selectedLead={new_lead.id}"
         )
 
+        # Trigger Web Push notification for iPhone & desktop admin devices
+        try:
+            from services.push_service import send_web_push
+            send_web_push(
+                db=db,
+                title="New inquiry · The Sorted Club",
+                body=f"New inquiry from {new_lead.business_name} ({new_lead.service_interest}). Tap to review it.",
+                url=f"/admin/crm?selectedLead={new_lead.id}",
+                tag=f"lead-{new_lead.id}",
+                event_type="NEW_INQUIRY"
+            )
+        except Exception:
+            pass
+
         return new_lead
     except Exception as e:
         db.rollback()
