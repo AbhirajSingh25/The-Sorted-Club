@@ -72,8 +72,8 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('push', (event) => {
   let data = {
-    title: 'New inquiry · The Sorted Club',
-    body: 'A new website inquiry has arrived. Tap to review it.',
+    title: 'New website inquiry',
+    body: 'A new inquiry has arrived.',
     url: '/admin/crm',
     icon: '/icon-192.png',
     badge: '/icon-192.png',

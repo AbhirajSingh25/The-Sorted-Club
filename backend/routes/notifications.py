@@ -232,7 +232,7 @@ def trigger_test_push(
     limiter.check(request, "test_push", max_requests=5, window_seconds=60)
     result = send_web_push(
         db=db,
-        title="🔔 The Sorted Club — Push Test",
+        title="Push test",
         body=f"Web Push is actively delivering to your admin devices for {admin_user}.",
         url="/admin",
         tag="tsc-test-push",

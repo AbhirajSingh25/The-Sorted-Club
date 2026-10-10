@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
@@ -45,6 +46,34 @@ export default function MobileLeadDetail({
   useEffect(() => {
     setCurrentLead(lead);
   }, [lead]);
+
+  // Lock underlying dashboard scrolling when detail sheet is open, and restore previous scroll on close
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const viewportEl = document.querySelector('.mobile-viewport-content');
+    const prevViewportScroll = viewportEl ? viewportEl.scrollTop : 0;
+    const prevWindowScroll = window.scrollY || document.documentElement.scrollTop;
+
+    document.body.classList.add('mobile-sheet-open');
+
+    return () => {
+      document.body.classList.remove('mobile-sheet-open');
+      if (viewportEl) {
+        viewportEl.scrollTop = prevViewportScroll;
+      }
+      window.scrollTo(0, prevWindowScroll);
+    };
+  }, []);
+
+  // Close sheet on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   // Load activities
   useEffect(() => {
@@ -150,21 +179,30 @@ export default function MobileLeadDetail({
     }
   };
 
-  return (
-    <div className="mobile-sheet-backdrop" onClick={onClose}>
+  const sheetContent = (
+    <motion.div
+      className="mobile-sheet-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+      onClick={onClose}
+    >
       <motion.div
         className="mobile-detail-bottom-sheet"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
-        transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label="Lead details"
       >
         {/* Pull Handle */}
-        <div className="mobile-sheet-pill" />
+        <div className="mobile-sheet-pill-wrap">
+          <div className="mobile-sheet-pill" />
+        </div>
 
         {/* Header Bar */}
         <div className="mobile-detail-sheet-header">
@@ -182,6 +220,7 @@ export default function MobileLeadDetail({
         {statusMessage && (
           <motion.div
             className="mobile-toast-notification"
+            style={{ margin: '8px 16px 0 16px', flexShrink: 0 }}
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -496,6 +535,9 @@ export default function MobileLeadDetail({
           </div>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
+
+  if (typeof document === 'undefined') return null;
+  return createPortal(sheetContent, document.body);
 }

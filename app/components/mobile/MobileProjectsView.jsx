@@ -231,6 +231,7 @@ export default function MobileProjectsView({ initialSelectedProjectId = null, on
       <AnimatePresence>
         {selectedProject && (
           <MobileProjectDetail
+            key={selectedProject.id}
             project={selectedProject}
             onClose={() => setSelectedProject(null)}
             onProjectUpdated={handleProjectUpdated}

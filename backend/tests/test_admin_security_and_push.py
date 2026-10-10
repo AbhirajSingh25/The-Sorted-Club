@@ -132,3 +132,9 @@ def test_lead_creation_triggers_push_notification(client):
         data = resp.json()
         assert data["name"] == "Jane Austen"
         assert mock_push.called
+        call_kwargs = mock_push.call_args.kwargs
+        assert call_kwargs["title"] == "New website inquiry"
+        assert call_kwargs["body"] == "Jane Austen · Website / Build"
+        assert "The Sorted Club" not in call_kwargs["title"]
+        assert "The Sorted Club" not in call_kwargs["body"]
+        assert call_kwargs["url"] == f"/admin/crm?selectedLead={data['id']}"

@@ -239,6 +239,7 @@ export default function MobileLeadsView({
       <AnimatePresence>
         {selectedLead && (
           <MobileLeadDetail
+            key={selectedLead.id}
             lead={selectedLead}
             onClose={() => setSelectedLead(null)}
             onLeadUpdated={handleLeadUpdated}

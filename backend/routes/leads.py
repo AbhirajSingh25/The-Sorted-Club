@@ -130,10 +130,22 @@ def create_lead(lead_in: LeadCreate, request: Request, db: Session = Depends(get
         # Trigger Web Push notification for iPhone & desktop admin devices
         try:
             from services.push_service import send_web_push
+
+            lead_name = (new_lead.name or new_lead.business_name or "").strip()
+            service = (new_lead.service_interest or "").strip()
+            if lead_name and service:
+                push_body = f"{lead_name} · {service}"
+            elif lead_name:
+                push_body = lead_name
+            elif service:
+                push_body = service
+            else:
+                push_body = "A new inquiry has arrived."
+
             send_web_push(
                 db=db,
-                title="New inquiry · The Sorted Club",
-                body=f"New inquiry from {new_lead.business_name} ({new_lead.service_interest}). Tap to review it.",
+                title="New website inquiry",
+                body=push_body,
                 url=f"/admin/crm?selectedLead={new_lead.id}",
                 tag=f"lead-{new_lead.id}",
                 event_type="NEW_INQUIRY"

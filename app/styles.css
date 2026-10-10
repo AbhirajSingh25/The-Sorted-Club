@@ -11059,36 +11059,74 @@ textarea:focus-visible {
 .mobile-sheet-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(16, 16, 15, 0.55);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  background: rgba(16, 16, 15, 0.62);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  z-index: 200;
+  z-index: 1100;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  align-items: center;
+  box-sizing: border-box;
+  touch-action: none;
 }
 
 .mobile-detail-bottom-sheet {
   background: var(--paper);
   border-radius: 20px 20px 0 0;
-  height: 90vh;
-  max-height: 90vh;
+  width: 100%;
+  max-width: 640px;
+  height: 92vh;
+  height: 92dvh;
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 12px);
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 -8px 30px rgba(16, 16, 15, 0.15);
+  box-shadow: 0 -8px 32px rgba(16, 16, 15, 0.22);
   box-sizing: border-box;
+  position: relative;
+  touch-action: auto;
+}
+
+.mobile-sheet-pill-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 10px;
+  padding-bottom: 4px;
+  flex-shrink: 0;
+  background: rgba(244, 241, 233, 0.98);
+}
+
+.mobile-sheet-pill {
+  width: 40px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 .mobile-detail-sheet-header {
-  height: 48px;
+  height: 50px;
+  min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
   border-bottom: 1px solid var(--line);
   flex-shrink: 0;
-  background: rgba(244, 241, 233, 0.96);
+  background: rgba(244, 241, 233, 0.98);
+  box-sizing: border-box;
 }
 
 .mobile-detail-topbar-title {
@@ -11097,14 +11135,42 @@ textarea:focus-visible {
 }
 
 .mobile-detail-scroll-area {
-  flex: 1;
+  flex: 1 1 0%;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
   padding: 16px;
-  padding-bottom: calc(var(--safe-bottom) + 40px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 72px);
   display: flex;
   flex-direction: column;
   gap: 14px;
+  box-sizing: border-box;
+}
+
+/* Background scroll lock and controls layering when mobile sheet is open */
+body.mobile-sheet-open {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+body.mobile-sheet-open .mobile-viewport-content {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+body.mobile-sheet-open .mobile-fab-btn {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  transform: scale(0.8) !important;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease !important;
+}
+
+body.mobile-sheet-open .mobile-bottom-tabs {
+  pointer-events: none !important;
 }
 
 .mobile-lead-hero-card {
