@@ -21,6 +21,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { WEBSITE_PACKAGES, PRICING_COMPARISON_FEATURES, PRICING_FAQS } from './pricingData';
+import ProjectEstimator from './ProjectEstimator';
 import {
   fadeInUp,
   fadeIn,
@@ -39,6 +40,11 @@ export default function PricingPage({
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [viewMode, setViewMode] = useState(
+    typeof window !== 'undefined' && (window.location.hash === '#estimator' || window.location.search.includes('estimator'))
+      ? 'estimator'
+      : 'packages'
+  );
 
   const toggleFaq = (idx) => {
     setOpenFaqIndex(openFaqIndex === idx ? null : idx);
@@ -174,6 +180,26 @@ export default function PricingPage({
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', margin: '24px 0 12px', flexWrap: 'wrap' }}
           variants={fadeInUp}
         >
+          {/* View Mode Toggle */}
+          <div style={{ display: 'inline-flex', background: '#e5e1d7', border: '1px solid var(--line)', padding: '2px' }}>
+            <button
+              type="button"
+              className={`currency-btn ${viewMode === 'packages' ? 'active' : ''}`}
+              style={{ borderRadius: 0, fontWeight: 700, fontSize: '12px', padding: '6px 14px' }}
+              onClick={() => setViewMode('packages')}
+            >
+              Fixed Packages (6)
+            </button>
+            <button
+              type="button"
+              className={`currency-btn ${viewMode === 'estimator' ? 'active' : ''}`}
+              style={{ borderRadius: 0, fontWeight: 700, fontSize: '12px', padding: '6px 14px' }}
+              onClick={() => setViewMode('estimator')}
+            >
+              Interactive Estimator ⚡
+            </button>
+          </div>
+
           <div className="currency-toggle-container">
             <button
               type="button"
@@ -226,24 +252,58 @@ export default function PricingPage({
                 Not sure which package is right for your business?
               </h3>
               <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--muted)' }}>
-                Get a free 20-minute technical consultation. We'll recommend the ideal blueprint, pages, and timeline.
+                Get a free 20-minute technical consultation or calibrate custom scopes across BUILD, GROW, AUTOMATE & HIRE.
               </p>
             </div>
           </div>
-          <motion.button
-            type="button"
-            className="primary"
-            style={{ background: 'var(--acid)', color: '#10100f', height: '42px', padding: '0 20px', fontSize: '13px', whiteSpace: 'nowrap' }}
-            whileHover={{ scale: 1.03, y: -2 }}
-            whileTap={{ scale: 0.97 }}
-            transition={TRANSITIONS.buttonSpring}
-            onClick={() => onOpenInquiry({ service: 'Website / Build' })}
-          >
-            Request Free Consultation <ArrowRight size={14} />
-          </motion.button>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <motion.button
+              type="button"
+              className="secondary"
+              style={{ height: '42px', padding: '0 16px', fontSize: '12px', whiteSpace: 'nowrap' }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setViewMode(viewMode === 'estimator' ? 'packages' : 'estimator')}
+            >
+              {viewMode === 'estimator' ? 'View 6 Packages →' : 'Open Estimator ⚡'}
+            </motion.button>
+            <motion.button
+              type="button"
+              className="primary"
+              style={{ background: 'var(--acid)', color: '#10100f', height: '42px', padding: '0 20px', fontSize: '13px', whiteSpace: 'nowrap' }}
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
+              onClick={() => onOpenInquiry({ service: 'Website / Build' })}
+            >
+              Request Free Consultation <ArrowRight size={14} />
+            </motion.button>
+          </div>
         </div>
       </motion.section>
 
+      {viewMode === 'estimator' ? (
+        <section style={{ maxWidth: '1180px', margin: '0 auto 70px', padding: '0 20px' }}>
+          <ProjectEstimator onOpenInquiry={onOpenInquiry} />
+          <div style={{ textAlign: 'center', marginTop: '28px' }}>
+            <button
+              type="button"
+              onClick={() => setViewMode('packages')}
+              style={{
+                font: '600 13px "Space Grotesk"',
+                background: 'none',
+                border: 'none',
+                color: 'var(--ink)',
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              ← Back to standard 6 fixed-scope packages
+            </button>
+          </div>
+        </section>
+      ) : (
+        <>
       {/* Filter Tabs */}
       <section style={{ maxWidth: '1180px', margin: '0 auto 30px', padding: '0 20px' }}>
         <div className="pricing-filter-tabs">
@@ -423,6 +483,8 @@ export default function PricingPage({
           })}
         </motion.div>
       </section>
+      </>
+      )}
 
       {/* Detailed Feature Comparison Table */}
       <motion.section

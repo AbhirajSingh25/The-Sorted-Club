@@ -24,6 +24,7 @@ import {
   X
 } from 'lucide-react';
 import { TEMPLATES } from './templatesData';
+import CaseStudyModal from './CaseStudyModal';
 import {
   fadeInUp,
   fadeIn,
@@ -36,6 +37,7 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
   const template = TEMPLATES.find((t) => t.slug === slug) || TEMPLATES[0];
   const [devicePreviewMode, setDevicePreviewMode] = useState('desktop'); // 'desktop' | 'mobile'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showCaseStudy, setShowCaseStudy] = useState(false);
 
   // Update SEO Title & Meta tags
   useEffect(() => {
@@ -172,6 +174,17 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
               onClick={() => onNavigate(`/demo/${template.slug}`)}
             >
               <Sparkles size={16} /> Launch Interactive Live Demo
+            </motion.button>
+            <motion.button
+              type="button"
+              className="secondary"
+              style={{ height: '52px', padding: '0 20px', fontSize: '13px' }}
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
+              onClick={() => setShowCaseStudy(true)}
+            >
+              View Scope &amp; Tech Spec ↗
             </motion.button>
           </motion.div>
         </div>
@@ -582,6 +595,16 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
         </p>
         <small>© 2026 The Sorted Club. All rights reserved. • Blueprints labeled Demo Concept.</small>
       </footer>
+
+      <CaseStudyModal
+        isOpen={showCaseStudy}
+        onClose={() => setShowCaseStudy(false)}
+        project={template}
+        onEnquire={(proj) => {
+          setShowCaseStudy(false);
+          onOpenInquiry({ template: proj });
+        }}
+      />
     </div>
   );
 }

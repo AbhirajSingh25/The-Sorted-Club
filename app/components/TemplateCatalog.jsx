@@ -21,6 +21,7 @@ import {
   Menu
 } from 'lucide-react';
 import { TEMPLATES, TEMPLATE_CATEGORIES, DESIGN_STYLES } from './templatesData';
+import CaseStudyModal from './CaseStudyModal';
 import {
   fadeInUp,
   fadeIn,
@@ -36,6 +37,7 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
   const [selectedStyle, setSelectedStyle] = useState('All Styles');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const [selectedCaseStudy, setSelectedCaseStudy] = useState(null);
 
   // Update SEO Page Title
   useEffect(() => {
@@ -487,10 +489,23 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
                           whileHover={{ scale: 1.03 }}
                           whileTap={{ scale: 0.97 }}
                           transition={TRANSITIONS.buttonSpring}
+                          onClick={() => setSelectedCaseStudy(template)}
+                          title="Inspect architectural problem solved and deliverables checklist"
+                          style={{ fontSize: '11px', padding: '0 8px' }}
+                        >
+                          Case Study ↗
+                        </motion.button>
+                        <motion.button
+                          type="button"
+                          className="btn-demo-view"
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          transition={TRANSITIONS.buttonSpring}
                           onClick={() => onNavigate(`/templates/${template.slug}`)}
                           title="Inspect details, sections and live interactive demo"
+                          style={{ fontSize: '11px', padding: '0 8px' }}
                         >
-                          View Details
+                          Details
                         </motion.button>
                         <motion.button
                           type="button"
@@ -500,8 +515,9 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
                           transition={TRANSITIONS.buttonSpring}
                           onClick={() => onOpenInquiry({ template })}
                           title={`Request a website build based on ${template.name}`}
+                          style={{ fontSize: '11px', padding: '0 10px' }}
                         >
-                          Build This <ArrowRight size={14} />
+                          Build <ArrowRight size={12} />
                         </motion.button>
                       </div>
                     </div>
@@ -700,6 +716,16 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
         </p>
         <small>© 2026 The Sorted Club. All rights reserved. • Blueprints labeled Demo Concept.</small>
       </footer>
+
+      <CaseStudyModal
+        isOpen={Boolean(selectedCaseStudy)}
+        onClose={() => setSelectedCaseStudy(null)}
+        project={selectedCaseStudy}
+        onEnquire={(proj) => {
+          setSelectedCaseStudy(null);
+          onOpenInquiry({ template: proj });
+        }}
+      />
     </div>
   );
 }

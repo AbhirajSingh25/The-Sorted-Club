@@ -52,7 +52,7 @@ const BUDGET_RANGES = [
   '$50,000+'
 ];
 
-export default function InquiryModal({ isOpen, onClose, initialService = '', initialTemplate = null }) {
+export default function InquiryModal({ isOpen, onClose, initialService = '', initialTemplate = null, initialData = null }) {
   const [selectedTemplate, setSelectedTemplate] = useState(initialTemplate);
 
   const getInitialBusinessType = (tmpl) => {
@@ -73,8 +73,8 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
     service_interest: initialService || 'Website / Build',
     problem: initialTemplate
       ? `I would like to build a website based on the ${initialTemplate.name} demo concept (${initialTemplate.category}). Required features: ${initialTemplate.mainFeatures ? initialTemplate.mainFeatures.slice(0, 3).join(', ') : 'Modern responsive website'}.`
-      : '',
-    budget: initialTemplate?.budgetRange || '$2,500 - $5,000',
+      : (initialData?.problem || ''),
+    budget: initialData?.budget || initialTemplate?.budgetRange || '$2,500 - $5,000',
     consent: true
   });
 
@@ -87,7 +87,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
   const modalRef = useRef(null);
   const nameInputRef = useRef(null);
 
-  // Sync when initialTemplate or initialService changes on open
+  // Sync when initialTemplate or initialService or initialData changes on open
   useEffect(() => {
     if (initialTemplate) {
       setSelectedTemplate(initialTemplate);
@@ -98,10 +98,18 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
         problem: `I would like to build a website based on the ${initialTemplate.name} demo concept (${initialTemplate.category}). Required features: ${initialTemplate.mainFeatures ? initialTemplate.mainFeatures.slice(0, 3).join(', ') : 'Modern responsive website'}.`,
         budget: initialTemplate.budgetRange || prev.budget
       }));
-    } else if (initialService && SERVICE_OPTIONS.includes(initialService)) {
-      setFormData((prev) => ({ ...prev, service_interest: initialService }));
+    } else {
+      if (initialService) {
+        setFormData((prev) => ({ ...prev, service_interest: initialService }));
+      }
+      if (initialData?.problem) {
+        setFormData((prev) => ({ ...prev, problem: initialData.problem }));
+      }
+      if (initialData?.budget) {
+        setFormData((prev) => ({ ...prev, budget: initialData.budget }));
+      }
     }
-  }, [initialTemplate, initialService]);
+  }, [initialTemplate, initialService, initialData]);
 
   // Lock body scroll and focus on name input on open
   useEffect(() => {
@@ -498,9 +506,33 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
             )}
 
             {submitError && (
-              <div className="error-banner" role="alert" style={{ marginBottom: '18px' }}>
-                <AlertCircle size={18} style={{ flexShrink: 0 }} />
-                <span>{submitError}</span>
+              <div className="error-banner" role="alert" style={{ marginBottom: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <span>{submitError}</span>
+                </div>
+                <a
+                  href={`https://wa.me/919643820888?text=${encodeURIComponent(
+                    `Hi The Sorted Club, I am enquiring for ${formData.business_name || 'my business'} (${formData.name || 'Visitor'}). Service: ${formData.service_interest}. Budget: ${formData.budget || 'Not specified'}. Note: ${formData.problem || 'Project brief'}`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 14px',
+                    background: '#25D366',
+                    color: '#fff',
+                    textDecoration: 'none',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    width: 'fit-content',
+                    marginTop: '4px'
+                  }}
+                >
+                  📱 Send Brief Directly via WhatsApp (+91 9643820888) →
+                </a>
               </div>
             )}
 
@@ -802,6 +834,24 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
                     </>
                   )}
                 </motion.button>
+              </div>
+
+              <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                <a
+                  href="https://wa.me/919643820888?text=Hi%20The%20Sorted%20Club%2C%20I%20have%20a%20business%20inquiry%20regarding%20my%20project."
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    font: '500 12px "Space Grotesk"',
+                    color: 'var(--muted)',
+                    textDecoration: 'underline',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  Need instant response? Chat directly with the engineering lead on WhatsApp (+91 9643820888) ↗
+                </a>
               </div>
             </form>
           </div>
