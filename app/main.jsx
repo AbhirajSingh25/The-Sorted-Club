@@ -107,7 +107,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
   const [caseStudyTemplate, setCaseStudyTemplate] = useState(null);
 
   const featuredBlueprints = TEMPLATES.filter((t) =>
-    ['sanctuary-retreat', 'saffron-and-sage', 'flowgrid-ai', 'lumina-spa'].includes(t.slug)
+    ['sanctuary-retreat', 'saffron-and-sage', 'flowgrid-ai'].includes(t.slug)
   );
 
   const handleScrollToHash = (e, hash) => {
@@ -155,26 +155,16 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
             Services
           </a>
           <a
-            href="#vanvas"
-            onClick={(e) => handleScrollToHash(e, '#vanvas')}
+            href="#work"
+            onClick={(e) => handleScrollToHash(e, '#work')}
           >
-            VANVAS ↗
+            Work
           </a>
           <a
-            href="/templates"
-            onClick={(e) => {
-              e.preventDefault();
-              setMobileMenuOpen(false);
-              onNavigate('/templates');
-            }}
+            href="#tech"
+            onClick={(e) => handleScrollToHash(e, '#tech')}
           >
-            Blueprints
-          </a>
-          <a
-            href="#estimator"
-            onClick={(e) => handleScrollToHash(e, '#estimator')}
-          >
-            Estimator ↘
+            Approach
           </a>
           <a
             href="/pricing"
@@ -187,16 +177,10 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
             Pricing
           </a>
           <a
-            href="#tech"
-            onClick={(e) => handleScrollToHash(e, '#tech')}
-          >
-            Tech Stack
-          </a>
-          <a
             href="#founder"
             onClick={(e) => handleScrollToHash(e, '#founder')}
           >
-            Founder
+            About
           </a>
           <motion.button
             className="navcta"
@@ -269,38 +253,9 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
             whileHover={{ scale: 1.03, y: -2 }}
             whileTap={{ scale: 0.97 }}
             transition={TRANSITIONS.buttonSpring}
-            onClick={() => onOpenInquiry({ service: 'Website / Build' })}
-          >
-            Free Consultation <ArrowRight size={18} />
-          </motion.button>
-          <motion.button
-            className="secondary"
-            whileHover={{ scale: 1.02, x: 2 }}
-            whileTap={{ scale: 0.98 }}
-            transition={TRANSITIONS.buttonSpring}
             onClick={(e) => handleScrollToHash(e, '#estimator')}
           >
-            Project Estimator ↘
-          </motion.button>
-          <motion.button
-            className="secondary"
-            style={{ background: 'transparent', borderColor: 'var(--line)' }}
-            whileHover={{ scale: 1.02, x: 2 }}
-            whileTap={{ scale: 0.98 }}
-            transition={TRANSITIONS.buttonSpring}
-            onClick={(e) => handleScrollToHash(e, '#vanvas')}
-          >
-            Shipped: VANVAS ↗
-          </motion.button>
-          <motion.button
-            className="secondary"
-            style={{ background: 'transparent', borderColor: 'var(--line)' }}
-            whileHover={{ scale: 1.02, x: 2 }}
-            whileTap={{ scale: 0.98 }}
-            transition={TRANSITIONS.buttonSpring}
-            onClick={() => onNavigate('/templates')}
-          >
-            Browse 11 Blueprints →
+            Start a Project <ArrowRight size={18} />
           </motion.button>
         </motion.div>
 
@@ -399,11 +354,12 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         </motion.div>
       </motion.section>
 
-      {/* Section 02: Flagship Shipped Product — VANVAS */}
-      <VanvasFeaturedSection
-        onOpenInquiry={onOpenInquiry}
-        onOpenCaseStudy={(cs) => setCaseStudyTemplate(cs)}
-      />
+      {/* Portfolio: Section 02 (VANVAS) & Section 03 (Blueprints) */}
+      <div id="work">
+        <VanvasFeaturedSection
+          onOpenInquiry={onOpenInquiry}
+          onOpenCaseStudy={(cs) => setCaseStudyTemplate(cs)}
+        />
 
       {/* Section 03: Selected Blueprints & Work */}
       <motion.section
@@ -528,6 +484,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
           </motion.button>
         </motion.div>
       </motion.section>
+      </div>
 
       {/* Section 04: Technology & Capabilities */}
       <TechStackSection onOpenInquiry={onOpenInquiry} />

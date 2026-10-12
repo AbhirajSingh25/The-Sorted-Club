@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Code2,
@@ -13,10 +13,9 @@ import {
   ShieldCheck,
   MessageSquare,
   Info,
-  CheckCircle2,
-  Layers,
   Sliders,
-  DollarSign
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { PILLARS_CONFIG, USD_INR_EXCHANGE_NOTE } from './pricingData';
 import { TRANSITIONS } from '../utils/motion';
@@ -33,7 +32,7 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
   const [selectedTierId, setSelectedTierId] = useState(initialTier || 'business');
   const [selectedAddonIds, setSelectedAddonIds] = useState([]);
   const [currency, setCurrency] = useState('INR'); // 'INR' or 'USD'
-  const [activeStepTab, setActiveStepTab] = useState('B'); // Mobile step focus indicator
+  const [expandedTierId, setExpandedTierId] = useState(null);
 
   const currentPillar = useMemo(() => {
     return PILLARS_CONFIG.find((p) => p.id === selectedPillarId) || PILLARS_CONFIG[0];
@@ -46,6 +45,7 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
     const defaultTier = pillar.tiers.find((t) => t.popular) || pillar.tiers[0];
     setSelectedTierId(defaultTier.id);
     setSelectedAddonIds([]);
+    setExpandedTierId(null);
   };
 
   const currentTier = useMemo(() => {
@@ -58,7 +58,7 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
     );
   };
 
-  // Calculation logic with safe fallbacks
+  // Calculation logic with safe commercial defaults
   const calculation = useMemo(() => {
     const isUSD = currency === 'USD';
     const basePrice = isUSD ? (currentTier?.priceUSD ?? 0) : (currentTier?.priceINR ?? 0);
@@ -82,7 +82,7 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
       : `₹${addonsCost.toLocaleString()}`;
 
     const formattedTotal = currentTier?.isSuccessBased
-      ? 'Pay on Success (No Upfront)'
+      ? 'Pay on Success'
       : isUSD
       ? `$${total.toLocaleString()}`
       : `₹${total.toLocaleString()}`;
@@ -109,14 +109,7 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
     const scopeSummary = `${currentPillar.name} — ${currentTier.name} (${currentTier.scopeLabel || ''})`;
     const pricingSummary = calculation.isSuccessBased
       ? 'Success-Based (Zero Upfront)'
-      : `${calculation.formattedTotal}${calculation.isRecurring ? '/mo' : ''} [Base: ${calculation.formattedBase}${addonsCostString()}]`;
-
-    function addonsCostString() {
-      if (calculation.addonsCost > 0) {
-        return ` + Add-ons: ${calculation.formattedAddons}`;
-      }
-      return '';
-    }
+      : `${calculation.formattedTotal}${calculation.isRecurring ? '/mo' : ''} [Base: ${calculation.formattedBase}${calculation.addonsCost > 0 ? ` + Add-ons: ${calculation.formattedAddons}` : ''}]`;
 
     onOpenInquiry({
       service: currentPillar.serviceKey,
@@ -125,10 +118,11 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
       currency,
       estimatedPrice: calculation.formattedTotal,
       problem: `[Project Estimator Configuration]
-Service: ${currentPillar.title} (${currentPillar.name})
-Selected Scope: ${currentTier.name} (${currentTier.scopeLabel || 'Custom'})
+Service: ${currentPillar.name} (${currentPillar.title})
+Selected Scope: ${currentTier.name} [${currentTier.scopeLabel || 'Custom'}]
 Turnaround: ${currentTier.turnaround}
 ${addonNames.length > 0 ? `Selected Add-ons (${addonNames.length}): ${addonNames.join(', ')}\n` : 'No optional add-ons selected.\n'}Estimated Investment: ${pricingSummary}
+Payment Terms: 50% deposit to start, 50% upon live staging approval
 Currency: ${currency}
 
 Please review this configuration and provide our formal statement of work and kickoff timeline.`,
@@ -149,7 +143,7 @@ Please review this configuration and provide our formal statement of work and ki
   };
 
   const whatsappMessage = encodeURIComponent(
-    `Hi The Sorted Club, I configured a project estimate on your homepage for ${currentPillar.name} (${currentTier.name}). Estimated investment: ${calculation.formattedTotal}${calculation.isRecurring ? '/mo' : ''}. I would like to review our scope and confirm delivery dates.`
+    `Hi The Sorted Club, I configured an estimate for ${currentPillar.name} (${currentTier.name}). Estimated investment: ${calculation.formattedTotal}${calculation.isRecurring ? '/mo' : ''}. I'd like to confirm the sprint start date.`
   );
 
   return (
@@ -159,14 +153,14 @@ Please review this configuration and provide our formal statement of work and ki
         <div>
           <div className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Sparkles size={14} color="var(--ink)" />
-            INTERACTIVE PROJECT ESTIMATOR • REAL-TIME CONFIGURATOR
+            INTERACTIVE PROJECT ESTIMATOR
           </div>
           <h3 className="estimator-title">
             Configure your project scope.<br />
             <i>Instant commercial transparency.</i>
           </h3>
           <p className="estimator-sub">
-            Select your discipline, tailor scope complexity, and add modular capabilities. Zero hidden fees. 50% upfront, 50% upon live staging sign-off.
+            Choose your discipline, select package complexity, and add modular capabilities. Transparent milestone pricing: 50% upfront, 50% only upon live staging sign-off.
           </p>
         </div>
 
@@ -198,40 +192,40 @@ Please review this configuration and provide our formal statement of work and ki
         </div>
       </div>
 
-      {/* Progress Indicator Strip */}
+      {/* Step Indicator Strip */}
       <div className="estimator-progress-strip">
         <div className="progress-step-pill active">
-          <span className="step-num-circle">A</span>
+          <span className="step-num-circle">01</span>
           <span className="step-label-text">Discipline</span>
           <strong className="step-val-text">{currentPillar.name}</strong>
         </div>
         <div className="progress-divider">→</div>
         <div className="progress-step-pill active">
-          <span className="step-num-circle">B</span>
+          <span className="step-num-circle">02</span>
           <span className="step-label-text">Scope</span>
           <strong className="step-val-text">{currentTier.name}</strong>
         </div>
         <div className="progress-divider">→</div>
         <div className="progress-step-pill active">
-          <span className="step-num-circle">C</span>
+          <span className="step-num-circle">03</span>
           <span className="step-label-text">Add-ons</span>
           <strong className="step-val-text">{activeAddonsList.length} selected</strong>
         </div>
         <div className="progress-divider">→</div>
         <div className="progress-step-pill highlight">
-          <span className="step-num-circle">D</span>
+          <span className="step-num-circle">04</span>
           <span className="step-label-text">Estimate</span>
           <strong className="step-val-text">{calculation.formattedTotal}</strong>
         </div>
       </div>
 
-      {/* STEP A: WHAT ARE YOU BUILDING? */}
+      {/* STEP 01: CHOOSE A DISCIPLINE */}
       <div className="estimator-step-block">
         <div className="step-header-row">
           <label className="estimator-step-label">
-            <span>STEP A</span> / What are you building?
+            <span>STEP 01</span> / Choose a Discipline
           </label>
-          <span className="step-hint-text">Choose your core service discipline</span>
+          <span className="step-hint-text">Select your core engagement stream</span>
         </div>
 
         <div className="estimator-pillars-grid">
@@ -239,17 +233,14 @@ Please review this configuration and provide our formal statement of work and ki
             const Icon = ICON_MAP[pillar.iconKey] || Code2;
             const isSelected = pillar.id === selectedPillarId;
             return (
-              <motion.button
+              <button
                 type="button"
                 key={pillar.id}
                 className={`estimator-pillar-btn ${isSelected ? 'selected' : ''}`}
                 onClick={() => handlePillarChange(pillar.id)}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                transition={TRANSITIONS.buttonSpring}
               >
                 <div className="pillar-btn-icon">
-                  <Icon size={20} />
+                  <Icon size={18} />
                 </div>
                 <div className="pillar-btn-info">
                   <div className="pillar-header-wrap">
@@ -258,49 +249,28 @@ Please review this configuration and provide our formal statement of work and ki
                   </div>
                   <span>{pillar.title}</span>
                 </div>
-              </motion.button>
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* STEP B: CONFIGURE THE SCOPE */}
+      {/* STEP 02: SELECT A SCOPE */}
       <div className="estimator-step-block">
         <div className="step-header-row">
           <label className="estimator-step-label">
-            <span>STEP B</span> / Configure Scope &amp; Complexity for <strong>{currentPillar.name}</strong>
+            <span>STEP 02</span> / Select Scope Complexity for <strong>{currentPillar.name}</strong>
           </label>
           <span className="step-hint-text">
-            {currentPillar.id === 'build'
-              ? 'Select by page count, funnel complexity or application architecture'
-              : 'Select your operational volume & deliverables tier'}
+            Compare options quickly. Balanced 2–3 column desktop layout.
           </span>
         </div>
 
-        {/* For Website BUILD Projects: Quick Page-Count / Package Quick Filter */}
-        {currentPillar.id === 'build' && (
-          <div className="estimator-scope-quick-strip">
-            <span className="scope-quick-label">Quick Scope Selector:</span>
-            <div className="scope-pills-row">
-              {currentPillar.tiers.map((t) => (
-                <button
-                  type="button"
-                  key={t.id}
-                  className={`scope-pill-btn ${t.id === selectedTierId ? 'active' : ''}`}
-                  onClick={() => setSelectedTierId(t.id)}
-                >
-                  <span className="pill-name">{t.name}</span>
-                  <span className="pill-pages">({t.scopeLabel})</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Tiers Grid */}
-        <div className="estimator-tiers-grid">
+        {/* Tiers Grid - 3 columns for 3+ items, 2 columns for 2 items */}
+        <div className={`estimator-tiers-grid ${currentPillar.tiers.length === 2 ? 'two-col' : 'three-col'}`}>
           {currentPillar.tiers.map((tier) => {
             const isSelected = tier.id === selectedTierId;
+            const isExpanded = expandedTierId === tier.id;
             const priceStr = tier.isSuccessBased
               ? 'Pay on Success'
               : currency === 'USD'
@@ -308,7 +278,7 @@ Please review this configuration and provide our formal statement of work and ki
               : `₹${tier.priceINR.toLocaleString()}`;
 
             return (
-              <motion.div
+              <div
                 key={tier.id}
                 className={`estimator-tier-card ${isSelected ? 'selected' : ''}`}
                 onClick={() => setSelectedTierId(tier.id)}
@@ -320,8 +290,6 @@ Please review this configuration and provide our formal statement of work and ki
                     setSelectedTierId(tier.id);
                   }
                 }}
-                whileHover={{ y: -3 }}
-                transition={TRANSITIONS.cardSpring}
               >
                 <div className="tier-card-head">
                   <div className="tier-title-wrap">
@@ -349,7 +317,7 @@ Please review this configuration and provide our formal statement of work and ki
                 </div>
 
                 <ul className="tier-deliverables-list">
-                  {tier.deliverables.map((item, idx) => (
+                  {(isExpanded ? tier.deliverables : tier.deliverables.slice(0, 3)).map((item, idx) => (
                     <li key={idx}>
                       <Check size={13} className="check-icon" />
                       <span>{item}</span>
@@ -357,27 +325,44 @@ Please review this configuration and provide our formal statement of work and ki
                   ))}
                 </ul>
 
+                {tier.deliverables.length > 3 && (
+                  <button
+                    type="button"
+                    className="tier-expand-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedTierId(isExpanded ? null : tier.id);
+                    }}
+                  >
+                    {isExpanded ? (
+                      <>Fewer details <ChevronUp size={12} /></>
+                    ) : (
+                      <>+{tier.deliverables.length - 3} more specs <ChevronDown size={12} /></>
+                    )}
+                  </button>
+                )}
+
                 <div className="tier-select-indicator">
                   <div className={`radio-dot ${isSelected ? 'active' : ''}`} />
-                  <span>{isSelected ? '✓ Scope Selected' : 'Choose Scope'}</span>
+                  <span>{isSelected ? '✓ Selected' : 'Choose Option'}</span>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
       </div>
 
-      {/* STEP C: OPTIONAL FEATURES & ADD-ONS */}
+      {/* STEP 03: ADD OPTIONAL CAPABILITIES */}
       {currentPillar.addons && currentPillar.addons.length > 0 && (
         <div className="estimator-step-block">
           <div className="step-header-row">
             <label className="estimator-step-label">
-              <span>STEP C</span> / Optional Add-on Capabilities
+              <span>STEP 03</span> / Add Optional Capabilities
             </label>
             <span className="step-hint-text">Selectable acceleration &amp; specialized modules</span>
           </div>
 
-          <div className="estimator-addons-list">
+          <div className="estimator-addons-grid">
             {currentPillar.addons.map((addon) => {
               const isChecked = selectedAddonIds.includes(addon.id);
               const addonCost =
@@ -386,9 +371,9 @@ Please review this configuration and provide our formal statement of work and ki
                   : `+₹${addon.priceINR.toLocaleString()}`;
 
               return (
-                <motion.div
+                <div
                   key={addon.id}
-                  className={`estimator-addon-item ${isChecked ? 'active' : ''}`}
+                  className={`estimator-addon-card ${isChecked ? 'active' : ''}`}
                   onClick={() => toggleAddon(addon.id)}
                   role="checkbox"
                   aria-checked={isChecked}
@@ -399,8 +384,6 @@ Please review this configuration and provide our formal statement of work and ki
                       toggleAddon(addon.id);
                     }
                   }}
-                  whileHover={{ x: 2 }}
-                  transition={TRANSITIONS.buttonSpring}
                 >
                   <div className={`addon-checkbox ${isChecked ? 'checked' : ''}`}>
                     {isChecked ? <Check size={13} /> : <Plus size={13} />}
@@ -412,41 +395,58 @@ Please review this configuration and provide our formal statement of work and ki
                     </div>
                     <p className="addon-desc">{addon.desc}</p>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
         </div>
       )}
 
-      {/* STEP D & E: LIVE ESTIMATE BREAKDOWN & PRIMARY CTA */}
+      {/* STEP 04: REVIEW YOUR ESTIMATE & ACTIONS */}
       <div className="estimator-summary-panel">
         <div className="summary-col-left">
           <div className="summary-badge">
-            <ShieldCheck size={14} /> STEP D • LIVE ESTIMATE BREAKDOWN
+            <ShieldCheck size={13} /> STEP 04 • FINANCIAL SUMMARY
           </div>
 
-          {/* Breakdown Rows */}
+          {/* Semantic Breakdown Rows - No concatenated labels! */}
           <div className="estimator-breakdown-details">
-            <div className="breakdown-line">
-              <span className="line-label">Selected Discipline:</span>
-              <strong className="line-val">{currentPillar.name} — {currentPillar.title}</strong>
+            <div className="summary-field-row">
+              <span className="field-label">Discipline</span>
+              <strong className="field-value">{currentPillar.name} — {currentPillar.title}</strong>
             </div>
-            <div className="breakdown-line">
-              <span className="line-label">Selected Scope ({currentTier.scopeLabel}):</span>
-              <strong className="line-val">{currentTier.name} ({calculation.formattedBase})</strong>
+
+            <div className="summary-field-row">
+              <span className="field-label">Selected Scope</span>
+              <strong className="field-value">{currentTier.name} ({currentTier.scopeLabel})</strong>
             </div>
-            <div className="breakdown-line">
-              <span className="line-label">Modular Add-ons ({activeAddonsList.length}):</span>
-              <span className="line-val">
+
+            <div className="summary-field-row">
+              <span className="field-label">Base Price</span>
+              <span className="field-value">{calculation.formattedBase}</span>
+            </div>
+
+            <div className="summary-field-row">
+              <span className="field-label">Add-ons ({activeAddonsList.length})</span>
+              <span className="field-value">
                 {activeAddonsList.length > 0
                   ? `${activeAddonsList.map((a) => a.name).join(', ')} (${calculation.formattedAddons})`
                   : 'None selected (+₹0)'}
               </span>
             </div>
+
+            <div className="summary-field-row">
+              <span className="field-label">Indicative Turnaround</span>
+              <span className="field-value">{currentTier.turnaround}</span>
+            </div>
+
+            <div className="summary-field-row">
+              <span className="field-label">Payment Terms</span>
+              <span className="field-value">50% deposit to start, 50% on live staging sign-off</span>
+            </div>
           </div>
 
-          {/* Animated Total Display */}
+          {/* Prominent Total Display */}
           <div className="summary-total-display">
             <span className="total-label">Estimated Investment:</span>
             <div className="total-figure">
@@ -456,31 +456,28 @@ Please review this configuration and provide our formal statement of work and ki
           </div>
 
           <p className="summary-footnote">
-            <Info size={13} style={{ display: 'inline', marginRight: '5px', verticalAlign: 'middle' }} />
-            Indicative estimate based on selected scope. 50% deposit on start, 50% only upon live staging sign-off.
+            <Info size={12} style={{ display: 'inline', marginRight: '5px', verticalAlign: 'middle' }} />
+            Indicative scope estimate. 100% full source code ownership upon launch.
             {currency === 'USD' && ` • ${USD_INR_EXCHANGE_NOTE}`}
           </p>
         </div>
 
-        {/* STEP E: CTA & Contact Actions */}
+        {/* Right Action Column */}
         <div className="summary-col-right">
           <div className="summary-turnaround-box">
-            <span>Guaranteed Sprint Window:</span>
+            <span>Sprint Timeline:</span>
             <strong>{currentTier.turnaround}</strong>
           </div>
 
           <div className="summary-action-cluster">
-            <motion.button
+            <button
               type="button"
               className="primary"
               onClick={handleEnquireWithEstimate}
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              transition={TRANSITIONS.buttonSpring}
-              style={{ width: '100%', fontSize: '14.5px', padding: '14px 20px' }}
+              style={{ width: '100%', fontSize: '14px', padding: '14px 20px', background: 'var(--acid)', color: 'var(--ink)', border: 'none', fontWeight: 700 }}
             >
-              Lock In Scope &amp; Start Project <ArrowRight size={17} />
-            </motion.button>
+              Lock In Scope &amp; Start Project <ArrowRight size={16} />
+            </button>
 
             <a
               href={`https://wa.me/919643820888?text=${whatsappMessage}`}
@@ -488,7 +485,7 @@ Please review this configuration and provide our formal statement of work and ki
               rel="noopener noreferrer"
               className="estimator-whatsapp-link"
             >
-              <MessageSquare size={15} /> WhatsApp This Estimate →
+              <MessageSquare size={14} /> WhatsApp This Estimate →
             </a>
           </div>
         </div>
