@@ -13151,9 +13151,745 @@ select.mobile-input:focus {
   .estimator-tier-card,
   .home-portfolio-card,
   .home-portfolio-card:hover .portfolio-card-canvas img,
-  .process-step-card {
+  .process-step-card,
+  .vanvas-showcase-card,
+  .tech-item-tile {
     transition: none !important;
     transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   PRICING PAGE HERO (ELIMINATES 100VH EMPTY SPACE)
+   ========================================================================== */
+.pricing-hero {
+  padding: 56px 9vw 28px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+  text-align: left;
+}
+
+.pricing-hero h1 {
+  font: 700 clamp(38px, 6vw, 68px)/1.02 "Space Grotesk", sans-serif;
+  letter-spacing: -0.05em;
+  margin: 14px 0 16px;
+  color: var(--ink);
+}
+
+.pricing-hero h1 em {
+  font-style: italic;
+  color: #6e6b63;
+}
+
+.pricing-hero-copy {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 680px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.pricing-hero-meta {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--muted);
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+/* ==========================================================================
+   SECTION 02: FLAGSHIP REAL PRODUCT — VANVAS SHOWCASE
+   ========================================================================== */
+.vanvas-feature-section {
+  padding: 115px 9vw;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+
+.vanvas-showcase-card {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 32px -8px rgba(16, 16, 15, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+.vanvas-card-topbar {
+  padding: 18px 28px;
+  background: #ede9df;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.vanvas-brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vanvas-icon-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  object-fit: cover;
+}
+
+.vanvas-brand-name {
+  font: 700 18px/1 "Space Grotesk", sans-serif;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  display: block;
+}
+
+.vanvas-by-tag {
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+  margin-top: 2px;
+}
+
+.vanvas-topbar-pills {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.vanvas-meta-pill {
+  font: 600 11px monospace;
+  background: #ffffff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.vanvas-meta-pill.status-live {
+  background: #e4f4e7;
+  color: #15803d;
+  border-color: #bbf7d0;
+  font-weight: 700;
+}
+
+.vanvas-action-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vanvas-live-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 700 12px "Space Grotesk", sans-serif;
+  background: #15803d;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.vanvas-live-link:hover {
+  background: #166534;
+  transform: translateY(-1px);
+}
+
+.vanvas-card-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 36px;
+  padding: 36px;
+}
+
+.vanvas-visual-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vanvas-display-viewport {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vanvas-main-preview {
+  position: relative;
+  height: 340px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #1a1a18;
+  border: 1px solid var(--line);
+}
+
+.vanvas-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.vanvas-preview-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(16, 16, 15, 0.92) 0%, rgba(16, 16, 15, 0.2) 60%, transparent 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 22px 24px;
+}
+
+.vanvas-overlay-content strong {
+  font: 700 22px "Space Grotesk", sans-serif;
+  color: #ffffff;
+  display: block;
+  margin: 4px 0 2px;
+}
+
+.vanvas-overlay-content p {
+  font-size: 12px;
+  color: #d6d3cb;
+  margin: 0;
+}
+
+.vanvas-emblem-watermark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--acid);
+  font: 700 10px "Space Grotesk", sans-serif;
+  letter-spacing: 0.08em;
+}
+
+.vanvas-emblem-watermark img {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+.vanvas-region-badge {
+  font: 600 11px "Space Grotesk", sans-serif;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vanvas-art-thumbnails-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.strip-label {
+  font: 700 10px "Space Grotesk", sans-serif;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.art-thumbnails-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.art-thumb-btn {
+  width: 68px;
+  height: 48px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color 0.2s, transform 0.2s;
+  background: #10100f;
+}
+
+.art-thumb-btn.active {
+  border-color: #15803d;
+  transform: scale(1.05);
+}
+
+.art-thumb-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vanvas-narrative-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vanvas-challenge-box {
+  background: #ede9df;
+  padding: 16px 20px;
+  border-radius: 4px;
+  border-left: 3px solid #15803d;
+  font-size: 13px;
+  color: #2e2c27;
+  line-height: 1.5;
+}
+
+.vanvas-features-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vanvas-features-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.vanvas-features-checklist li svg {
+  color: #15803d;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.vanvas-tech-badges-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.vanvas-tech-badge {
+  font: 600 11px monospace;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #383630;
+}
+
+.vanvas-bottom-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+
+/* ==========================================================================
+   SECTION 04: TECHNOLOGY & CAPABILITIES
+   ========================================================================== */
+.tech-stack-section {
+  padding: 115px 9vw;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+
+.tech-category-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.tech-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  font: 700 13px "Space Grotesk", sans-serif;
+  cursor: pointer;
+  border-radius: 999px;
+  color: var(--ink);
+  transition: all 0.2s;
+}
+
+.tech-tab-btn:hover {
+  background: #ede9df;
+  border-color: var(--ink);
+}
+
+.tech-tab-btn.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.tech-count-badge {
+  font: 700 11px monospace;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.tech-tab-btn.active .tech-count-badge {
+  background: var(--acid);
+  color: var(--ink);
+}
+
+.tech-active-card {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+.tech-cat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.tech-cat-title {
+  font: 700 22px "Space Grotesk", sans-serif;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+
+.tech-cat-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+.tech-ownership-badge {
+  font: 700 11px "Space Grotesk", sans-serif;
+  background: #e4f4e7;
+  color: #15803d;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid #bbf7d0;
+  white-space: nowrap;
+}
+
+.tech-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.tech-item-tile {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tech-item-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--ink);
+  box-shadow: 0 8px 18px -4px rgba(16, 16, 15, 0.08);
+}
+
+.tech-icon-box {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tech-info-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.tech-name {
+  font: 700 14px "Space Grotesk", sans-serif;
+  color: var(--ink);
+}
+
+.tech-role {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.tech-guarantee-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.guarantee-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #36342e;
+  background: #ede9df;
+  padding: 12px 16px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   SECTION 07: BEHIND THE CLUB — FOUNDER PROFILE
+   ========================================================================== */
+.founder-profile-section {
+  padding: 115px 9vw;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+
+.founder-card-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 40px;
+}
+
+.founder-portrait-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.founder-image-wrapper {
+  position: relative;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  background: #1a1a18;
+  border-radius: 4px;
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.founder-portrait-img {
+  width: 100%;
+  height: 390px;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.founder-image-tag {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  background: rgba(16, 16, 15, 0.88);
+  backdrop-filter: blur(8px);
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.founder-nameplate h3 {
+  font: 700 24px "Space Grotesk", sans-serif;
+  letter-spacing: -0.04em;
+  margin: 0 0 4px;
+  color: var(--ink);
+}
+
+.founder-role-title {
+  font: 700 13px "Space Grotesk", sans-serif;
+  color: #15803d;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.founder-bio-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.founder-channels-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.founder-channel-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 6px 0;
+  transition: color 0.2s;
+}
+
+.founder-channel-link:hover {
+  color: #15803d;
+}
+
+.founder-narrative-col {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.founder-manifesto-box {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  padding: 28px;
+  border-left: 4px solid var(--ink);
+}
+
+.founder-block-label {
+  font: 700 10px "Space Grotesk", sans-serif;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.founder-quote {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #23221e;
+  margin: 0;
+  font-style: normal;
+}
+
+.founder-credentials-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.credentials-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.credential-tile {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  padding: 18px;
+  display: flex;
+  gap: 14px;
+}
+
+.credential-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #ede9df;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.credential-content strong {
+  font: 700 14px "Space Grotesk", sans-serif;
+  color: var(--ink);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.credential-degree {
+  font-size: 12px;
+  font-weight: 600;
+  color: #15803d;
+  display: block;
+}
+
+.credential-spec {
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+  margin-top: 2px;
+}
+
+.credential-dates {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+  display: block;
+  font-family: monospace;
+}
+
+.shipped-works-strip {
+  background: #ede9df;
+  padding: 18px 22px;
+  border: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+
+/* ==========================================================================
+   RESPONSIVE OVERRIDES
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .vanvas-card-grid {
+    grid-template-columns: 1fr;
+  }
+  .founder-card-layout {
+    grid-template-columns: 1fr;
+  }
+  .founder-image-wrapper {
+    max-width: 320px;
+  }
+  .tech-guarantee-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .credentials-grid {
+    grid-template-columns: 1fr;
+  }
+  .vanvas-main-preview {
+    height: 260px;
+  }
+  .tech-cat-header {
+    flex-direction: column;
+  }
+  .pricing-hero {
+    padding: 36px 5vw 20px;
   }
 }
 

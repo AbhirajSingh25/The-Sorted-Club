@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Check,
@@ -18,10 +18,10 @@ import {
   Layers,
   Zap,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  Calculator
 } from 'lucide-react';
 import { WEBSITE_PACKAGES, PRICING_COMPARISON_FEATURES, PRICING_FAQS } from './pricingData';
-import ProjectEstimator from './ProjectEstimator';
 import {
   fadeInUp,
   fadeIn,
@@ -40,11 +40,13 @@ export default function PricingPage({
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [viewMode, setViewMode] = useState(
-    typeof window !== 'undefined' && (window.location.hash === '#estimator' || window.location.search.includes('estimator'))
-      ? 'estimator'
-      : 'packages'
-  );
+
+  // Cleanly handle #estimator deep link by sending user to homepage estimator
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window.location.hash === '#estimator' || window.location.search.includes('estimator'))) {
+      onNavigate('/#estimator');
+    }
+  }, [onNavigate]);
 
   const toggleFaq = (idx) => {
     setOpenFaqIndex(openFaqIndex === idx ? null : idx);
@@ -148,8 +150,7 @@ export default function PricingPage({
 
       {/* Hero Section */}
       <motion.section
-        className="hero"
-        style={{ padding: '70px 20px 40px' }}
+        className="pricing-hero"
         initial="hidden"
         animate="visible"
         variants={staggerContainer(0.08, 0.05)}
@@ -177,29 +178,9 @@ export default function PricingPage({
 
         {/* Currency Toggle & Action Bar */}
         <motion.div
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', margin: '24px 0 12px', flexWrap: 'wrap' }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', margin: '20px 0 8px', flexWrap: 'wrap' }}
           variants={fadeInUp}
         >
-          {/* View Mode Toggle */}
-          <div style={{ display: 'inline-flex', background: '#e5e1d7', border: '1px solid var(--line)', padding: '2px' }}>
-            <button
-              type="button"
-              className={`currency-btn ${viewMode === 'packages' ? 'active' : ''}`}
-              style={{ borderRadius: 0, fontWeight: 700, fontSize: '12px', padding: '6px 14px' }}
-              onClick={() => setViewMode('packages')}
-            >
-              Fixed Packages (6)
-            </button>
-            <button
-              type="button"
-              className={`currency-btn ${viewMode === 'estimator' ? 'active' : ''}`}
-              style={{ borderRadius: 0, fontWeight: 700, fontSize: '12px', padding: '6px 14px' }}
-              onClick={() => setViewMode('estimator')}
-            >
-              Interactive Estimator ⚡
-            </button>
-          </div>
-
           <div className="currency-toggle-container">
             <button
               type="button"
@@ -220,6 +201,18 @@ export default function PricingPage({
           <motion.button
             type="button"
             className="secondary"
+            style={{ fontSize: '13px', height: '36px', padding: '0 16px', border: '1px solid var(--line)', background: '#ede9df' }}
+            whileHover={{ scale: 1.02, x: 2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={TRANSITIONS.buttonSpring}
+            onClick={() => onNavigate('/#estimator')}
+          >
+            <Calculator size={14} style={{ marginRight: '6px' }} /> Custom Scope? Open Homepage Estimator ↗
+          </motion.button>
+
+          <motion.button
+            type="button"
+            className="secondary"
             style={{ fontSize: '13px', height: '36px', padding: '0 16px' }}
             whileHover={{ scale: 1.02, x: 2 }}
             whileTap={{ scale: 0.98 }}
@@ -233,7 +226,7 @@ export default function PricingPage({
 
       {/* Free Website Consultation Banner */}
       <motion.section
-        style={{ maxWidth: '1180px', margin: '0 auto 40px', padding: '0 20px' }}
+        style={{ maxWidth: '1180px', margin: '0 auto 32px', padding: '0 20px' }}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
@@ -252,7 +245,7 @@ export default function PricingPage({
                 Not sure which package is right for your business?
               </h3>
               <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--muted)' }}>
-                Get a free 20-minute technical consultation or calibrate custom scopes across BUILD, GROW, AUTOMATE & HIRE.
+                Get a free 20-minute technical consultation or calibrate custom scopes across BUILD, GROW, AUTOMATE & HIRE directly on our homepage.
               </p>
             </div>
           </div>
@@ -263,9 +256,9 @@ export default function PricingPage({
               style={{ height: '42px', padding: '0 16px', fontSize: '12px', whiteSpace: 'nowrap' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => setViewMode(viewMode === 'estimator' ? 'packages' : 'estimator')}
+              onClick={() => onNavigate('/#estimator')}
             >
-              {viewMode === 'estimator' ? 'View 6 Packages →' : 'Open Estimator ⚡'}
+              Configure in Homepage Estimator ↗
             </motion.button>
             <motion.button
               type="button"
@@ -282,30 +275,8 @@ export default function PricingPage({
         </div>
       </motion.section>
 
-      {viewMode === 'estimator' ? (
-        <section style={{ maxWidth: '1180px', margin: '0 auto 70px', padding: '0 20px' }}>
-          <ProjectEstimator onOpenInquiry={onOpenInquiry} />
-          <div style={{ textAlign: 'center', marginTop: '28px' }}>
-            <button
-              type="button"
-              onClick={() => setViewMode('packages')}
-              style={{
-                font: '600 13px "Space Grotesk"',
-                background: 'none',
-                border: 'none',
-                color: 'var(--ink)',
-                cursor: 'pointer',
-                textDecoration: 'underline'
-              }}
-            >
-              ← Back to standard 6 fixed-scope packages
-            </button>
-          </div>
-        </section>
-      ) : (
-        <>
       {/* Filter Tabs */}
-      <section style={{ maxWidth: '1180px', margin: '0 auto 30px', padding: '0 20px' }}>
+      <section style={{ maxWidth: '1180px', margin: '0 auto 28px', padding: '0 20px' }}>
         <div className="pricing-filter-tabs">
           <motion.button
             type="button"
@@ -483,8 +454,6 @@ export default function PricingPage({
           })}
         </motion.div>
       </section>
-      </>
-      )}
 
       {/* Detailed Feature Comparison Table */}
       <motion.section

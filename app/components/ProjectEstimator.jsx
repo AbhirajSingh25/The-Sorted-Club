@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Code2,
@@ -12,208 +12,34 @@ import {
   Clock,
   ShieldCheck,
   MessageSquare,
-  Info
+  Info,
+  CheckCircle2,
+  Layers,
+  Sliders,
+  DollarSign
 } from 'lucide-react';
+import { PILLARS_CONFIG, USD_INR_EXCHANGE_NOTE } from './pricingData';
 import { TRANSITIONS } from '../utils/motion';
 
-const PILLARS_CONFIG = [
-  {
-    id: 'build',
-    name: 'BUILD',
-    title: 'Website & Digital Products',
-    icon: Code2,
-    serviceKey: 'Website / Build',
-    tiers: [
-      {
-        id: 'starter',
-        name: 'Starter Website',
-        priceINR: 14999,
-        priceUSD: 400,
-        turnaround: '5–7 Days',
-        deliverables: ['3–5 Custom Responsive Pages', '1-Click WhatsApp Chat Button', 'Google Maps & Contact Form', 'On-Page SEO & SSL HTTPS', '30-Day Warranty'],
-        desc: 'Clean, credible digital presence for fast launch & local authority.'
-      },
-      {
-        id: 'business',
-        name: 'Business Website',
-        priceINR: 24999,
-        priceUSD: 650,
-        turnaround: '7–10 Days',
-        popular: true,
-        deliverables: ['5–8 Custom Responsive Pages', 'Dynamic Headless CMS for Articles', 'PageSpeed 90+ Optimization', 'Advanced SEO & XML Sitemap', 'CRM Inquiry Routing', '45-Day Warranty'],
-        desc: 'Comprehensive multi-page hub designed to showcase depth, trust, and case studies.'
-      },
-      {
-        id: 'leadgen',
-        name: 'Lead-Gen Website',
-        priceINR: 29999,
-        priceUSD: 750,
-        turnaround: '6–8 Days',
-        deliverables: ['High-Converting Sales Funnel', 'Interactive Multi-Step Lead Quiz', 'Real-time CRM Sync & UTM Attribution', 'Instant Email & WhatsApp Alert', '30-Day Warranty'],
-        desc: 'High-converting sales funnel engineered to turn traffic into qualified inquiries.'
-      },
-      {
-        id: 'booking',
-        name: 'Booking Website',
-        priceINR: 34999,
-        priceUSD: 890,
-        turnaround: '8–12 Days',
-        deliverables: ['Live Calendar Availability Sync', 'Slot Buffer Times & Scheduling Rules', 'Online Deposit / Prepayment Gateway', 'Automated Reminders & Confirmations', '45-Day Warranty'],
-        desc: 'Automated scheduling and appointment engine that fills calendars without phone tag.'
-      },
-      {
-        id: 'ecommerce',
-        name: 'E-Commerce Website',
-        priceINR: 39999,
-        priceUSD: 990,
-        turnaround: '10–14 Days',
-        deliverables: ['Full Storefront (Up to 25 products)', 'Secure Payment Gateway (UPI, Cards)', 'Automated Receipt & Order Tracking', 'Discount Engine & Inventory Alerts', '60-Day Warranty'],
-        desc: 'Blazing-fast online storefront built for seamless shopping, cart, and payments.'
-      },
-      {
-        id: 'custom',
-        name: 'Custom Web App',
-        priceINR: 59999,
-        priceUSD: 1500,
-        turnaround: '2–4 Weeks',
-        deliverables: ['Bespoke Portals (React, FastAPI, DB)', 'User Authentication & RBAC', 'Third-Party Webhooks & API Sync', 'Dedicated Squad Sprint Updates', '90-Day SLA Warranty'],
-        desc: 'Full-stack software engineering for custom portals, dashboards, and internal systems.'
-      }
-    ],
-    addons: [
-      { id: 'whatsapp_ai', name: 'WhatsApp AI Instant Responder', priceINR: 4999, priceUSD: 130, desc: 'Automated 24/7 lead qualification & response bot connected to WhatsApp' },
-      { id: 'seo_boost', name: 'Local SEO & Google Maps Domination Pack', priceINR: 4999, priceUSD: 130, desc: 'Targeted local schema, Google Business Profile audit & keyword ranking setup' },
-      { id: 'fast_track', name: 'Priority Fast-Track Delivery (5-Day Sprint)', priceINR: 4999, priceUSD: 130, desc: 'Dedicated squad acceleration to launch within 5 business days' }
-    ]
-  },
-  {
-    id: 'grow',
-    name: 'GROW',
-    title: 'Revenue Marketing & SEO',
-    icon: BriefcaseBusiness,
-    serviceKey: 'Marketing / Growth',
-    tiers: [
-      {
-        id: 'presence',
-        name: 'Sorted Presence',
-        priceINR: 9999,
-        priceUSD: 270,
-        isRecurring: true,
-        turnaround: 'Monthly Retainer',
-        deliverables: ['8 Branded Social Assets / Mo', 'Google Business Profile Optimization', 'On-Page SEO Monitoring', 'Monthly Review Call'],
-        desc: 'Establish active brand credibility and local search dominance.'
-      },
-      {
-        id: 'growth',
-        name: 'Sorted Growth',
-        priceINR: 19999,
-        priceUSD: 540,
-        isRecurring: true,
-        popular: true,
-        turnaround: 'Monthly Retainer',
-        deliverables: ['16 Content Assets (8 Reels + 8 Posts)', 'Full Scripting & Video Editing', 'Meta / Google Ad Campaign Setup', 'CRM Lead Attribution & Tracking', 'Bi-weekly Strategy Reviews'],
-        desc: 'Accelerate inbound pipeline with active content production and search acquisition.'
-      },
-      {
-        id: 'scale',
-        name: 'Sorted Scale',
-        priceINR: 39999,
-        priceUSD: 990,
-        isRecurring: true,
-        turnaround: 'Custom Sprint',
-        deliverables: ['Omnichannel Engine (20+ Assets/Mo)', 'Dedicated Growth Squad Lead', 'Custom Landing Page Funnels & A/B Tests', 'B2B Outbound Pipeline Enrichment', 'Weekly Strategy & Live Dashboard'],
-        desc: 'Full-service omnichannel growth team acting as your dedicated growth department.'
-      }
-    ],
-    addons: [
-      { id: 'funnel_cro', name: 'Conversion Rate Optimization (CRO) Sprint', priceINR: 4999, priceUSD: 130, desc: 'Deep landing page heatmap analysis, copy testing, and conversion tuning' },
-      { id: 'ad_creatives', name: 'High-Velocity Ad Creatives Pack (5 Hook Variations)', priceINR: 3999, priceUSD: 100, desc: 'Direct-response ad creative variations designed for paid social campaigns' }
-    ]
-  },
-  {
-    id: 'automate',
-    name: 'AUTOMATE',
-    title: 'AI Agents & Workflows',
-    icon: Bot,
-    serviceKey: 'AI / Automation',
-    tiers: [
-      {
-        id: 'starter_auto',
-        name: 'Sorted Automate',
-        priceINR: 24999,
-        priceUSD: 650,
-        turnaround: '5–7 Days',
-        deliverables: ['3 Core Automated Workflow Integrations', 'Instant WhatsApp / Email Lead Auto-Responder', 'CRM Sync & Team Notification Triggers', '30-Day Post-Setup Support'],
-        desc: 'Automate your primary lead intake, notifications, and customer response pipeline.'
-      },
-      {
-        id: 'auto_pro',
-        name: 'Automate Pro',
-        priceINR: 49999,
-        priceUSD: 1350,
-        popular: true,
-        turnaround: '10–14 Days',
-        deliverables: ['Up to 8 Multi-Step Custom Workflows', 'Custom AI Agent on Company Knowledge Base', 'Automated Invoice & Follow-Up Engine', 'Team Training & Video Documentation', '60-Day Priority Optimization'],
-        desc: 'Comprehensive business automation with intelligent AI agents and multi-tool sync.'
-      },
-      {
-        id: 'auto_custom',
-        name: 'Automate Enterprise',
-        priceINR: 79999,
-        priceUSD: 2000,
-        turnaround: '2–4 Weeks',
-        deliverables: ['Bespoke AI Pipelines & LLM Fine-Tuning', 'Proprietary ERP / Database Automations', 'Dedicated Automation Squad Lead', 'Enterprise Security & Compliance SLA'],
-        desc: 'Bespoke AI pipelines, custom ERP integrations, and autonomous operational systems.'
-      }
-    ],
-    addons: [
-      { id: 'auto_maint', name: 'Monthly Automation Maintenance & Health Checks', priceINR: 4999, priceUSD: 130, desc: 'Ongoing workflow monitoring, API version updates, and prompt adjustments' }
-    ]
-  },
-  {
-    id: 'hire',
-    name: 'HIRE',
-    title: 'HireSense AI & Talent Operations',
-    icon: Users,
-    serviceKey: 'Hiring',
-    tiers: [
-      {
-        id: 'placement',
-        name: 'Sorted Placement',
-        priceINR: 0,
-        priceUSD: 0,
-        isSuccessBased: true,
-        turnaround: '7–10 Days to Shortlist',
-        deliverables: ['Role Scorecard & Specification', 'HireSense AI Sourcing & Skills Benchmarking', 'Top 3–5 Pre-Screened Candidates Delivered', 'Interview Coordination & Offer Advisory', '90-Day Placement Replacement Guarantee'],
-        desc: 'Pay only upon successful hire. Zero upfront cost or retainer risk.'
-      },
-      {
-        id: 'dedicated_squad',
-        name: 'Talent Sprint / Embedded Recruiter',
-        priceINR: 29999,
-        priceUSD: 750,
-        turnaround: 'Monthly Sprint',
-        deliverables: ['Dedicated Talent Partner for Your Company', 'Up to 3 Active Open Positions Handled Simultaneously', 'Full ATS Pipeline Management', 'Technical Screening & Work Sample Evaluation'],
-        desc: 'High-velocity talent sourcing sprint for growing startups and agencies.'
-      }
-    ],
-    addons: [
-      { id: 'tech_screen', name: 'Senior Technical Architecture Screening Interview', priceINR: 4999, priceUSD: 130, desc: 'Deep-dive technical assessment conducted by a senior engineer before client interview' }
-    ]
-  }
-];
+const ICON_MAP = {
+  Code2,
+  BriefcaseBusiness,
+  Bot,
+  Users
+};
 
-export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build' }) {
+export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build', initialTier = null }) {
   const [selectedPillarId, setSelectedPillarId] = useState(initialPillar);
-  const [selectedTierId, setSelectedTierId] = useState('business');
+  const [selectedTierId, setSelectedTierId] = useState(initialTier || 'business');
   const [selectedAddonIds, setSelectedAddonIds] = useState([]);
   const [currency, setCurrency] = useState('INR'); // 'INR' or 'USD'
+  const [activeStepTab, setActiveStepTab] = useState('B'); // Mobile step focus indicator
 
   const currentPillar = useMemo(() => {
     return PILLARS_CONFIG.find((p) => p.id === selectedPillarId) || PILLARS_CONFIG[0];
   }, [selectedPillarId]);
 
-  // When pillar changes, pick first or popular tier
+  // When pillar changes, switch to default popular tier and reset add-ons
   const handlePillarChange = (pillarId) => {
     setSelectedPillarId(pillarId);
     const pillar = PILLARS_CONFIG.find((p) => p.id === pillarId) || PILLARS_CONFIG[0];
@@ -232,135 +58,246 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
     );
   };
 
-  // Calculation
+  // Calculation logic with safe fallbacks
   const calculation = useMemo(() => {
     const isUSD = currency === 'USD';
-    const basePrice = isUSD ? currentTier.priceUSD : currentTier.priceINR;
+    const basePrice = isUSD ? (currentTier?.priceUSD ?? 0) : (currentTier?.priceINR ?? 0);
 
     const addonsCost = selectedAddonIds.reduce((sum, addonId) => {
       const addon = (currentPillar.addons || []).find((a) => a.id === addonId);
       if (!addon) return sum;
-      return sum + (isUSD ? addon.priceUSD : addon.priceINR);
+      return sum + (isUSD ? (addon.priceUSD ?? 0) : (addon.priceINR ?? 0));
     }, 0);
 
     const total = basePrice + addonsCost;
 
-    const formattedBase = currentTier.isSuccessBased
+    const formattedBase = currentTier?.isSuccessBased
       ? 'Pay on Success'
       : isUSD
       ? `$${basePrice.toLocaleString()}`
       : `₹${basePrice.toLocaleString()}`;
 
-    const formattedTotal = currentTier.isSuccessBased
+    const formattedAddons = isUSD
+      ? `$${addonsCost.toLocaleString()}`
+      : `₹${addonsCost.toLocaleString()}`;
+
+    const formattedTotal = currentTier?.isSuccessBased
       ? 'Pay on Success (No Upfront)'
       : isUSD
       ? `$${total.toLocaleString()}`
       : `₹${total.toLocaleString()}`;
 
     return {
+      basePrice,
+      addonsCost,
       total,
       formattedBase,
+      formattedAddons,
       formattedTotal,
-      isRecurring: currentTier.isRecurring,
-      isSuccessBased: currentTier.isSuccessBased
+      isRecurring: Boolean(currentTier?.isRecurring),
+      isSuccessBased: Boolean(currentTier?.isSuccessBased)
     };
   }, [currency, currentTier, currentPillar, selectedAddonIds]);
 
+  const activeAddonsList = useMemo(() => {
+    return (currentPillar.addons || []).filter((a) => selectedAddonIds.includes(a.id));
+  }, [currentPillar, selectedAddonIds]);
+
+  // Primary CTA: Pass full configuration into enquiry form
   const handleEnquireWithEstimate = () => {
-    const activeAddons = (currentPillar.addons || [])
-      .filter((a) => selectedAddonIds.includes(a.id))
-      .map((a) => a.name);
+    const addonNames = activeAddonsList.map((a) => a.name);
+    const scopeSummary = `${currentPillar.name} — ${currentTier.name} (${currentTier.scopeLabel || ''})`;
+    const pricingSummary = calculation.isSuccessBased
+      ? 'Success-Based (Zero Upfront)'
+      : `${calculation.formattedTotal}${calculation.isRecurring ? '/mo' : ''} [Base: ${calculation.formattedBase}${addonsCostString()}]`;
+
+    function addonsCostString() {
+      if (calculation.addonsCost > 0) {
+        return ` + Add-ons: ${calculation.formattedAddons}`;
+      }
+      return '';
+    }
 
     onOpenInquiry({
       service: currentPillar.serviceKey,
-      problem: `I calculated an indicative estimate for the ${currentTier.name} package under ${currentPillar.name}.${activeAddons.length > 0 ? ` Desired add-ons: ${activeAddons.join(', ')}.` : ''} Indicative estimate: ${calculation.formattedTotal}${calculation.isRecurring ? '/mo' : ''}. Please review our scope and provide the final schedule.`,
+      scope: currentTier.name,
+      addons: addonNames,
+      currency,
+      estimatedPrice: calculation.formattedTotal,
+      problem: `[Project Estimator Configuration]
+Service: ${currentPillar.title} (${currentPillar.name})
+Selected Scope: ${currentTier.name} (${currentTier.scopeLabel || 'Custom'})
+Turnaround: ${currentTier.turnaround}
+${addonNames.length > 0 ? `Selected Add-ons (${addonNames.length}): ${addonNames.join(', ')}\n` : 'No optional add-ons selected.\n'}Estimated Investment: ${pricingSummary}
+Currency: ${currency}
+
+Please review this configuration and provide our formal statement of work and kickoff timeline.`,
       budget: calculation.isSuccessBased
         ? 'Pay on Success'
         : currency === 'USD'
-        ? calculation.total < 2500 ? '< $2,500' : '$2,500 - $5,000'
-        : calculation.total < 30000 ? '< ₹30,000' : '₹30,000 - ₹60,000'
+        ? calculation.total < 1000
+          ? '< $2,500'
+          : calculation.total < 2500
+          ? '$2,500 - $5,000'
+          : '$5,000 - $10,000'
+        : calculation.total < 30000
+        ? '< ₹30,000'
+        : calculation.total < 60000
+        ? '₹30,000 - ₹60,000'
+        : '₹60,000+'
     });
   };
 
   const whatsappMessage = encodeURIComponent(
-    `Hi The Sorted Club, I used your Project Estimator for ${currentPillar.name} (${currentTier.name}). Indicative estimate: ${calculation.formattedTotal}. I would like to discuss our project brief.`
+    `Hi The Sorted Club, I configured a project estimate on your homepage for ${currentPillar.name} (${currentTier.name}). Estimated investment: ${calculation.formattedTotal}${calculation.isRecurring ? '/mo' : ''}. I would like to review our scope and confirm delivery dates.`
   );
 
   return (
     <div className="project-estimator-card" id="estimator">
-      {/* Estimator Header */}
+      {/* Top Header & Context */}
       <div className="estimator-topbar">
         <div>
-          <div className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Sparkles size={13} color="var(--ink)" />
-            INTERACTIVE PROJECT ESTIMATOR
+          <div className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles size={14} color="var(--ink)" />
+            INTERACTIVE PROJECT ESTIMATOR • REAL-TIME CONFIGURATOR
           </div>
           <h3 className="estimator-title">
-            Configure your scope.<br />
-            <i>Instant indicative estimate.</i>
+            Configure your project scope.<br />
+            <i>Instant commercial transparency.</i>
           </h3>
           <p className="estimator-sub">
-            Choose your service pillar, package complexity, and optional requirements. No hidden agency surprises.
+            Select your discipline, tailor scope complexity, and add modular capabilities. Zero hidden fees. 50% upfront, 50% upon live staging sign-off.
           </p>
         </div>
 
         {/* Currency Switcher */}
-        <div className="currency-switch-pill" role="radiogroup" aria-label="Select currency">
-          <button
-            type="button"
-            className={`currency-btn ${currency === 'INR' ? 'active' : ''}`}
-            onClick={() => setCurrency('INR')}
-            aria-checked={currency === 'INR'}
-            role="radio"
-          >
-            ₹ INR
-          </button>
-          <button
-            type="button"
-            className={`currency-btn ${currency === 'USD' ? 'active' : ''}`}
-            onClick={() => setCurrency('USD')}
-            aria-checked={currency === 'USD'}
-            role="radio"
-          >
-            $ USD
-          </button>
+        <div className="estimator-currency-wrapper">
+          <div className="currency-switch-pill" role="radiogroup" aria-label="Select currency">
+            <button
+              type="button"
+              className={`currency-btn ${currency === 'INR' ? 'active' : ''}`}
+              onClick={() => setCurrency('INR')}
+              aria-checked={currency === 'INR'}
+              role="radio"
+            >
+              ₹ INR
+            </button>
+            <button
+              type="button"
+              className={`currency-btn ${currency === 'USD' ? 'active' : ''}`}
+              onClick={() => setCurrency('USD')}
+              aria-checked={currency === 'USD'}
+              role="radio"
+            >
+              $ USD
+            </button>
+          </div>
+          <span className="estimator-rate-note">
+            {currency === 'USD' ? 'Cross-border rate' : 'Domestic commercial rate'}
+          </span>
         </div>
       </div>
 
-      {/* Step 1: Select Pillar */}
+      {/* Progress Indicator Strip */}
+      <div className="estimator-progress-strip">
+        <div className="progress-step-pill active">
+          <span className="step-num-circle">A</span>
+          <span className="step-label-text">Discipline</span>
+          <strong className="step-val-text">{currentPillar.name}</strong>
+        </div>
+        <div className="progress-divider">→</div>
+        <div className="progress-step-pill active">
+          <span className="step-num-circle">B</span>
+          <span className="step-label-text">Scope</span>
+          <strong className="step-val-text">{currentTier.name}</strong>
+        </div>
+        <div className="progress-divider">→</div>
+        <div className="progress-step-pill active">
+          <span className="step-num-circle">C</span>
+          <span className="step-label-text">Add-ons</span>
+          <strong className="step-val-text">{activeAddonsList.length} selected</strong>
+        </div>
+        <div className="progress-divider">→</div>
+        <div className="progress-step-pill highlight">
+          <span className="step-num-circle">D</span>
+          <span className="step-label-text">Estimate</span>
+          <strong className="step-val-text">{calculation.formattedTotal}</strong>
+        </div>
+      </div>
+
+      {/* STEP A: WHAT ARE YOU BUILDING? */}
       <div className="estimator-step-block">
-        <label className="estimator-step-label">
-          <span>STEP 01</span> / Select Service Pillar
-        </label>
+        <div className="step-header-row">
+          <label className="estimator-step-label">
+            <span>STEP A</span> / What are you building?
+          </label>
+          <span className="step-hint-text">Choose your core service discipline</span>
+        </div>
+
         <div className="estimator-pillars-grid">
           {PILLARS_CONFIG.map((pillar) => {
-            const Icon = pillar.icon;
+            const Icon = ICON_MAP[pillar.iconKey] || Code2;
             const isSelected = pillar.id === selectedPillarId;
             return (
-              <button
+              <motion.button
                 type="button"
                 key={pillar.id}
                 className={`estimator-pillar-btn ${isSelected ? 'selected' : ''}`}
                 onClick={() => handlePillarChange(pillar.id)}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={TRANSITIONS.buttonSpring}
               >
                 <div className="pillar-btn-icon">
-                  <Icon size={18} />
+                  <Icon size={20} />
                 </div>
                 <div className="pillar-btn-info">
-                  <strong>{pillar.name}</strong>
+                  <div className="pillar-header-wrap">
+                    <strong>{pillar.name}</strong>
+                    {isSelected && <span className="pillar-active-tag">Active</span>}
+                  </div>
                   <span>{pillar.title}</span>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
       </div>
 
-      {/* Step 2: Select Package Tier / Complexity */}
+      {/* STEP B: CONFIGURE THE SCOPE */}
       <div className="estimator-step-block">
-        <label className="estimator-step-label">
-          <span>STEP 02</span> / Select Package Tier &amp; Scope
-        </label>
+        <div className="step-header-row">
+          <label className="estimator-step-label">
+            <span>STEP B</span> / Configure Scope &amp; Complexity for <strong>{currentPillar.name}</strong>
+          </label>
+          <span className="step-hint-text">
+            {currentPillar.id === 'build'
+              ? 'Select by page count, funnel complexity or application architecture'
+              : 'Select your operational volume & deliverables tier'}
+          </span>
+        </div>
+
+        {/* For Website BUILD Projects: Quick Page-Count / Package Quick Filter */}
+        {currentPillar.id === 'build' && (
+          <div className="estimator-scope-quick-strip">
+            <span className="scope-quick-label">Quick Scope Selector:</span>
+            <div className="scope-pills-row">
+              {currentPillar.tiers.map((t) => (
+                <button
+                  type="button"
+                  key={t.id}
+                  className={`scope-pill-btn ${t.id === selectedTierId ? 'active' : ''}`}
+                  onClick={() => setSelectedTierId(t.id)}
+                >
+                  <span className="pill-name">{t.name}</span>
+                  <span className="pill-pages">({t.scopeLabel})</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tiers Grid */}
         <div className="estimator-tiers-grid">
           {currentPillar.tiers.map((tier) => {
             const isSelected = tier.id === selectedTierId;
@@ -371,7 +308,7 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
               : `₹${tier.priceINR.toLocaleString()}`;
 
             return (
-              <div
+              <motion.div
                 key={tier.id}
                 className={`estimator-tier-card ${isSelected ? 'selected' : ''}`}
                 onClick={() => setSelectedTierId(tier.id)}
@@ -383,11 +320,16 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
                     setSelectedTierId(tier.id);
                   }
                 }}
+                whileHover={{ y: -3 }}
+                transition={TRANSITIONS.cardSpring}
               >
                 <div className="tier-card-head">
                   <div className="tier-title-wrap">
                     <h4>{tier.name}</h4>
-                    {tier.popular && <span className="popular-badge">Popular</span>}
+                    {tier.popular && <span className="popular-badge">Most Popular</span>}
+                    {tier.scopeBadge && !tier.popular && (
+                      <span className="tier-scope-badge">{tier.scopeBadge}</span>
+                    )}
                   </div>
                   <div className="tier-price-tag">
                     <strong>{priceStr}</strong>
@@ -395,10 +337,15 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
                   </div>
                 </div>
 
+                <div className="tier-scope-indicator">
+                  <Sliders size={12} />
+                  <span>Scope: <strong>{tier.scopeLabel}</strong></span>
+                </div>
+
                 <p className="tier-desc">{tier.desc}</p>
 
                 <div className="tier-turnaround">
-                  <Clock size={12} /> {tier.turnaround}
+                  <Clock size={12} /> Turnaround: {tier.turnaround}
                 </div>
 
                 <ul className="tier-deliverables-list">
@@ -412,20 +359,24 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
 
                 <div className="tier-select-indicator">
                   <div className={`radio-dot ${isSelected ? 'active' : ''}`} />
-                  <span>{isSelected ? 'Selected' : 'Select Tier'}</span>
+                  <span>{isSelected ? '✓ Scope Selected' : 'Choose Scope'}</span>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
       </div>
 
-      {/* Step 3: Optional Requirements & Add-ons */}
+      {/* STEP C: OPTIONAL FEATURES & ADD-ONS */}
       {currentPillar.addons && currentPillar.addons.length > 0 && (
         <div className="estimator-step-block">
-          <label className="estimator-step-label">
-            <span>STEP 03</span> / Optional Capabilities &amp; Add-ons
-          </label>
+          <div className="step-header-row">
+            <label className="estimator-step-label">
+              <span>STEP C</span> / Optional Add-on Capabilities
+            </label>
+            <span className="step-hint-text">Selectable acceleration &amp; specialized modules</span>
+          </div>
+
           <div className="estimator-addons-list">
             {currentPillar.addons.map((addon) => {
               const isChecked = selectedAddonIds.includes(addon.id);
@@ -435,7 +386,7 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
                   : `+₹${addon.priceINR.toLocaleString()}`;
 
               return (
-                <div
+                <motion.div
                   key={addon.id}
                   className={`estimator-addon-item ${isChecked ? 'active' : ''}`}
                   onClick={() => toggleAddon(addon.id)}
@@ -448,9 +399,11 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
                       toggleAddon(addon.id);
                     }
                   }}
+                  whileHover={{ x: 2 }}
+                  transition={TRANSITIONS.buttonSpring}
                 >
                   <div className={`addon-checkbox ${isChecked ? 'checked' : ''}`}>
-                    {isChecked ? <Check size={12} /> : <Plus size={12} />}
+                    {isChecked ? <Check size={13} /> : <Plus size={13} />}
                   </div>
                   <div className="addon-info">
                     <div className="addon-title-row">
@@ -459,19 +412,41 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
                     </div>
                     <p className="addon-desc">{addon.desc}</p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
         </div>
       )}
 
-      {/* Calculation Summary Bar */}
+      {/* STEP D & E: LIVE ESTIMATE BREAKDOWN & PRIMARY CTA */}
       <div className="estimator-summary-panel">
         <div className="summary-col-left">
           <div className="summary-badge">
-            <ShieldCheck size={14} /> INDICATIVE ESTIMATE
+            <ShieldCheck size={14} /> STEP D • LIVE ESTIMATE BREAKDOWN
           </div>
+
+          {/* Breakdown Rows */}
+          <div className="estimator-breakdown-details">
+            <div className="breakdown-line">
+              <span className="line-label">Selected Discipline:</span>
+              <strong className="line-val">{currentPillar.name} — {currentPillar.title}</strong>
+            </div>
+            <div className="breakdown-line">
+              <span className="line-label">Selected Scope ({currentTier.scopeLabel}):</span>
+              <strong className="line-val">{currentTier.name} ({calculation.formattedBase})</strong>
+            </div>
+            <div className="breakdown-line">
+              <span className="line-label">Modular Add-ons ({activeAddonsList.length}):</span>
+              <span className="line-val">
+                {activeAddonsList.length > 0
+                  ? `${activeAddonsList.map((a) => a.name).join(', ')} (${calculation.formattedAddons})`
+                  : 'None selected (+₹0)'}
+              </span>
+            </div>
+          </div>
+
+          {/* Animated Total Display */}
           <div className="summary-total-display">
             <span className="total-label">Estimated Investment:</span>
             <div className="total-figure">
@@ -479,15 +454,18 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
               {calculation.isRecurring && <span>/month</span>}
             </div>
           </div>
+
           <p className="summary-footnote">
-            <Info size={13} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-            Indicative estimate based on standard requirements. 50% deposit on start, 50% only upon staging sign-off.
+            <Info size={13} style={{ display: 'inline', marginRight: '5px', verticalAlign: 'middle' }} />
+            Indicative estimate based on selected scope. 50% deposit on start, 50% only upon live staging sign-off.
+            {currency === 'USD' && ` • ${USD_INR_EXCHANGE_NOTE}`}
           </p>
         </div>
 
+        {/* STEP E: CTA & Contact Actions */}
         <div className="summary-col-right">
           <div className="summary-turnaround-box">
-            <span>Estimated Turnaround:</span>
+            <span>Guaranteed Sprint Window:</span>
             <strong>{currentTier.turnaround}</strong>
           </div>
 
@@ -499,9 +477,9 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
               transition={TRANSITIONS.buttonSpring}
-              style={{ width: '100%' }}
+              style={{ width: '100%', fontSize: '14.5px', padding: '14px 20px' }}
             >
-              Lock In Estimate &amp; Enquire <ArrowRight size={16} />
+              Lock In Scope &amp; Start Project <ArrowRight size={17} />
             </motion.button>
 
             <a
@@ -510,7 +488,7 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
               rel="noopener noreferrer"
               className="estimator-whatsapp-link"
             >
-              <MessageSquare size={14} /> WhatsApp this Estimate →
+              <MessageSquare size={15} /> WhatsApp This Estimate →
             </a>
           </div>
         </div>

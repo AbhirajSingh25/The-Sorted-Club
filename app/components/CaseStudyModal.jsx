@@ -125,11 +125,15 @@ export default function CaseStudyModal({
                     type="button"
                     className="preview-live-btn"
                     onClick={() => {
-                      onClose();
-                      onNavigate(`/demo/${template.slug}`);
+                      if (template.liveUrl) {
+                        window.open(template.liveUrl, '_blank', 'noopener,noreferrer');
+                      } else {
+                        onClose();
+                        onNavigate(`/demo/${template.slug}`);
+                      }
                     }}
                   >
-                    Open Live Interactive Demo <ExternalLink size={14} />
+                    {template.liveUrl ? 'Explore Live Product ↗' : 'Open Live Interactive Demo'} <ExternalLink size={14} />
                   </button>
                 </div>
               </div>
@@ -221,12 +225,16 @@ export default function CaseStudyModal({
                   type="button"
                   className="secondary"
                   onClick={() => {
-                    onClose();
-                    onNavigate(`/demo/${template.slug}`);
+                    if (template.liveUrl) {
+                      window.open(template.liveUrl, '_blank', 'noopener,noreferrer');
+                    } else {
+                      onClose();
+                      onNavigate(`/demo/${template.slug}`);
+                    }
                   }}
                 >
                   <Laptop size={14} style={{ marginRight: '6px' }} />
-                  Interactive Demo
+                  {template.liveUrl ? 'Live Production Site ↗' : 'Interactive Demo'}
                 </button>
 
                 <motion.button

@@ -101,6 +101,18 @@ export default function TemplateLiveDemo({ slug, onNavigate, onOpenInquiry }) {
   const [copiedCode, setCopiedCode] = useState(false);
   const [saasOpenFaq, setSaasOpenFaq] = useState(null);
 
+  // 8. The Sanctuary Luxury Retreat State
+  const [sanctuaryVillaId, setSanctuaryVillaId] = useState('v1');
+  const [sanctuaryNights, setSanctuaryNights] = useState(2);
+  const [sanctuaryGuests, setSanctuaryGuests] = useState(2);
+  const [sanctuaryAddons, setSanctuaryAddons] = useState(['e1']);
+
+  const toggleSanctuaryAddon = (id) => {
+    setSanctuaryAddons((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
   // Cart operations
   const addToCart = (product) => {
     const numericPrice = product.priceNum || parseInt(String(product.price).replace(/[^\d]/g, ''), 10) || 1500;
@@ -1859,6 +1871,270 @@ console.log('Pipeline active:', pipeline.id);`,
                   <div className="mock-footer-bottom">
                     <small>© 2026 Atelier Noir. Demo Concept crafted by The Sorted Club.</small>
                   </div>
+                </footer>
+              </div>
+            )}
+
+            {/* =========================================================================
+                11. BOUTIQUE HOTEL & RETREAT DEMO (The Sanctuary)
+                ========================================================================= */}
+            {(template.slug === 'sanctuary-retreat' || template.category === 'Boutique Hotels & Stays' || (template.category === 'Booking Websites' && template.slug === 'sanctuary-retreat')) && (
+              <div className="mock-site sanctuary-theme" style={{ background: '#121310', color: '#f5f2eb', fontFamily: '"DM Sans", sans-serif' }}>
+                <nav className="mock-nav" style={{ background: 'rgba(18, 19, 16, 0.92)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="mock-brand" style={{ font: '600 16px "Space Grotesk"', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#f5f2eb' }}>
+                    THE SANCTUARY <span>•</span> RESIDENCES
+                  </div>
+                  <div className="mock-nav-links" style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '13px' }}>
+                    <a href="#villas" style={{ color: '#c4c1b7', textDecoration: 'none' }}>Pavilions</a>
+                    <a href="#experiences" style={{ color: '#c4c1b7', textDecoration: 'none' }}>Experiences</a>
+                    <a href="#philosophy" style={{ color: '#c4c1b7', textDecoration: 'none' }}>Philosophy</a>
+                    <button
+                      type="button"
+                      className="mock-primary-btn"
+                      style={{ background: '#d8ff55', color: '#10100f', border: 'none', padding: '8px 18px', borderRadius: '999px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}
+                      onClick={() => openBookingModal('Sanctuary Stay Reservation')}
+                    >
+                      Reserve Stay
+                    </button>
+                  </div>
+                </nav>
+
+                <section className="mock-hero" style={{ padding: '80px 28px 60px', textAlign: 'center', backgroundImage: `linear-gradient(rgba(18, 19, 16, 0.7), rgba(18, 19, 16, 0.85)), url(${template.heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                    <span className="mock-eyebrow" style={{ font: '700 10px "Space Grotesk"', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#d8ff55', display: 'block', marginBottom: '14px' }}>
+                      WESTERN HIMALAYAS • ELEVATION 7,800 FT
+                    </span>
+                    <h1 style={{ font: '700 clamp(36px, 5.5vw, 68px)/1.05 "Space Grotesk"', letterSpacing: '-0.04em', margin: '0 0 20px', color: '#ffffff' }}>
+                      Solitude. Architecture.<br /><em style={{ fontStyle: 'italic', color: '#d8ff55' }}>Earth.</em>
+                    </h1>
+                    <p style={{ fontSize: '16px', lineHeight: 1.6, color: '#c4c1b7', maxWidth: '640px', margin: '0 auto 36px' }}>
+                      {template.demoData?.heroSub}
+                    </p>
+
+                    {/* Interactive Dates & Guest Bar */}
+                    <div style={{ background: 'rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', padding: '16px 24px', display: 'inline-flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+                      <div style={{ textAlign: 'left' }}>
+                        <span style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a3a097' }}>Duration</span>
+                        <select
+                          value={sanctuaryNights}
+                          onChange={(e) => setSanctuaryNights(Number(e.target.value))}
+                          style={{ background: 'transparent', border: 'none', color: '#fff', font: '600 14px "Space Grotesk"', cursor: 'pointer', outline: 'none' }}
+                        >
+                          <option value={1} style={{ background: '#1c1d18' }}>1 Night</option>
+                          <option value={2} style={{ background: '#1c1d18' }}>2 Nights (Recommended)</option>
+                          <option value={3} style={{ background: '#1c1d18' }}>3 Nights Long Weekend</option>
+                          <option value={5} style={{ background: '#1c1d18' }}>5 Nights Immersion</option>
+                        </select>
+                      </div>
+                      <div style={{ width: '1px', height: '32px', background: 'rgba(255, 255, 255, 0.15)' }} />
+                      <div style={{ textAlign: 'left' }}>
+                        <span style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a3a097' }}>Guests</span>
+                        <select
+                          value={sanctuaryGuests}
+                          onChange={(e) => setSanctuaryGuests(Number(e.target.value))}
+                          style={{ background: 'transparent', border: 'none', color: '#fff', font: '600 14px "Space Grotesk"', cursor: 'pointer', outline: 'none' }}
+                        >
+                          <option value={1} style={{ background: '#1c1d18' }}>1 Guest</option>
+                          <option value={2} style={{ background: '#1c1d18' }}>2 Guests (Couple)</option>
+                          <option value={3} style={{ background: '#1c1d18' }}>3 Guests</option>
+                          <option value={4} style={{ background: '#1c1d18' }}>4 Guests (Family Suite)</option>
+                        </select>
+                      </div>
+                      <div style={{ width: '1px', height: '32px', background: 'rgba(255, 255, 255, 0.15)' }} />
+                      <div style={{ textAlign: 'left' }}>
+                        <span style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a3a097' }}>Estimated Stay</span>
+                        <strong style={{ font: '700 15px "Space Grotesk"', color: '#d8ff55' }}>
+                          ₹{(
+                            ((template.demoData?.villas?.find(v => v.id === sanctuaryVillaId)?.priceINR || 32000) * sanctuaryNights) +
+                            (sanctuaryAddons.reduce((acc, id) => acc + (template.demoData?.experiences?.find(e => e.id === id)?.priceINR || 0), 0))
+                          ).toLocaleString()}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Pavilions Section */}
+                <section id="villas" style={{ padding: '60px 28px', maxWidth: '1180px', margin: '0 auto' }}>
+                  <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                    <span className="mock-eyebrow" style={{ font: '700 10px "Space Grotesk"', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#d8ff55' }}>RESIDENCES</span>
+                    <h2 style={{ font: '700 32px "Space Grotesk"', margin: '8px 0 12px', color: '#ffffff' }}>Standalone Living Pavilions</h2>
+                    <p style={{ color: '#a3a097', fontSize: '14px', maxWidth: '580px', margin: '0 auto' }}>
+                      Constructed from reclaimed Himalayan cedar, slate, and monolithic rammed earth with uninterrupted valley horizons.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+                    {template.demoData?.villas?.map((villa) => {
+                      const isSelected = sanctuaryVillaId === villa.id;
+                      return (
+                        <div
+                          key={villa.id}
+                          style={{
+                            background: isSelected ? 'rgba(216, 255, 85, 0.05)' : 'rgba(255, 255, 255, 0.03)',
+                            border: isSelected ? '2px solid #d8ff55' : '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '12px',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          <div style={{ height: '220px', backgroundImage: `url(${villa.img})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+                            <span style={{ position: 'absolute', top: '14px', right: '14px', background: 'rgba(0, 0, 0, 0.75)', color: '#d8ff55', font: '700 11px "Space Grotesk"', padding: '4px 10px', borderRadius: '999px', backdropFilter: 'blur(8px)' }}>
+                              ₹{villa.priceINR.toLocaleString()} / night
+                            </span>
+                            <span style={{ position: 'absolute', bottom: '14px', left: '14px', background: 'rgba(0, 0, 0, 0.65)', color: '#fff', fontSize: '11px', padding: '3px 8px', borderRadius: '4px' }}>
+                              {villa.sqft} • {villa.capacity}
+                            </span>
+                          </div>
+
+                          <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                            <h3 style={{ font: '700 20px "Space Grotesk"', margin: '0 0 6px', color: '#ffffff' }}>{villa.name}</h3>
+                            <span style={{ fontSize: '12px', color: '#a3a097', marginBottom: '16px' }}>View: {villa.view}</span>
+
+                            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', color: '#c4c1b7', flexGrow: 1 }}>
+                              {villa.features.map((feat, idx) => (
+                                <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ color: '#d8ff55' }}>✓</span> {feat}
+                                </li>
+                              ))}
+                            </ul>
+
+                            <button
+                              type="button"
+                              onClick={() => setSanctuaryVillaId(villa.id)}
+                              style={{
+                                background: isSelected ? '#d8ff55' : 'transparent',
+                                color: isSelected ? '#10100f' : '#ffffff',
+                                border: isSelected ? 'none' : '1px solid rgba(255, 255, 255, 0.3)',
+                                padding: '10px 16px',
+                                borderRadius: '6px',
+                                font: '700 12px "Space Grotesk"',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                width: '100%'
+                              }}
+                            >
+                              {isSelected ? '✓ Selected Pavilion' : 'Select This Pavilion'}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {/* Experiences Section */}
+                <section id="experiences" style={{ padding: '50px 28px 70px', background: 'rgba(0, 0, 0, 0.3)', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  <div style={{ maxWidth: '1180px', margin: '0 auto' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+                      <span className="mock-eyebrow" style={{ font: '700 10px "Space Grotesk"', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#d8ff55' }}>CURATED RITUALS</span>
+                      <h2 style={{ font: '700 30px "Space Grotesk"', margin: '8px 0 10px', color: '#ffffff' }}>Add Experiences to Stay</h2>
+                      <p style={{ color: '#a3a097', fontSize: '13px' }}>Toggle wellness, dining, and alpine charter options for your visit.</p>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                      {template.demoData?.experiences?.map((exp) => {
+                        const isAdded = sanctuaryAddons.includes(exp.id);
+                        return (
+                          <div
+                            key={exp.id}
+                            style={{
+                              background: isAdded ? 'rgba(216, 255, 85, 0.08)' : 'rgba(255, 255, 255, 0.04)',
+                              border: isAdded ? '1px solid #d8ff55' : '1px solid rgba(255, 255, 255, 0.1)',
+                              padding: '18px 20px',
+                              borderRadius: '8px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              gap: '16px',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => toggleSanctuaryAddon(exp.id)}
+                          >
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                <strong style={{ font: '700 15px "Space Grotesk"', color: '#fff' }}>{exp.title}</strong>
+                                <span style={{ fontSize: '11px', color: '#d8ff55', background: 'rgba(216, 255, 85, 0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                                  +₹{exp.priceINR.toLocaleString()}
+                                </span>
+                              </div>
+                              <p style={{ fontSize: '11.5px', color: '#a3a097', margin: 0, lineHeight: 1.4 }}>
+                                {exp.desc}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              style={{
+                                background: isAdded ? '#d8ff55' : 'transparent',
+                                color: isAdded ? '#10100f' : '#fff',
+                                border: isAdded ? 'none' : '1px solid rgba(255, 255, 255, 0.25)',
+                                width: '28px',
+                                height: '28px',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                flexShrink: 0,
+                                fontWeight: 700
+                              }}
+                            >
+                              {isAdded ? '✓' : '+'}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </section>
+
+                {/* Live Reservation Summary Bar */}
+                <div style={{ background: '#1c1d18', borderTop: '2px solid #d8ff55', padding: '24px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                  <div>
+                    <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#d8ff55', fontWeight: 700 }}>
+                      RESERVATION CONFIGURATION
+                    </span>
+                    <h4 style={{ font: '700 18px "Space Grotesk"', margin: '4px 0 0', color: '#fff' }}>
+                      {template.demoData?.villas?.find(v => v.id === sanctuaryVillaId)?.name} • {sanctuaryNights} Nights • {sanctuaryGuests} Guests
+                    </h4>
+                    <span style={{ fontSize: '12px', color: '#a3a097' }}>
+                      Includes {sanctuaryAddons.length} curated rituals • 20% refundable deposit required at confirmation
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{ fontSize: '11px', color: '#a3a097', display: 'block' }}>Total Estimated Stay</span>
+                      <strong style={{ font: '700 24px "Space Grotesk"', color: '#d8ff55' }}>
+                        ₹{(
+                          ((template.demoData?.villas?.find(v => v.id === sanctuaryVillaId)?.priceINR || 32000) * sanctuaryNights) +
+                          (sanctuaryAddons.reduce((acc, id) => acc + (template.demoData?.experiences?.find(e => e.id === id)?.priceINR || 0), 0))
+                        ).toLocaleString()}
+                      </strong>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => openBookingModal('The Sanctuary — Villa Reservation (Demo)')}
+                      style={{
+                        background: '#d8ff55',
+                        color: '#10100f',
+                        border: 'none',
+                        padding: '14px 28px',
+                        borderRadius: '999px',
+                        font: '700 13px "Space Grotesk"',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Book Stay (Deposit Gateway) →
+                    </button>
+                  </div>
+                </div>
+
+                <footer style={{ padding: '30px 28px', textAlign: 'center', background: '#0d0d0b', color: '#666' }}>
+                  <small>© 2026 The Sanctuary Residences. Demo Concept engineered by The Sorted Club.</small>
                 </footer>
               </div>
             )}

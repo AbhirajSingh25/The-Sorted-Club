@@ -751,5 +751,120 @@ export const TEMPLATES = [
         { id: 'w3', title: 'Kroma Brand Identity & Flagship Gallery', category: 'Branding & Interior', year: '2025', location: 'London, UK', tag: 'Commercial', desc: 'Monochromatic retail interior and tactile packaging identity for a luxury ceramics house.', img: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80' }
       ]
     }
+  },
+  {
+    id: 'sanctuary-retreat',
+    slug: 'sanctuary-retreat',
+    name: 'The Sanctuary — Luxury Retreat & Residences',
+    badge: 'Demo Concept',
+    category: 'Booking Websites',
+    designStyle: 'Dark Luxury',
+    suitableFor: 'Boutique eco-resorts, alpine wellness lodges, private luxury villas, heritage homestays, and design-forward retreat residences',
+    shortDesc: 'An editorial quiet-luxury booking experience featuring interactive villa availability, wellness experience curation, and instant deposit checkout.',
+    tagline: 'Architectural sanctuary booking designed for high-value hospitality reservations and effortless guest curation.',
+    startingPrice: '₹34,999',
+    startingPriceUSD: '$890',
+    budgetRange: '$2,500 - $5,000',
+    turnaround: '7 - 10 Business Days',
+    heroImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80',
+    accentColor: '#15803d',
+    secondaryColor: '#f5f2eb',
+    mainFeatures: [
+      'Interactive Villa & Suite Availability Calendar',
+      'Real-time nightly rates with deposit & full-payment checkout',
+      'Curated wellness & gastronomy experience reservation drawer',
+      'Direct WhatsApp VIP Concierge 1-click channel',
+      'Google Maps arrival guide, weather module & helicopter transfer inquiry',
+      'Sub-second mobile speed with lazy-loaded architectural photography'
+    ],
+    includedSections: [
+      'Full-bleed architectural hero with dates & guest selector bar',
+      'Villas & Residences showcase with filterable room types & amenities',
+      'Curated Experiences index (Private Onsen, Foraged Dining, Alpine Heli-Tour)',
+      'Interactive Booking Drawer with transparent price breakdown',
+      'Wellness Sanctuary philosophy and architectural story',
+      'Guest Arrival guide, private helipad info, and estate map',
+      'Footer with VIP Concierge, WhatsApp reservation desk, and newsletter'
+    ],
+    techStack: 'Vite + React, Vanilla CSS, Schema.org Hotel & Lodging Markup, Razorpay & Stripe Deposit Gateway',
+    customizationOptions: [
+      'PMS integration (Cloudbeds, Guesty, SiteMinder, Opera)',
+      'Dynamic seasonal rate cards and minimum-stay rules',
+      'Multi-currency selector (INR, USD, EUR, GBP, AED)',
+      'Private event & wedding buyout enquiry pipeline'
+    ],
+    seo: {
+      title: 'The Sanctuary — Luxury Retreat & Boutique Hotel Website Template | The Sorted Club',
+      description: 'Explore The Sanctuary demo concept. An editorial boutique hotel booking experience with live villa availability, luxury amenities, and deposit checkout.'
+    },
+    demoData: {
+      heroHeading: 'Solitude. Architecture. Earth.',
+      heroSub: 'A secluded mountain estate sculpted into the cedar slopes of the Western Himalayas. 14 standalone pavilions designed for deep stillness, restorative thermal springs, and foraged alpine gastronomy.',
+      villas: [
+        {
+          id: 'v1',
+          name: 'Cedar Forest Pavilion',
+          sqft: '1,450 sq.ft',
+          capacity: '2 Guests',
+          priceINR: 32000,
+          priceUSD: 850,
+          bed: 'King Pavilion Bed',
+          view: 'Old-Growth Cedar Forest',
+          img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80',
+          features: ['Private heated cedar soaking tub', 'Wood-burning stone hearth', 'Floor-to-ceiling glass terrace', 'Handmade linen robes & herbal apothecary']
+        },
+        {
+          id: 'v2',
+          name: 'Alpine Ridge Penthouse',
+          sqft: '2,200 sq.ft',
+          capacity: '4 Guests',
+          priceINR: 58000,
+          priceUSD: 1450,
+          bed: '2 King Master Suites',
+          view: 'Snowcapped Himalayan Peaks',
+          img: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',
+          features: ['Private cantilevered infinity plunge pool', 'Dedicated butler & fireside dining', 'Astronomical stargazing deck', 'Private cedar sauna']
+        },
+        {
+          id: 'v3',
+          name: 'Zen Spring Residence',
+          sqft: '1,800 sq.ft',
+          capacity: '2 Guests',
+          priceINR: 44000,
+          priceUSD: 1100,
+          bed: 'Tatami King Suite',
+          view: 'Natural Mineral Spring & Forest',
+          img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
+          features: ['Direct hot spring mineral water bath', 'Private meditation moss courtyard', 'Custom organic tea bar', 'Indoor-outdoor rainfall shower']
+        }
+      ],
+      experiences: [
+        {
+          id: 'e1',
+          title: 'Nightly Thermal Onsen Soak',
+          duration: '90 Minutes',
+          priceINR: 4500,
+          priceUSD: 120,
+          desc: 'Private after-dark access to geothermal mineral baths infused with mountain pine oils and Himalayan salt.'
+        },
+        {
+          id: 'e2',
+          title: 'Foraged 7-Course Chef Dinner',
+          duration: '3 Hours',
+          priceINR: 8500,
+          priceUSD: 220,
+          desc: 'Tasting menu celebrating wild morels, fermented forest berries, and valley herbs paired with organic biodynamic wines.'
+        },
+        {
+          id: 'e3',
+          title: 'Sunrise Heli-Charter & High-Glacier Tour',
+          duration: '2 Hours',
+          priceINR: 35000,
+          priceUSD: 900,
+          desc: 'Private helicopter lift from estate helipad to 14,000 ft glacier pass with champagne breakfast on the ridge.'
+        }
+      ]
+    }
   }
 ];
+

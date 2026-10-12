@@ -52,6 +52,10 @@ import DiscoveryQuestionnaire from './components/DiscoveryQuestionnaire';
 import AdminLogin from './components/AdminLogin';
 import AdminAccountSettings from './components/AdminAccountSettings';
 import MobileAdminShell from './components/mobile/MobileAdminShell';
+import ProjectEstimator from './components/ProjectEstimator';
+import VanvasFeaturedSection, { VANVAS_CASE_STUDY_DATA } from './components/VanvasFeaturedSection';
+import TechStackSection from './components/TechStackSection';
+import FounderSection from './components/FounderSection';
 import { useIsMobile } from './utils/responsive';
 import { getAdminToken, verifyAdminSession, clearAdminAuth } from './api/client';
 
@@ -103,8 +107,20 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
   const [caseStudyTemplate, setCaseStudyTemplate] = useState(null);
 
   const featuredBlueprints = TEMPLATES.filter((t) =>
-    ['saffron-and-sage', 'profix-masters', 'lumina-spa', 'flowgrid-ai'].includes(t.slug)
+    ['sanctuary-retreat', 'saffron-and-sage', 'flowgrid-ai', 'lumina-spa'].includes(t.slug)
   );
+
+  const handleScrollToHash = (e, hash) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    const el = document.querySelector(hash);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+      window.history.pushState({}, '', hash);
+    } else {
+      onNavigate(`/${hash}`);
+    }
+  };
 
   return (
     <main>
@@ -139,6 +155,12 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
             Services
           </a>
           <a
+            href="#vanvas"
+            onClick={(e) => handleScrollToHash(e, '#vanvas')}
+          >
+            VANVAS ↗
+          </a>
+          <a
             href="/templates"
             onClick={(e) => {
               e.preventDefault();
@@ -146,7 +168,13 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
               onNavigate('/templates');
             }}
           >
-            Templates &amp; Portfolio
+            Blueprints
+          </a>
+          <a
+            href="#estimator"
+            onClick={(e) => handleScrollToHash(e, '#estimator')}
+          >
+            Estimator ↘
           </a>
           <a
             href="/pricing"
@@ -156,10 +184,19 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
               onNavigate('/pricing');
             }}
           >
-            Pricing &amp; Packages
+            Pricing
           </a>
-          <a href="#about" onClick={() => setMobileMenuOpen(false)}>
-            Why Sorted
+          <a
+            href="#tech"
+            onClick={(e) => handleScrollToHash(e, '#tech')}
+          >
+            Tech Stack
+          </a>
+          <a
+            href="#founder"
+            onClick={(e) => handleScrollToHash(e, '#founder')}
+          >
+            Founder
           </a>
           <motion.button
             className="navcta"
@@ -218,7 +255,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.24 }}
         >
-          We build, grow, automate and hire for ambitious businesses. One team. One place. Fewer things left unsorted.
+          We build, grow, automate and hire for ambitious businesses. One squad. One roof. Zero things left unsorted.
         </motion.p>
 
         <motion.div
@@ -234,16 +271,16 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
             transition={TRANSITIONS.buttonSpring}
             onClick={() => onOpenInquiry({ service: 'Website / Build' })}
           >
-            Free Website Consultation <ArrowRight size={18} />
+            Free Consultation <ArrowRight size={18} />
           </motion.button>
           <motion.button
             className="secondary"
             whileHover={{ scale: 1.02, x: 2 }}
             whileTap={{ scale: 0.98 }}
             transition={TRANSITIONS.buttonSpring}
-            onClick={() => onNavigate('/pricing')}
+            onClick={(e) => handleScrollToHash(e, '#estimator')}
           >
-            View Website Pricing (From ₹14,999) <ArrowRight size={14} />
+            Project Estimator ↘
           </motion.button>
           <motion.button
             className="secondary"
@@ -251,9 +288,9 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
             whileHover={{ scale: 1.02, x: 2 }}
             whileTap={{ scale: 0.98 }}
             transition={TRANSITIONS.buttonSpring}
-            onClick={() => onNavigate('/pricing')}
+            onClick={(e) => handleScrollToHash(e, '#vanvas')}
           >
-            Project Cost Estimator ↗
+            Shipped: VANVAS ↗
           </motion.button>
           <motion.button
             className="secondary"
@@ -263,7 +300,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
             transition={TRANSITIONS.buttonSpring}
             onClick={() => onNavigate('/templates')}
           >
-            Browse Blueprints →
+            Browse 11 Blueprints →
           </motion.button>
         </motion.div>
 
@@ -362,7 +399,13 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         </motion.div>
       </motion.section>
 
-      {/* Section 02: Selected Blueprints & Work */}
+      {/* Section 02: Flagship Shipped Product — VANVAS */}
+      <VanvasFeaturedSection
+        onOpenInquiry={onOpenInquiry}
+        onOpenCaseStudy={(cs) => setCaseStudyTemplate(cs)}
+      />
+
+      {/* Section 03: Selected Blueprints & Work */}
       <motion.section
         className="home-portfolio"
         initial="hidden"
@@ -371,7 +414,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         variants={staggerContainer(0.08, 0.05)}
       >
         <motion.div className="section-head" variants={fadeInUp}>
-          <span>02</span>
+          <span>03</span>
           <div>
             <p className="eyebrow">SELECTED BLUEPRINTS &amp; ARCHITECTURES</p>
             <h2>
@@ -481,13 +524,20 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
             transition={TRANSITIONS.buttonSpring}
             style={{ fontSize: '14px', padding: '14px 28px' }}
           >
-            Browse All 10 Industry Blueprints &amp; Live Demos <ArrowRight size={16} />
+            Browse All 11 Industry Blueprints &amp; Live Demos <ArrowRight size={16} />
           </motion.button>
         </motion.div>
       </motion.section>
 
-      {/* Section 03: The Operating Protocol & Guarantees */}
+      {/* Section 04: Technology & Capabilities */}
+      <TechStackSection onOpenInquiry={onOpenInquiry} />
+
+      {/* Section 05: Interactive Project Cost Estimator */}
+      <ProjectEstimator onOpenInquiry={onOpenInquiry} />
+
+      {/* Section 06: The Operating Protocol & Guarantees */}
       <motion.section
+        id="protocol"
         className="process-section"
         initial="hidden"
         whileInView="visible"
@@ -495,7 +545,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         variants={staggerContainer(0.08, 0.05)}
       >
         <motion.div className="section-head" variants={fadeInUp}>
-          <span>03</span>
+          <span>06</span>
           <div>
             <p className="eyebrow">THE OPERATING PROTOCOL</p>
             <h2>
@@ -588,7 +638,10 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         </motion.div>
       </motion.section>
 
-      {/* About / Manifesto Section */}
+      {/* Section 07: Behind The Club — Founder Profile */}
+      <FounderSection onOpenInquiry={onOpenInquiry} />
+
+      {/* Section 08: About / Manifesto Section */}
       <motion.section
         id="about"
         className="manifesto"
@@ -598,7 +651,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         variants={staggerContainer(0.1, 0.08)}
       >
         <motion.div className="manifesto-label" variants={fadeInUp}>
-          <p className="eyebrow">04 / THE IDEA</p>
+          <p className="eyebrow">08 / THE IDEA</p>
         </motion.div>
         <motion.div variants={fadeInUp}>
           <h2>
@@ -623,7 +676,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         </motion.div>
       </motion.section>
 
-      {/* Membership Section */}
+      {/* Section 09: Membership Section */}
       <motion.section
         className="club"
         initial="hidden"
@@ -632,7 +685,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         variants={staggerContainer(0.1, 0.05)}
       >
         <motion.div className="club-copy" variants={fadeInUp}>
-          <p className="eyebrow">05 / MEMBERSHIP</p>
+          <p className="eyebrow">09 / MEMBERSHIP</p>
           <h2>Join the club.</h2>
           <p>Start with one problem. Stay for everything else we can sort.</p>
           <div style={{ marginTop: '24px' }}>
@@ -667,7 +720,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         </motion.div>
       </motion.section>
 
-      {/* Contact Section */}
+      {/* Section 10: Contact Section */}
       <motion.section
         id="contact"
         className="contact"
@@ -677,7 +730,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         variants={staggerContainer(0.1, 0.05)}
       >
         <motion.div variants={fadeInUp}>
-          <p className="eyebrow">06 / GET STARTED</p>
+          <p className="eyebrow">10 / GET STARTED</p>
           <h2>What's not sorted yet?</h2>
           <p>Tell us what you're trying to fix, build or grow. We'll figure out the next move.</p>
         </motion.div>
@@ -832,9 +885,32 @@ export default function App() {
     }
   }, []);
 
+  // Handle hash scrolling on path or hash change
+  useEffect(() => {
+    if (window.location.hash) {
+      setTimeout(() => {
+        const el = document.querySelector(window.location.hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
+    }
+  }, [currentPath]);
+
   const navigateTo = (path) => {
     window.history.pushState({}, '', path);
-    setCurrentPath(path);
+    const targetRoute = path.split('#')[0] || '/';
+    setCurrentPath(targetRoute);
+    if (path.includes('#')) {
+      const hash = path.substring(path.indexOf('#'));
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
+      return;
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
