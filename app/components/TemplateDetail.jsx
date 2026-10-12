@@ -150,7 +150,7 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
             </div>
             <div className="stat-pill">
               <span className="stat-label">Performance</span>
-              <strong className="stat-val"><Zap size={15} color="#22c55e" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />98+ PageSpeed Score</strong>
+              <strong className="stat-val"><Zap size={15} color="#22c55e" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />90+ PageSpeed Target</strong>
             </div>
           </motion.div>
 

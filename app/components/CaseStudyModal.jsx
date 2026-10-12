@@ -213,7 +213,7 @@ export default function CaseStudyModal({
             {/* Bottom Actions */}
             <div className="case-study-foot">
               <div className="foot-note">
-                <ShieldCheck size={14} /> 50% upfront, 50% on launch. 30–60 day warranty included.
+                <ShieldCheck size={14} /> 50% upfront, 50% on launch. 30–90 day package-tiered warranty included.
               </div>
 
               <div className="foot-actions">
