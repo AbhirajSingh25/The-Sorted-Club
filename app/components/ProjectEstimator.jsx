@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Code2,
@@ -46,7 +46,9 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
     }
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsEstimatorInView(entry.isIntersecting);
+        if (entry) {
+          setIsEstimatorInView(entry.isIntersecting);
+        }
       },
       { threshold: 0.05 }
     );
