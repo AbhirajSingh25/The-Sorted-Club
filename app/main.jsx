@@ -301,6 +301,24 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
           >
             Start a Project <ArrowRight size={18} />
           </motion.button>
+          <motion.button
+            className="secondary"
+            style={{
+              border: '1px solid var(--line)',
+              padding: '12px 22px',
+              borderRadius: '999px',
+              background: '#ede9df',
+              fontSize: '13.5px',
+              color: 'var(--ink)',
+              fontWeight: 600
+            }}
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            transition={TRANSITIONS.buttonSpring}
+            onClick={(e) => handleScrollToHash(e, '#services')}
+          >
+            Explore Services ↓
+          </motion.button>
         </motion.div>
 
         <motion.div

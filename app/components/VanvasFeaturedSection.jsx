@@ -3,20 +3,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   ExternalLink,
   Compass,
-  MapPin,
   Sparkles,
-  ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
-  Code2,
-  Cpu,
-  Layers,
-  Smartphone,
-  Globe,
-  Database,
-  Calendar,
   Wallet,
-  Laptop
+  Smartphone,
+  ChevronDown,
+  ChevronUp,
+  Laptop,
+  Check,
+  Layers
 } from 'lucide-react';
 import { TRANSITIONS } from '../utils/motion';
 
@@ -80,7 +74,7 @@ const APP_SCREENS = [
   },
   {
     id: 'explore',
-    label: 'Destination Explorer',
+    label: 'Destination Guides',
     title: 'Curated Sanctuaries & Heritage Guides',
     sub: 'Altitude, elevation, local stays & cultural checkpoints',
     img: '/images/vanvas/explore_manali_desktop.jpg',
@@ -88,7 +82,7 @@ const APP_SCREENS = [
   },
   {
     id: 'stays',
-    label: 'Stays & Accommodations',
+    label: 'Stays & Logistics',
     title: 'Verified Stays & Booking Integration',
     sub: 'Budget splits, amenity filters & mountain homestays',
     img: '/images/vanvas/munnar_stay_detail.jpg',
@@ -104,6 +98,34 @@ const APP_SCREENS = [
   }
 ];
 
+// Interactive capabilities linked directly to genuine application screens
+const CAPABILITIES = [
+  {
+    id: 'planner',
+    icon: Sparkles,
+    title: 'AI Itinerary & Route Synthesis',
+    shortDesc: 'Generates day-by-day pacing, elevation timing, and cultural context using LLMs.'
+  },
+  {
+    id: 'stays',
+    icon: Wallet,
+    title: 'Multi-Category Expense Splits',
+    shortDesc: 'Tracks real-time trip spending, estimated splits, and multi-currency conversions.'
+  },
+  {
+    id: 'explore',
+    icon: Compass,
+    title: 'Cultural Destination Discovery',
+    shortDesc: 'Editorial guides across Western Himalayas, Rajasthan, and Goa with verified map pins.'
+  },
+  {
+    id: 'mobile',
+    icon: Smartphone,
+    title: 'Offline Field-Tested PWA Shell',
+    shortDesc: 'Engineered for instant offline access and touch responsiveness on remote trails.'
+  }
+];
+
 // Cultural artworks as secondary supporting assets
 const SUPPORTING_ARTWORKS = [
   { name: 'Rishikesh', region: 'Uttarakhand', img: '/images/vanvas/rishikesh.webp' },
@@ -114,25 +136,39 @@ const SUPPORTING_ARTWORKS = [
 
 export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }) {
   const [activeScreenId, setActiveScreenId] = useState('command');
+  const [showArtworks, setShowArtworks] = useState(false);
+
   const currentScreen = APP_SCREENS.find((s) => s.id === activeScreenId) || APP_SCREENS[0];
 
   return (
     <section className="vanvas-feature-section" id="vanvas">
-      <div className="section-head" style={{ marginBottom: '32px' }}>
+      {/* A. Concise Section Introduction */}
+      <div className="section-head vanvas-section-head">
         <span>02</span>
-        <div>
-          <div className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="vanvas-head-content">
+          <div className="eyebrow vanvas-intro-eyebrow">
             <span className="live-status-pill">
               <span className="live-ping" />
               FLAGSHIP SHIPPED PRODUCT
             </span>
             PROVEN ENGINEERING &amp; DESIGN
           </div>
-          <h2 style={{ marginTop: '8px' }}>
-            VANVAS — <i>by The Sorted Club</i>
-          </h2>
-          <p style={{ color: 'var(--muted)', fontSize: '15px', maxWidth: '680px', marginTop: '10px', lineHeight: 1.55 }}>
-            Our flagship AI travel operating system. Engineered from concept to production to solve fragmented trip planning with intelligent day-by-day itineraries, cultural discovery guides, and real-time travel logistics.
+          <div className="vanvas-intro-title-row">
+            <h2 className="vanvas-main-heading">
+              VANVAS — <i>by The Sorted Club</i>
+            </h2>
+            <a
+              href="https://vanvasai.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="vanvas-live-link vanvas-live-link-inline"
+              title="Open deployed VANVAS web application in new tab"
+            >
+              Explore Live Product <ExternalLink size={13} />
+            </a>
+          </div>
+          <p className="vanvas-intro-summary">
+            Our flagship AI travel companion. Unifies conversational trip planning, cultural sanctuary guides, live expense splitting, and offline trail tools into one production platform.
           </p>
         </div>
       </div>
@@ -173,11 +209,11 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
           </div>
         </div>
 
-        {/* 2-Column Balanced Editorial Grid */}
+        {/* 2-Column Balanced Compact Layout */}
         <div className="vanvas-card-grid">
           {/* Left Column: Authentic Application UI Showcase */}
           <div className="vanvas-visual-col">
-            {/* Screen Selector Tabs */}
+            {/* C. Interactive Screen Selector Strip */}
             <div className="vanvas-screen-nav" role="tablist" aria-label="Application screens">
               {APP_SCREENS.map((screen) => (
                 <button
@@ -193,7 +229,7 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
               ))}
             </div>
 
-            {/* Application Window Frame */}
+            {/* B. Product Preview Window Frame */}
             <div className="vanvas-app-window">
               <div className="app-window-bar">
                 <div className="browser-dots">
@@ -218,7 +254,7 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentScreen.id}
-                    className="app-screen-frame"
+                    className={`app-screen-frame ${currentScreen.id === 'mobile' ? 'mobile-frame-centered' : ''}`}
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
@@ -231,8 +267,19 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
                       loading="lazy"
                     />
                     <div className="app-screen-caption">
-                      <strong>{currentScreen.title}</strong>
-                      <span>{currentScreen.sub}</span>
+                      <div className="caption-text-wrap">
+                        <strong>{currentScreen.title}</strong>
+                        <span>{currentScreen.sub}</span>
+                      </div>
+                      <a
+                        href={`https://${currentScreen.url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="caption-direct-link"
+                        title="Open this screen in live product"
+                      >
+                        Live Screen <ExternalLink size={11} />
+                      </a>
                     </div>
                   </motion.div>
                 </AnimatePresence>
@@ -246,48 +293,46 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
               <span className="vanvas-col-eyebrow">THE PROBLEM SOLVED</span>
               <h3>Scattered notes, messy WhatsApp groups &amp; generic itineraries.</h3>
               <p>
-                Travelers waste hours juggling disconnected spreadsheets, map pins, and outdated blogs. VANVAS unifies the entire expedition journey into a single intelligent companion with conversational itinerary generation, budget tracking, and offline packing tools.
+                Travelers waste hours juggling disconnected spreadsheets, map pins, and outdated blogs. VANVAS unifies the entire expedition journey into a single intelligent companion.
               </p>
             </div>
 
-            {/* Verified Shipped Capabilities */}
+            {/* D. Connected Capabilities: Tap to select and inspect screen */}
             <div className="vanvas-features-list">
-              <span className="vanvas-col-eyebrow">VERIFIED SHIPPED CAPABILITIES</span>
-              <div className="vanvas-feature-item">
-                <div className="feat-icon"><Sparkles size={16} /></div>
-                <div>
-                  <strong>AI Itinerary &amp; Route Synthesis</strong>
-                  <span>Synthesizes day-by-day pacing, elevation timing, and cultural context using LLMs.</span>
-                </div>
+              <div className="features-list-header">
+                <span className="vanvas-col-eyebrow">VERIFIED CAPABILITIES (TAP TO PREVIEW)</span>
               </div>
-              <div className="vanvas-feature-item">
-                <div className="feat-icon"><Wallet size={16} /></div>
-                <div>
-                  <strong>Multi-Category Budget &amp; Expense Splits</strong>
-                  <span>Tracks multi-category spending, estimated splits, and currency conversion.</span>
-                </div>
-              </div>
-              <div className="vanvas-feature-item">
-                <div className="feat-icon"><Compass size={16} /></div>
-                <div>
-                  <strong>Cultural Destination Discovery</strong>
-                  <span>Editorial guides across Himalayas, Rajasthan, and Goa with verified routes and map pins.</span>
-                </div>
-              </div>
-              <div className="vanvas-feature-item">
-                <div className="feat-icon"><Smartphone size={16} /></div>
-                <div>
-                  <strong>Offline PWA &amp; Capacitor Mobile Shell</strong>
-                  <span>Engineered for offline access, fast touch response, and field use on mountain trails.</span>
-                </div>
-              </div>
+              {CAPABILITIES.map((cap) => {
+                const Icon = cap.icon;
+                const isMatching = activeScreenId === cap.id;
+                return (
+                  <button
+                    key={cap.id}
+                    type="button"
+                    className={`vanvas-feature-item-btn ${isMatching ? 'active' : ''}`}
+                    onClick={() => setActiveScreenId(cap.id)}
+                    aria-label={`Preview ${cap.title}`}
+                  >
+                    <div className="feat-icon">
+                      <Icon size={15} />
+                    </div>
+                    <div className="feat-content">
+                      <div className="feat-title-line">
+                        <strong>{cap.title}</strong>
+                        {isMatching && <span className="feat-active-pill">Previewing</span>}
+                      </div>
+                      <span>{cap.shortDesc}</span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Tech Stack */}
+            {/* E. Compact Tech Stack */}
             <div className="vanvas-stack-container">
               <span className="vanvas-col-eyebrow">VERIFIED TECH STACK</span>
               <p className="vanvas-stack-line">
-                Next.js 16 (App Router) • React 19 • Tailwind CSS • FastAPI (Python) • PostgreSQL • Leaflet Maps • Capacitor Native • Vercel Edge
+                Next.js 16 (App Router) • React 19 • Tailwind CSS • FastAPI • PostgreSQL • Leaflet • Capacitor Native
               </p>
             </div>
 
@@ -298,7 +343,7 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="primary"
-                style={{ fontSize: '13.5px', padding: '12px 22px' }}
+                style={{ fontSize: '13.5px', padding: '11px 20px' }}
               >
                 Explore Live Product <ExternalLink size={14} />
               </a>
@@ -306,7 +351,7 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
               <button
                 type="button"
                 className="secondary"
-                style={{ fontSize: '13.5px', padding: '12px 20px' }}
+                style={{ fontSize: '13.5px', padding: '11px 18px' }}
                 onClick={() => onOpenCaseStudy(VANVAS_CASE_STUDY_DATA)}
               >
                 Case Study Breakdown →
@@ -315,7 +360,7 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
               <button
                 type="button"
                 className="card-cta-link"
-                style={{ fontSize: '13px', color: 'var(--ink)', padding: '8px 12px', border: '1px solid var(--line)', background: 'transparent', cursor: 'pointer', fontWeight: 600 }}
+                style={{ fontSize: '13px', color: 'var(--ink)', padding: '6px 10px', border: '1px solid var(--line)', background: 'transparent', cursor: 'pointer', fontWeight: 600 }}
                 onClick={() =>
                   onOpenInquiry({
                     service: 'Website / Build — Custom Web App',
@@ -329,23 +374,48 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
           </div>
         </div>
 
-        {/* Secondary Supporting Artwork Strip */}
+        {/* Supporting Artwork Strip: Progressive Disclosure */}
         <div className="vanvas-art-strip-wrapper">
           <div className="art-strip-header">
-            <span className="art-strip-title">Handcrafted Cultural Artwork Identity</span>
-            <span className="art-strip-sub">Supporting editorial visual identity created for Indian sanctuaries</span>
+            <div>
+              <span className="art-strip-title">Handcrafted Cultural Artwork Identity</span>
+              <span className="art-strip-sub">Supporting editorial visual identity created for Indian sanctuaries</span>
+            </div>
+            <button
+              type="button"
+              className="art-strip-toggle-btn"
+              onClick={() => setShowArtworks(!showArtworks)}
+              aria-expanded={showArtworks}
+            >
+              {showArtworks ? (
+                <>Hide Artworks <ChevronUp size={14} /></>
+              ) : (
+                <>View Artworks (4) <ChevronDown size={14} /></>
+              )}
+            </button>
           </div>
-          <div className="vanvas-art-grid">
-            {SUPPORTING_ARTWORKS.map((art) => (
-              <div key={art.name} className="art-item-card">
-                <img src={art.img} alt={`${art.name} cultural artwork`} loading="lazy" />
-                <div className="art-item-info">
-                  <strong>{art.name}</strong>
-                  <span>{art.region}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+
+          <AnimatePresence>
+            {showArtworks && (
+              <motion.div
+                className="vanvas-art-grid"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                {SUPPORTING_ARTWORKS.map((art) => (
+                  <div key={art.name} className="art-item-card">
+                    <img src={art.img} alt={`${art.name} cultural artwork`} loading="lazy" />
+                    <div className="art-item-info">
+                      <strong>{art.name}</strong>
+                      <span>{art.region}</span>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </section>

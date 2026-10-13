@@ -40,6 +40,7 @@ export default function PricingPage({
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedPkgId, setExpandedPkgId] = useState(null);
 
   // Cleanly handle #estimator deep link by sending user to homepage estimator
   useEffect(() => {
@@ -396,60 +397,112 @@ export default function PricingPage({
                     <Clock size={13} /> {pkg.deliveryTime} Turnaround
                   </div>
 
-                  {/* Suitable For */}
-                  <div style={{ background: '#faf9f5', border: '1px solid var(--line)', borderRadius: '8px', padding: '12px 14px', marginBottom: '18px' }}>
-                    <label className="section-subtitle" style={{ fontSize: '10px', marginBottom: '4px' }}>SUITABLE BUSINESSES</label>
-                    <p style={{ fontSize: '12px', color: 'var(--ink)', margin: 0, lineHeight: 1.45 }}>
-                      {pkg.suitableFor}
-                    </p>
-                  </div>
-
-                  {/* Included Pages */}
-                  <div style={{ marginBottom: '18px' }}>
-                    <label className="section-subtitle" style={{ fontSize: '10px', marginBottom: '8px' }}>
-                      INCLUDED PAGES ({pkg.includedPages.length})
-                    </label>
+                  {/* Core Capabilities Preview (Top 3) */}
+                  <div style={{ borderTop: '1px solid var(--line)', paddingTop: '12px', marginBottom: '12px' }}>
+                    <label className="section-subtitle" style={{ fontSize: '10px', marginBottom: '6px' }}>KEY CAPABILITIES</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      {pkg.includedPages.map((page, pIdx) => (
-                        <div key={pIdx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--ink)' }}>
-                          <Check size={13} color="#15803d" />
-                          <span>{page}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Features List */}
-                  <div style={{ borderTop: '1px solid var(--line)', paddingTop: '16px', marginBottom: '18px' }}>
-                    <label className="section-subtitle" style={{ fontSize: '10px', marginBottom: '8px' }}>KEY CAPABILITIES</label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                      {pkg.features.map((feat, fIdx) => (
-                        <div key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '12px', color: 'var(--ink)' }}>
-                          <CheckCircle2 size={14} color="#15803d" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      {pkg.features.slice(0, 3).map((feat, fIdx) => (
+                        <div key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '7px', fontSize: '11.5px', color: 'var(--ink)' }}>
+                          <CheckCircle2 size={13} color="#15803d" style={{ flexShrink: 0, marginTop: '2px' }} />
                           <span>{feat}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Not Included Transparent Callout */}
-                  <div style={{ borderTop: '1px dashed var(--line)', paddingTop: '14px', marginBottom: '18px' }}>
-                    <label className="section-subtitle" style={{ fontSize: '10px', color: '#991b1b', marginBottom: '6px' }}>NOT INCLUDED</label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      {pkg.notIncluded.map((item, nIdx) => (
-                        <div key={nIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '7px', fontSize: '11px', color: '#78716c' }}>
-                          <span style={{ color: '#dc2626', fontWeight: 700 }}>✕</span>
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
+                  {/* Expand / Collapse Secondary Details */}
+                  <div style={{ marginBottom: '14px' }}>
+                    <button
+                      type="button"
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'var(--ink)',
+                        fontWeight: 600,
+                        fontSize: '11.5px',
+                        cursor: 'pointer',
+                        padding: '4px 0',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      onClick={() => setExpandedPkgId(expandedPkgId === pkg.id ? null : pkg.id)}
+                    >
+                      {expandedPkgId === pkg.id ? (
+                        <>Fewer specs <ChevronUp size={12} /></>
+                      ) : (
+                        <>+{pkg.features.length - 3} more specs, pages &amp; terms <ChevronDown size={12} /></>
+                      )}
+                    </button>
                   </div>
 
-                  {/* Terms & Revision Limits */}
-                  <div style={{ fontSize: '11px', color: 'var(--muted)', background: '#fff', border: '1px solid var(--line)', borderRadius: '6px', padding: '10px 12px', marginBottom: '20px' }}>
-                    <div><strong>Revisions:</strong> {pkg.revisionLimit}</div>
-                    <div style={{ marginTop: '4px' }}><strong>Terms:</strong> {pkg.paymentTerms}</div>
-                  </div>
+                  <AnimatePresence>
+                    {expandedPkgId === pkg.id && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        style={{ overflow: 'hidden' }}
+                      >
+                        {/* Remaining features */}
+                        {pkg.features.length > 3 && (
+                          <div style={{ marginBottom: '14px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              {pkg.features.slice(3).map((feat, fIdx) => (
+                                <div key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '7px', fontSize: '11.5px', color: 'var(--ink)' }}>
+                                  <CheckCircle2 size={13} color="#15803d" style={{ flexShrink: 0, marginTop: '2px' }} />
+                                  <span>{feat}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Included Pages */}
+                        <div style={{ marginBottom: '14px', borderTop: '1px solid var(--line)', paddingTop: '10px' }}>
+                          <label className="section-subtitle" style={{ fontSize: '10px', marginBottom: '6px' }}>
+                            INCLUDED PAGES ({pkg.includedPages.length})
+                          </label>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                            {pkg.includedPages.map((page, pIdx) => (
+                              <div key={pIdx} style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '11.5px', color: 'var(--ink)' }}>
+                                <Check size={12} color="#15803d" />
+                                <span>{page}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Suitable For */}
+                        <div style={{ background: '#faf9f5', border: '1px solid var(--line)', borderRadius: '6px', padding: '10px 12px', marginBottom: '14px' }}>
+                          <label className="section-subtitle" style={{ fontSize: '9.5px', marginBottom: '3px' }}>SUITABLE BUSINESSES</label>
+                          <p style={{ fontSize: '11.5px', color: 'var(--ink)', margin: 0, lineHeight: 1.4 }}>
+                            {pkg.suitableFor}
+                          </p>
+                        </div>
+
+                        {/* Not Included Transparent Callout */}
+                        <div style={{ borderTop: '1px dashed var(--line)', paddingTop: '10px', marginBottom: '14px' }}>
+                          <label className="section-subtitle" style={{ fontSize: '9.5px', color: '#991b1b', marginBottom: '5px' }}>NOT INCLUDED</label>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {pkg.notIncluded.map((item, nIdx) => (
+                              <div key={nIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontSize: '10.5px', color: '#78716c' }}>
+                                <span style={{ color: '#dc2626', fontWeight: 700 }}>✕</span>
+                                <span>{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Terms & Revision Limits */}
+                        <div style={{ fontSize: '10.5px', color: 'var(--muted)', background: '#fff', border: '1px solid var(--line)', borderRadius: '6px', padding: '8px 10px', marginBottom: '14px' }}>
+                          <div><strong>Revisions:</strong> {pkg.revisionLimit}</div>
+                          <div style={{ marginTop: '3px' }}><strong>Terms:</strong> {pkg.paymentTerms}</div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 <div>
