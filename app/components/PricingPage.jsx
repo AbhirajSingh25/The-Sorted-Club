@@ -48,6 +48,29 @@ export default function PricingPage({
     }
   }, [onNavigate]);
 
+  // Keyboard accessibility: Close mobile drawer on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen]);
+
+  // Lock body scroll when mobile menu is open to prevent background scrolling
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   const toggleFaq = (idx) => {
     setOpenFaqIndex(openFaqIndex === idx ? null : idx);
   };
@@ -79,12 +102,22 @@ export default function PricingPage({
         <button
           className="menu-button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle navigation menu"
+          aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="pricing-mobile-navlinks"
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <div className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
+        {mobileMenuOpen && (
+          <div
+            className="mobile-nav-backdrop"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        <div id="pricing-mobile-navlinks" className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
           <motion.button
             type="button"
             className="nav-sublink"
@@ -320,7 +353,8 @@ export default function PricingPage({
       {/* 6 Packages Grid */}
       <section style={{ maxWidth: '1180px', margin: '0 auto 70px', padding: '0 20px' }}>
         <motion.div
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}
+          className="pricing-packages-grid"
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px' }}
           initial="hidden"
           animate="visible"
           variants={staggerContainer(0.06, 0.05)}

@@ -192,26 +192,38 @@ Please review this configuration and provide our formal statement of work and ki
         </div>
       </div>
 
+      {/* Compact Progress Header for Mobile Viewports */}
+      <div className="estimator-mobile-summary-pill" aria-live="polite">
+        <div className="mobile-step-indicator">
+          <span className="mobile-step-badge">ESTIMATOR CONFIG</span>
+          <span className="mobile-step-val">{currentPillar.name} • {currentTier.name}</span>
+        </div>
+        <div className="mobile-step-price">
+          <strong>{calculation.formattedTotal}</strong>
+          {calculation.isRecurring && <span>/mo</span>}
+        </div>
+      </div>
+
       {/* Step Indicator Strip */}
-      <div className="estimator-progress-strip">
+      <div className="estimator-progress-strip" role="region" aria-label="Estimator progress steps">
         <div className="progress-step-pill active">
           <span className="step-num-circle">01</span>
           <span className="step-label-text">Discipline</span>
           <strong className="step-val-text">{currentPillar.name}</strong>
         </div>
-        <div className="progress-divider">→</div>
+        <div className="progress-divider" aria-hidden="true">→</div>
         <div className="progress-step-pill active">
           <span className="step-num-circle">02</span>
           <span className="step-label-text">Scope</span>
           <strong className="step-val-text">{currentTier.name}</strong>
         </div>
-        <div className="progress-divider">→</div>
+        <div className="progress-divider" aria-hidden="true">→</div>
         <div className="progress-step-pill active">
           <span className="step-num-circle">03</span>
           <span className="step-label-text">Add-ons</span>
           <strong className="step-val-text">{activeAddonsList.length} selected</strong>
         </div>
-        <div className="progress-divider">→</div>
+        <div className="progress-divider" aria-hidden="true">→</div>
         <div className="progress-step-pill highlight">
           <span className="step-num-circle">04</span>
           <span className="step-label-text">Estimate</span>

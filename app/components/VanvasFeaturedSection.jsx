@@ -201,11 +201,15 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
                   <span className="dot-amber" />
                   <span className="dot-green" />
                 </div>
-                <div className="app-window-url">
+                <div className="app-window-url" title={`https://${currentScreen.url}`}>
                   https://{currentScreen.url}
                 </div>
                 <div className="app-window-tag">
-                  <Laptop size={12} /> Live App Screen
+                  {currentScreen.id === 'mobile' ? (
+                    <><Smartphone size={12} /> Mobile PWA Shell</>
+                  ) : (
+                    <><Laptop size={12} /> Live App Screen</>
+                  )}
                 </div>
               </div>
 
@@ -223,7 +227,7 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
                     <img
                       src={currentScreen.img}
                       alt={`VANVAS ${currentScreen.title} — Real Application Interface`}
-                      className="app-screen-img"
+                      className={`app-screen-img ${currentScreen.id === 'mobile' ? 'mobile-screen-fit' : ''}`}
                       loading="lazy"
                     />
                     <div className="app-screen-caption">
