@@ -355,7 +355,6 @@ export default function PricingPage({
       <section style={{ maxWidth: '1180px', margin: '0 auto 70px', padding: '0 20px' }}>
         <motion.div
           className="pricing-packages-grid"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px' }}
           initial="hidden"
           animate="visible"
           variants={staggerContainer(0.06, 0.05)}
@@ -385,11 +384,11 @@ export default function PricingPage({
                     {pkg.tagline}
                   </p>
 
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
-                    <span style={{ font: '700 34px "Space Grotesk"', color: 'var(--ink)' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '4px' }}>
+                    <span className="package-price-number" style={{ color: 'var(--ink)' }}>
                       {priceDisplay}
                     </span>
-                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>
+                    <span className="package-price-type" style={{ fontSize: '11px', color: 'var(--muted)' }}>
                       {pkg.id === 'custom' ? '' : 'fixed price'}
                     </span>
                   </div>
@@ -521,7 +520,8 @@ export default function PricingPage({
                     transition={TRANSITIONS.buttonSpring}
                     onClick={() => onOpenInquiry({ service: `Website / Build — ${pkg.name}` })}
                   >
-                    Select {pkg.name} <ArrowRight size={14} />
+                    <span className="select-pkg-full">Select {pkg.name}</span>
+                    <span className="select-pkg-short">Select Package</span> <ArrowRight size={13} />
                   </motion.button>
 
                   {pkg.recommendedTemplate && (

@@ -485,25 +485,27 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
                       >
                         {template.name}
                       </h2>
-                      <p className="template-suitable">
-                        <strong>Ideal for:</strong> {template.suitableFor}
-                      </p>
                     </div>
 
-                    <p className="template-desc">{template.shortDesc}</p>
+                    <div className="template-card-desktop-only">
+                        <p className="template-suitable">
+                          <strong>Ideal for:</strong> {template.suitableFor}
+                        </p>
+                        <p className="template-desc">{template.shortDesc}</p>
 
-                    {/* Features List */}
-                    <div className="template-features-preview">
-                      <div className="features-label">Core Capabilities:</div>
-                      <ul className="features-list">
-                        {template.mainFeatures.slice(0, 3).map((feat, i) => (
-                          <li key={i}>
-                            <CheckCircle2 size={14} className="feat-check" />
-                            <span>{feat}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                        {/* Features List */}
+                        <div className="template-features-preview">
+                          <div className="features-label">Core Capabilities:</div>
+                          <ul className="features-list">
+                            {template.mainFeatures.slice(0, 3).map((feat, i) => (
+                              <li key={i}>
+                                <CheckCircle2 size={14} className="feat-check" />
+                                <span>{feat}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
 
                     {/* Card Footer with Pricing & Dual CTAs */}
                     <div className="template-card-footer">

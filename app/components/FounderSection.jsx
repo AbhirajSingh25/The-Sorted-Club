@@ -39,50 +39,55 @@ export default function FounderSection({ onOpenInquiry }) {
       </div>
 
       <div className="founder-card-layout">
-        {/* Left Column: Authentic Portrait & Quick Badges */}
+        {/* Left Column / Mobile Header: Adjacent Horizontal Layout on Phone */}
         <motion.div
           className="founder-portrait-col"
           variants={fadeInUp}
         >
-          <div className="founder-image-wrapper">
-            <img
-              src="/images/founder-abhiraj.jpg"
-              alt="Abhiraj Singh Sengar — Founder & Principal Engineer of The Sorted Club"
-              className="founder-portrait-img"
-              loading="lazy"
-            />
-            <div className="founder-image-tag">
-              <span className="live-dot" style={{ background: '#15803d' }} />
-              <span>Available for Technical Discovery</span>
+          <div className="founder-header-flex">
+            <div className="founder-image-wrapper">
+              <img
+                src="/images/founder-abhiraj.jpg"
+                alt="Abhiraj Singh Sengar — Founder & Principal Engineer of The Sorted Club"
+                className="founder-portrait-img"
+                loading="lazy"
+              />
+              <div className="founder-image-tag">
+                <span className="live-dot" style={{ background: '#15803d' }} />
+                <span>Available for Technical Discovery</span>
+              </div>
             </div>
-          </div>
 
-          <div className="founder-nameplate">
-            <h3>Abhiraj Singh Sengar</h3>
-            <span className="founder-role-title">Founder &amp; Principal Engineer</span>
-            <p className="founder-bio-sub">
-              Full-Stack Software Engineer • AI/ML Systems Architect
-            </p>
-          </div>
+            <div className="founder-info-beside">
+              <div className="founder-nameplate">
+                <span className="founder-eyebrow-tag">DIRECT LEADERSHIP</span>
+                <h3>Abhiraj Singh Sengar</h3>
+                <span className="founder-role-title">Founder &amp; Principal Engineer</span>
+                <p className="founder-bio-sub">
+                  Full-Stack Software Engineer • AI/ML Systems Architect
+                </p>
+              </div>
 
-          {/* Verified Contact Lines */}
-          <div className="founder-channels-box">
-            <a
-              href="https://wa.me/919643820888?text=Hi%20Abhiraj%2C%20I%20reviewed%20The%20Sorted%20Club%20and%20would%20like%20to%20discuss%20a%20project."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="founder-channel-link"
-            >
-              <MessageSquare size={14} color="#15803d" />
-              <span>Direct WhatsApp: +91 9643820888</span>
-            </a>
-            <a
-              href="mailto:thesortedclub@gmail.com"
-              className="founder-channel-link"
-            >
-              <Mail size={14} />
-              <span>thesortedclub@gmail.com</span>
-            </a>
+              {/* Verified Contact Lines */}
+              <div className="founder-channels-box">
+                <a
+                  href="https://wa.me/919643820888?text=Hi%20Abhiraj%2C%20I%20reviewed%20The%20Sorted%20Club%20and%20would%20like%20to%20discuss%20a%20project."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="founder-channel-link"
+                >
+                  <MessageSquare size={13} color="#15803d" />
+                  <span>WhatsApp: +91 9643820888</span>
+                </a>
+                <a
+                  href="mailto:thesortedclub@gmail.com"
+                  className="founder-channel-link"
+                >
+                  <Mail size={13} />
+                  <span>thesortedclub@gmail.com</span>
+                </a>
+              </div>
+            </div>
           </div>
         </motion.div>
 

@@ -8752,28 +8752,95 @@ textarea:focus-visible {
     margin-top: 0;
   }
 
-  /* Services Grid (Single column on mobile) */
+  /* Services Section Mobile: Compact 2x2 Grid (BUILD | GROW / AUTOMATE | HIRE) */
   .services, .manifesto, .club, .contact {
-    padding: 60px 5vw;
+    padding: 36px 16px;
   }
 
-  .services .grid {
-    grid-template-columns: 1fr;
+  .services .grid,
+  .services-pillars-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
   }
 
   .service-card {
-    padding: 24px 20px;
-    min-height: auto;
+    padding: 13px 11px !important;
+    min-height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border-radius: 6px !important;
+    cursor: pointer;
+  }
+
+  .service-card .card-top {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 6px !important;
+  }
+
+  .service-card .card-top-meta {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  .service-card .pillar-price-badge {
+    font: 700 9.5px "Space Grotesk", sans-serif !important;
+    color: var(--ink) !important;
+    white-space: nowrap !important;
+  }
+
+  .service-card .pillar-num {
+    font: 600 9px monospace !important;
+    color: var(--muted) !important;
   }
 
   .service-card h3 {
-    margin: 24px 0 8px;
-    font-size: 26px;
+    margin: 4px 0 4px !important;
+    font-size: 18px !important;
+    letter-spacing: -0.04em !important;
+    line-height: 1.1 !important;
   }
 
-  .service-card button,
-  .service-card a {
-    padding-top: 20px;
+  .service-card-text {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    color: var(--muted) !important;
+    margin: 0 0 10px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .service-card-desktop-only {
+    display: none !important;
+  }
+
+  .service-card-actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-top: auto !important;
+    padding-top: 8px !important;
+    border-top: 1px solid var(--line) !important;
+    gap: 4px !important;
+  }
+
+  .service-card-actions button {
+    padding: 0 !important;
+    font-size: 11px !important;
+    margin-top: 0 !important;
+  }
+
+  .cta-enquire-full {
+    display: none !important;
+  }
+
+  .cta-enquire-short {
+    display: inline !important;
   }
 
   /* Club Card on Mobile (No distortion, un-rotated, safe shadow) */
@@ -8809,30 +8876,102 @@ textarea:focus-visible {
     gap: 8px;
   }
 
-  /* Templates Catalogue */
+  /* Templates Catalogue (2-Column Compact Grid on Mobile) */
   .templates-grid {
-    grid-template-columns: 1fr;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .template-card {
+    padding: 10px !important;
+    border-radius: 8px !important;
+  }
+
+  .template-preview-box {
+    margin-bottom: 8px !important;
+  }
+
+  .preview-image-canvas {
+    height: 110px !important;
+  }
+
+  .browser-chrome-bar {
+    height: 22px !important;
+    padding: 0 8px !important;
+  }
+
+  .chrome-address {
+    font-size: 8px !important;
+    max-width: 100px !important;
+  }
+
+  .mobile-peek-frame {
+    display: none !important;
+  }
+
+  .concept-pill,
+  .style-pill {
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+  }
+
+  .template-card-content {
+    padding: 0 !important;
+  }
+
+  .template-meta-row {
+    flex-direction: column !important;
+    gap: 3px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .template-category-tag {
+    font-size: 9.5px !important;
+  }
+
+  .template-turnaround-tag {
+    font-size: 9px !important;
+  }
+
+  .template-title {
+    font-size: 14px !important;
+    margin: 2px 0 4px !important;
+    line-height: 1.2 !important;
+  }
+
+  .template-card-desktop-only {
+    display: none !important;
   }
 
   .template-card-footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+    margin-top: 8px !important;
+    padding-top: 6px !important;
+  }
+
+  .pricing-box .price-label {
+    font-size: 9px !important;
+  }
+
+  .price-val {
+    font-size: 13px !important;
   }
 
   .card-actions {
-    display: flex;
-    gap: 8px;
-    width: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    width: 100% !important;
   }
 
   .card-actions button {
-    flex: 1;
-    justify-content: center;
-    height: 42px;
-    font-size: 12px;
-    padding: 0 8px;
-    white-space: nowrap;
+    width: 100% !important;
+    height: 32px !important;
+    font-size: 11px !important;
+    padding: 0 6px !important;
   }
 
   .category-pills-row {
@@ -8912,9 +9051,171 @@ textarea:focus-visible {
     display: none;
   }
 
-  /* Pricing Page */
+  /* Pricing Page Mobile: Compact Side-by-Side 2-Column Comparison */
+  .pricing-packages-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
   .pricing-card-box {
-    padding: 24px 18px;
+    padding: 14px 11px !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+
+  .pricing-card-box h3 {
+    font-size: 16px !important;
+    margin: 0 0 4px !important;
+    line-height: 1.15 !important;
+  }
+
+  .pricing-card-box p {
+    font-size: 11px !important;
+    min-height: auto !important;
+    margin: 0 0 10px !important;
+    line-height: 1.35 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .pricing-card-badge {
+    font-size: 8.5px !important;
+    padding: 2px 7px !important;
+    top: -10px !important;
+    right: 10px !important;
+  }
+
+  /* Services Catalog & Pillar Packages 2-Column Grid */
+  .services-overview-pillars-grid,
+  .service-pillar-packages-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .service-pillar-box,
+  .package-card {
+    padding: 14px 12px !important;
+    border-radius: 8px !important;
+  }
+
+  .service-pillar-box h3,
+  .package-card h3 {
+    font-size: 17px !important;
+    margin: 0 0 4px !important;
+  }
+
+  .service-pillar-box p,
+  .package-card p {
+    font-size: 11px !important;
+    min-height: auto !important;
+    margin: 0 0 10px !important;
+    line-height: 1.35 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .pillar-feature-list {
+    display: none !important;
+  }
+
+  /* Project Estimator Compact 2-Column Layout on Mobile */
+  .estimator-pillars-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .estimator-pillar-btn {
+    padding: 10px 8px !important;
+    min-height: 48px !important;
+    gap: 6px !important;
+  }
+
+  .estimator-pillar-btn .pillar-btn-icon {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .estimator-pillar-btn .pillar-btn-info strong {
+    font-size: 12.5px !important;
+  }
+
+  .estimator-pillar-btn .pillar-btn-info span {
+    display: none !important;
+  }
+
+  .estimator-tiers-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .estimator-tier-card {
+    padding: 12px 10px !important;
+    border-radius: 8px !important;
+  }
+
+  .estimator-tier-card h4 {
+    font-size: 13.5px !important;
+  }
+
+  .tier-price-tag strong {
+    font-size: 15px !important;
+  }
+
+  .tier-desc {
+    font-size: 10.5px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    margin: 4px 0 6px !important;
+  }
+
+  .tier-turnaround {
+    font-size: 10px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .tier-deliverables-list li {
+    font-size: 10px !important;
+    gap: 4px !important;
+  }
+
+  .estimator-addons-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .estimator-addon-card {
+    padding: 10px 8px !important;
+    border-radius: 6px !important;
+    gap: 7px !important;
+  }
+
+  .addon-title-row strong {
+    font-size: 11.5px !important;
+  }
+
+  .addon-price {
+    font-size: 10.5px !important;
+  }
+
+  .addon-desc {
+    font-size: 9.5px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
   }
 
   .consultation-banner-box {
@@ -14899,79 +15200,493 @@ select.mobile-input:focus {
 }
 
 /* ==========================================================================
-   RESPONSIVE OVERRIDES
+   COMPREHENSIVE MOBILE DESIGN SYSTEM OVERRIDES (<= 1024px & <= 768px)
    ========================================================================== */
-@media (max-width: 1024px) {
-  .vanvas-card-grid {
-    grid-template-columns: 1fr;
+
+/* Desktop defaults for dual-mode components */
+.vanvas-mobile-layout {
+  display: none;
+}
+.vanvas-desktop-layout {
+  display: grid;
+}
+.select-pkg-short {
+  display: none;
+}
+.select-pkg-full {
+  display: inline;
+}
+.package-price-number {
+  font: 700 34px "Space Grotesk", sans-serif;
+}
+
+@media (max-width: 1023px) {
+  /* VANVAS Switch: Hide desktop layout, activate connected mobile feature layout */
+  .vanvas-desktop-layout {
+    display: none !important;
   }
-  .founder-card-layout {
-    grid-template-columns: 1fr;
+  .vanvas-mobile-layout {
+    display: block !important;
   }
-  .founder-image-wrapper {
+
+  .vanvas-mobile-feature-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 12px;
+  }
+
+  /* Connected Preview Row: Left thumbnail, Right description */
+  .vanvas-mobile-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #0e1210;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    color: #ffffff;
+  }
+
+  .vanvas-mobile-screen-thumb {
+    width: 124px;
+    min-width: 124px;
+    max-width: 124px;
+    height: 94px;
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #050706;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .vanvas-thumb-img {
     width: 100%;
-    max-width: min(340px, 100%);
-    margin: 0 auto;
-    box-sizing: border-box;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
   }
-  .tech-guarantee-strip {
-    grid-template-columns: 1fr;
+
+  .vanvas-thumb-badge {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    background: rgba(16, 16, 15, 0.85);
+    color: var(--acid);
+    font: 700 8.5px monospace;
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .vanvas-mobile-screen-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .vanvas-mobile-screen-tag {
+    font: 700 9px monospace;
+    color: #22c55e;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .vanvas-mobile-screen-title {
+    font: 700 14px "Space Grotesk", sans-serif;
+    color: #ffffff;
+    margin: 0 0 3px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .vanvas-mobile-screen-sub {
+    font-size: 10.5px;
+    color: #a8a29e;
+    line-height: 1.35;
+    margin: 0 0 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .vanvas-mobile-screen-link {
+    font: 700 10.5px "Space Grotesk", sans-serif;
+    color: var(--acid);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    align-self: flex-start;
+  }
+
+  .vanvas-mobile-screen-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Compact Horizontal Screen Chips */
+  .vanvas-screen-nav.mobile-chips {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .vanvas-screen-nav.mobile-chips .screen-nav-tab {
+    padding: 5px 11px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  /* 2×2 Core Capabilities Grid */
+  .vanvas-mobile-caps-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .vanvas-cap-tile {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 9px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .vanvas-cap-tile:hover,
+  .vanvas-cap-tile.active {
+    border-color: var(--ink);
+    background: #ede9df;
+  }
+
+  .cap-tile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+
+  .cap-tile-icon {
+    color: var(--ink);
+  }
+
+  .cap-tile-active-pill {
+    font: 700 8.5px monospace;
+    background: #15803d;
+    color: #ffffff;
+    padding: 1px 5px;
+    border-radius: 999px;
+  }
+
+  .cap-tile-title {
+    font: 700 12px "Space Grotesk", sans-serif;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 3px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .cap-tile-desc {
+    font-size: 9.5px;
+    color: var(--muted);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Expandable Tech Accordion */
+  .vanvas-mobile-accordion {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  .vanvas-accordion-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    font: 700 11.5px "Space Grotesk", sans-serif;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .vanvas-accordion-content {
+    padding: 0 12px 10px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+  }
+
+  /* Primary Actions */
+  .vanvas-mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .vanvas-mobile-actions a,
+  .vanvas-mobile-actions button {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+    box-sizing: border-box;
+    font-size: 12.5px;
   }
 }
 
 @media (max-width: 768px) {
-  .credentials-grid {
-    grid-template-columns: 1fr;
+  /* FOUNDER SECTION MOBILE: Side-by-Side Portrait & Information */
+  .founder-card-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
   }
+
+  .founder-portrait-col {
+    width: 100% !important;
+  }
+
+  .founder-header-flex {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--line) !important;
+    padding: 12px !important;
+    border-radius: 6px !important;
+  }
+
+  .founder-image-wrapper {
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
+    height: 124px !important;
+    flex-shrink: 0 !important;
+    border-radius: 4px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    margin: 0 !important;
+    background: #ede9df !important;
+  }
+
   .founder-portrait-img {
-    height: clamp(240px, 50vw, 300px);
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center 20% !important;
+    display: block !important;
   }
-  .shipped-works-strip {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+
+  .select-pkg-full {
+    display: none !important;
   }
-  .vanvas-main-preview {
-    height: 260px;
+
+  .select-pkg-short {
+    display: inline !important;
   }
-  .tech-cat-header {
-    flex-direction: column;
+
+  .package-price-number {
+    font: 700 clamp(18px, 4.8vw, 24px) "Space Grotesk", sans-serif !important;
   }
-  .pricing-hero {
-    padding: 36px 5vw 20px;
+
+  .catalog-hero {
+    padding: 24px 16px 14px !important;
   }
-  .pricing-hero h1 {
-    font-size: clamp(32px, 8vw, 48px);
+
+  .catalog-hero-title {
+    font-size: clamp(24px, 6.5vw, 32px) !important;
+    margin: 8px 0 !important;
+  }
+
+  .catalog-hero-subtitle {
+    font-size: 12.5px !important;
+    line-height: 1.4 !important;
+    margin: 0 auto 10px !important;
+  }
+
+  .catalog-disclaimer-pill {
+    display: none !important;
+  }
+
+  .founder-image-tag {
+    display: none !important;
+  }
+
+  .founder-info-beside {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+    justify-content: center !important;
+  }
+
+  .founder-eyebrow-tag {
+    font: 700 9px monospace !important;
+    letter-spacing: 0.1em !important;
+    color: #15803d !important;
+    display: block !important;
+    margin-bottom: 2px !important;
+  }
+
+  .founder-nameplate h3 {
+    font: 700 18px "Space Grotesk", sans-serif !important;
+    margin: 0 0 2px !important;
+    color: var(--ink) !important;
+    line-height: 1.15 !important;
+  }
+
+  .founder-role-title {
+    font-size: 11px !important;
+    color: #15803d !important;
+    font-weight: 700 !important;
+    display: block !important;
+  }
+
+  .founder-bio-sub {
+    font-size: 10.5px !important;
+    color: var(--muted) !important;
+    margin: 3px 0 8px !important;
+    line-height: 1.3 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .founder-channels-box {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    padding-top: 8px !important;
+    border-top: 1px solid var(--line) !important;
+  }
+
+  .founder-channel-link {
+    font-size: 10.5px !important;
+    padding: 2px 0 !important;
+    gap: 6px !important;
+  }
+
+  .credentials-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .credential-tile {
+    padding: 10px 8px !important;
+    gap: 8px !important;
+    border-radius: 6px !important;
+  }
+
+  .credential-icon {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 4px !important;
+  }
+
+  .credential-content strong {
+    font-size: 11.5px !important;
+  }
+
+  .credential-degree {
+    font-size: 10px !important;
+  }
+
+  .credential-spec {
+    display: none !important;
+  }
+
+  .founder-manifesto-box {
+    padding: 16px 14px !important;
+    border-radius: 6px !important;
+  }
+
+  .founder-quote {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+
+  .founder-action-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .founder-action-row button,
+  .founder-action-row a {
+    width: 100% !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    font-size: 13px !important;
   }
 }
 
+/* 320px ultra-compact phones */
 @media (max-width: 360px) {
   .brand {
-    font-size: 14px;
+    font-size: 14px !important;
   }
-  .case-study-modal-container {
-    padding: 16px 12px;
+
+  .founder-image-wrapper {
+    width: 82px !important;
+    min-width: 82px !important;
+    height: 112px !important;
   }
-  .case-study-topbar {
-    padding-right: 36px;
-  }
-  .project-estimator-card {
-    padding: 14px 10px;
-  }
-  .summary-price-amount strong {
-    font-size: 26px;
-  }
-  .tech-cat-title {
-    font-size: 18px;
-  }
+
   .founder-nameplate h3 {
-    font-size: 20px;
+    font-size: 15px !important;
   }
-  .preview-window-canvas {
-    height: 180px;
+
+  .service-card h3 {
+    font-size: 16px !important;
   }
-  .app-screen-viewport {
-    height: 210px;
+
+  .service-card .pillar-price-badge {
+    font-size: 8.5px !important;
+  }
+
+  .vanvas-mobile-screen-thumb {
+    width: 106px !important;
+    min-width: 106px !important;
+    height: 84px !important;
+  }
+
+  .pricing-card-box h3 {
+    font-size: 14.5px !important;
   }
 }
 

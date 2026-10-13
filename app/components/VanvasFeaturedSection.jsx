@@ -137,6 +137,7 @@ const SUPPORTING_ARTWORKS = [
 export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }) {
   const [activeScreenId, setActiveScreenId] = useState('command');
   const [showArtworks, setShowArtworks] = useState(false);
+  const [showTechStack, setShowTechStack] = useState(false);
 
   const currentScreen = APP_SCREENS.find((s) => s.id === activeScreenId) || APP_SCREENS[0];
 
@@ -209,11 +210,153 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
           </div>
         </div>
 
-        {/* 2-Column Balanced Compact Layout */}
-        <div className="vanvas-card-grid">
+        {/* =================================================================
+            MOBILE LAYOUT (< 1024px): Connected Preview, 2x2 Capabilities,
+            Compact Chip Selector, Expandable Tech/Art
+        ================================================================= */}
+        <div className="vanvas-mobile-layout">
+          {/* Connected Preview & Description in One Visible Frame */}
+          <div className="vanvas-mobile-feature-box">
+            <div className="vanvas-mobile-preview-row">
+              <div className="vanvas-mobile-screen-thumb">
+                <img
+                  src={currentScreen.img}
+                  alt={`VANVAS ${currentScreen.title}`}
+                  className="vanvas-thumb-img"
+                  loading="lazy"
+                />
+                <span className="vanvas-thumb-badge">
+                  {currentScreen.id === 'mobile' ? 'Mobile PWA' : 'Live Screen'}
+                </span>
+              </div>
+              <div className="vanvas-mobile-screen-info">
+                <span className="vanvas-mobile-screen-tag">{currentScreen.label}</span>
+                <h4 className="vanvas-mobile-screen-title">{currentScreen.title}</h4>
+                <p className="vanvas-mobile-screen-sub">{currentScreen.sub}</p>
+                <a
+                  href={`https://${currentScreen.url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="vanvas-mobile-screen-link"
+                >
+                  Live Screen <ExternalLink size={11} />
+                </a>
+              </div>
+            </div>
+
+            {/* Compact Horizontal Screen Selector Chips */}
+            <div className="vanvas-screen-nav mobile-chips" role="tablist" aria-label="Application screens">
+              {APP_SCREENS.map((screen) => (
+                <button
+                  type="button"
+                  role="tab"
+                  key={screen.id}
+                  aria-selected={screen.id === activeScreenId}
+                  className={`screen-nav-tab ${screen.id === activeScreenId ? 'active' : ''}`}
+                  onClick={() => setActiveScreenId(screen.id)}
+                >
+                  {screen.label}
+                </button>
+              ))}
+            </div>
+
+            {/* 2×2 Core Capabilities Grid: Tapping synchronizes screen preview */}
+            <div className="vanvas-mobile-caps-grid">
+              {CAPABILITIES.map((cap) => {
+                const Icon = cap.icon;
+                const isMatching = activeScreenId === cap.id;
+                return (
+                  <button
+                    key={cap.id}
+                    type="button"
+                    className={`vanvas-cap-tile ${isMatching ? 'active' : ''}`}
+                    onClick={() => setActiveScreenId(cap.id)}
+                    aria-label={`Preview ${cap.title}`}
+                  >
+                    <div className="cap-tile-top">
+                      <Icon size={14} className="cap-tile-icon" />
+                      {isMatching && <span className="cap-tile-active-pill">Viewing</span>}
+                    </div>
+                    <strong className="cap-tile-title">{cap.title}</strong>
+                    <span className="cap-tile-desc">{cap.shortDesc}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Expandable Tech Stack Accordion */}
+            <div className="vanvas-mobile-accordion">
+              <button
+                type="button"
+                className="vanvas-accordion-header"
+                onClick={() => setShowTechStack(!showTechStack)}
+                aria-expanded={showTechStack}
+              >
+                <span>Verified Tech Stack &amp; Architecture</span>
+                {showTechStack ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </button>
+              <AnimatePresence>
+                {showTechStack && (
+                  <motion.div
+                    className="vanvas-accordion-content"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <p className="vanvas-stack-line">
+                      Next.js 16 (App Router) • React 19 • Tailwind CSS • FastAPI • PostgreSQL • Leaflet • Capacitor Native
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Primary Actions Row */}
+            <div className="vanvas-mobile-actions">
+              <a
+                href="https://vanvasai.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="primary"
+                style={{ fontSize: '13px', padding: '10px 16px' }}
+              >
+                Explore Live Product <ExternalLink size={13} />
+              </a>
+
+              <button
+                type="button"
+                className="secondary"
+                style={{ fontSize: '13px', padding: '10px 14px' }}
+                onClick={() => onOpenCaseStudy(VANVAS_CASE_STUDY_DATA)}
+              >
+                Case Study Breakdown →
+              </button>
+
+              <button
+                type="button"
+                className="card-cta-link"
+                style={{ fontSize: '12.5px', color: 'var(--ink)', padding: '6px 10px', border: '1px solid var(--line)', background: 'transparent', cursor: 'pointer', fontWeight: 600, textAlign: 'center' }}
+                onClick={() =>
+                  onOpenInquiry({
+                    service: 'Website / Build — Custom Web App',
+                    problem: 'I am interested in building a full-stack digital product similar in design and engineering quality to VANVAS.'
+                  })
+                }
+              >
+                Build a Product Like This →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* =================================================================
+            DESKTOP LAYOUT (>= 1024px): Preserved 2-Column Editorial Showcase
+        ================================================================= */}
+        <div className="vanvas-desktop-layout vanvas-card-grid">
           {/* Left Column: Authentic Application UI Showcase */}
           <div className="vanvas-visual-col">
-            {/* C. Interactive Screen Selector Strip */}
+            {/* Screen Selector Strip */}
             <div className="vanvas-screen-nav" role="tablist" aria-label="Application screens">
               {APP_SCREENS.map((screen) => (
                 <button
@@ -229,7 +372,7 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
               ))}
             </div>
 
-            {/* B. Product Preview Window Frame */}
+            {/* Product Preview Window Frame */}
             <div className="vanvas-app-window">
               <div className="app-window-bar">
                 <div className="browser-dots">
@@ -297,7 +440,7 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
               </p>
             </div>
 
-            {/* D. Connected Capabilities: Tap to select and inspect screen */}
+            {/* Connected Capabilities: Tap to select and inspect screen */}
             <div className="vanvas-features-list">
               <div className="features-list-header">
                 <span className="vanvas-col-eyebrow">VERIFIED CAPABILITIES (TAP TO PREVIEW)</span>
@@ -328,7 +471,7 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
               })}
             </div>
 
-            {/* E. Compact Tech Stack */}
+            {/* Compact Tech Stack */}
             <div className="vanvas-stack-container">
               <span className="vanvas-col-eyebrow">VERIFIED TECH STACK</span>
               <p className="vanvas-stack-line">

@@ -359,7 +359,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
           </div>
         </motion.div>
 
-        <motion.div className="grid" variants={staggerContainer(0.08, 0.08)}>
+        <motion.div className="grid services-pillars-grid" variants={staggerContainer(0.08, 0.08)}>
           {pillars.map(({ icon: Icon, title, service, text, whoFor, deliverables, priceTag, slug }) => (
             <motion.article
               key={title}
@@ -368,43 +368,67 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
               whileHover={{ y: -6, backgroundColor: '#eeece4' }}
               transition={TRANSITIONS.cardSpring}
               data-cursor={`Explore ${title}`}
+              onClick={(e) => {
+                if (!e.target.closest('button')) {
+                  onNavigate(`/services/${slug}`);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  if (!e.target.closest('button')) {
+                    e.preventDefault();
+                    onNavigate(`/services/${slug}`);
+                  }
+                }
+              }}
             >
               <div className="card-top">
-                <Icon size={24} />
-                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ color: 'var(--ink)', fontWeight: 700 }}>{priceTag}</span>
-                  <span>0{pillars.findIndex((p) => p.title === title) + 1}</span>
+                <Icon size={22} className="pillar-icon" />
+                <span className="card-top-meta">
+                  <span className="pillar-price-badge">{priceTag}</span>
+                  <span className="pillar-num">0{pillars.findIndex((p) => p.title === title) + 1}</span>
                 </span>
               </div>
               <h3>{title}</h3>
-              <p>{text}</p>
+              <p className="service-card-text">{text}</p>
 
-              <div style={{ marginTop: '14px', fontSize: '11px', color: '#55534c' }}>
-                <strong style={{ color: 'var(--ink)' }}>For: </strong>{whoFor}
+              {/* Desktop-only secondary deliverables to keep mobile 2x2 grid balanced & compact */}
+              <div className="service-card-desktop-only">
+                <div style={{ marginTop: '14px', fontSize: '11px', color: '#55534c' }}>
+                  <strong style={{ color: 'var(--ink)' }}>For: </strong>{whoFor}
+                </div>
+
+                <div className="tags" style={{ marginTop: '14px', marginBottom: '18px' }}>
+                  {deliverables.map((d, i) => (
+                    <span key={i}>✓ {d}</span>
+                  ))}
+                </div>
               </div>
 
-              <div className="tags" style={{ marginTop: '14px', marginBottom: '18px' }}>
-                {deliverables.map((d, i) => (
-                  <span key={i}>✓ {d}</span>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--line)' }}>
+              <div className="service-card-actions">
                 <motion.button
                   type="button"
-                  onClick={() => onOpenInquiry({ service })}
-                  className="card-cta-link"
-                  style={{ color: 'var(--ink)', fontWeight: 700, padding: 0 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenInquiry({ service });
+                  }}
+                  className="card-cta-link cta-enquire"
                   whileHover={{ x: 2 }}
                   transition={TRANSITIONS.buttonSpring}
                 >
-                  Enquire for {title} <ArrowRight size={14} />
+                  <span className="cta-enquire-full">Enquire for {title}</span>
+                  <span className="cta-enquire-short">Enquire</span>
+                  <ArrowRight size={13} />
                 </motion.button>
                 <motion.button
                   type="button"
-                  onClick={() => onNavigate(`/services/${slug}`)}
-                  className="card-cta-link"
-                  style={{ color: 'var(--muted)', fontSize: '12px', padding: 0, marginLeft: 'auto' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate(`/services/${slug}`);
+                  }}
+                  className="card-cta-link cta-details"
                   whileHover={{ x: 2 }}
                   transition={TRANSITIONS.buttonSpring}
                 >

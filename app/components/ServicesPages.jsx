@@ -660,7 +660,7 @@ export default function ServicesPages({
             viewport={{ once: true, margin: '-60px' }}
             variants={staggerContainer}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+            <div className="services-overview-pillars-grid">
               {/* Pillar 1: BUILD */}
               <motion.div
                 className="service-pillar-box"
@@ -997,7 +997,7 @@ export default function ServicesPages({
               )}
             </motion.div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+            <div className="service-pillar-packages-grid">
               {pillarData.packages.map((pkg, idx) => (
                 <motion.div
                   key={idx}
