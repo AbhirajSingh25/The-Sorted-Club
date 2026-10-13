@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
@@ -22,16 +22,38 @@ export default function CaseStudyModal({
   onNavigate,
   onOpenInquiry
 }) {
+  const modalContainerRef = useRef(null);
+  const prevFocusRef = useRef(null);
+
+  // Lock body scroll and manage focus restoration
   useEffect(() => {
     if (isOpen) {
+      prevFocusRef.current = document.activeElement;
       document.body.style.overflow = 'hidden';
+
+      // Always reset scroll to top on every fresh opening
+      if (modalContainerRef.current) {
+        modalContainerRef.current.scrollTop = 0;
+      }
+      // Small timeout ensures DOM rendered before focus & scroll reset
+      const timer = setTimeout(() => {
+        if (modalContainerRef.current) {
+          modalContainerRef.current.scrollTop = 0;
+          modalContainerRef.current.focus?.();
+        }
+      }, 30);
+      return () => clearTimeout(timer);
     } else {
       document.body.style.overflow = 'unset';
+      if (prevFocusRef.current) {
+        prevFocusRef.current.focus?.();
+        prevFocusRef.current = null;
+      }
     }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, template]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -62,11 +84,14 @@ export default function CaseStudyModal({
           }}
         >
           <motion.div
+            ref={modalContainerRef}
+            tabIndex={-1}
             className="modal-container case-study-modal-container"
             variants={modalContainerVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <motion.button

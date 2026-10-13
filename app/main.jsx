@@ -110,6 +110,17 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
     ['sanctuary-retreat', 'saffron-and-sage', 'flowgrid-ai'].includes(t.slug)
   );
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const el = document.querySelector(window.location.hash);
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
+      }
+    }
+  }, []);
+
   const handleScrollToHash = (e, hash) => {
     e.preventDefault();
     setMobileMenuOpen(false);

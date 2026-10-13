@@ -18,7 +18,7 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { PILLARS_CONFIG, USD_INR_EXCHANGE_NOTE } from './pricingData';
-import { TRANSITIONS } from '../utils/motion';
+import { TRANSITIONS, fadeInUp, scaleIn } from '../utils/motion';
 
 const ICON_MAP = {
   Code2,
@@ -233,11 +233,14 @@ Please review this configuration and provide our formal statement of work and ki
             const Icon = ICON_MAP[pillar.iconKey] || Code2;
             const isSelected = pillar.id === selectedPillarId;
             return (
-              <button
+              <motion.button
                 type="button"
                 key={pillar.id}
                 className={`estimator-pillar-btn ${isSelected ? 'selected' : ''}`}
                 onClick={() => handlePillarChange(pillar.id)}
+                whileHover={{ y: -2, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                transition={TRANSITIONS.buttonSpring}
               >
                 <div className="pillar-btn-icon">
                   <Icon size={18} />
@@ -249,7 +252,7 @@ Please review this configuration and provide our formal statement of work and ki
                   </div>
                   <span>{pillar.title}</span>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -262,7 +265,7 @@ Please review this configuration and provide our formal statement of work and ki
             <span>STEP 02</span> / Select Scope Complexity for <strong>{currentPillar.name}</strong>
           </label>
           <span className="step-hint-text">
-            Compare options quickly. Balanced 2–3 column desktop layout.
+            Choose the package complexity that matches your project deliverables
           </span>
         </div>
 
@@ -278,12 +281,14 @@ Please review this configuration and provide our formal statement of work and ki
               : `₹${tier.priceINR.toLocaleString()}`;
 
             return (
-              <div
+              <motion.div
                 key={tier.id}
                 className={`estimator-tier-card ${isSelected ? 'selected' : ''}`}
                 onClick={() => setSelectedTierId(tier.id)}
                 role="button"
                 tabIndex={0}
+                whileHover={{ y: -3 }}
+                transition={TRANSITIONS.cardSpring}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -317,12 +322,27 @@ Please review this configuration and provide our formal statement of work and ki
                 </div>
 
                 <ul className="tier-deliverables-list">
-                  {(isExpanded ? tier.deliverables : tier.deliverables.slice(0, 3)).map((item, idx) => (
+                  {tier.deliverables.slice(0, 3).map((item, idx) => (
                     <li key={idx}>
                       <Check size={13} className="check-icon" />
                       <span>{item}</span>
                     </li>
                   ))}
+                  <AnimatePresence>
+                    {isExpanded &&
+                      tier.deliverables.slice(3).map((item, idx) => (
+                        <motion.li
+                          key={`more-${idx}`}
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Check size={13} className="check-icon" />
+                          <span>{item}</span>
+                        </motion.li>
+                      ))}
+                  </AnimatePresence>
                 </ul>
 
                 {tier.deliverables.length > 3 && (
@@ -346,7 +366,7 @@ Please review this configuration and provide our formal statement of work and ki
                   <div className={`radio-dot ${isSelected ? 'active' : ''}`} />
                   <span>{isSelected ? '✓ Selected' : 'Choose Option'}</span>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
@@ -371,13 +391,16 @@ Please review this configuration and provide our formal statement of work and ki
                   : `+₹${addon.priceINR.toLocaleString()}`;
 
               return (
-                <div
+                <motion.div
                   key={addon.id}
                   className={`estimator-addon-card ${isChecked ? 'active' : ''}`}
                   onClick={() => toggleAddon(addon.id)}
                   role="checkbox"
                   aria-checked={isChecked}
                   tabIndex={0}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.99 }}
+                  transition={TRANSITIONS.buttonSpring}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -395,7 +418,7 @@ Please review this configuration and provide our formal statement of work and ki
                     </div>
                     <p className="addon-desc">{addon.desc}</p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -404,89 +427,113 @@ Please review this configuration and provide our formal statement of work and ki
 
       {/* STEP 04: REVIEW YOUR ESTIMATE & ACTIONS */}
       <div className="estimator-summary-panel">
-        <div className="summary-col-left">
-          <div className="summary-badge">
-            <ShieldCheck size={13} /> STEP 04 • FINANCIAL SUMMARY
+        {/* Panel Header: Badge + Heading + Prominent Investment Total */}
+        <div className="summary-header">
+          <div className="summary-header-meta">
+            <div className="summary-badge">
+              <ShieldCheck size={13} /> STEP 04 • FINANCIAL SUMMARY
+            </div>
+            <h4 className="summary-heading">Commercial Scope &amp; Investment</h4>
           </div>
 
-          {/* Semantic Breakdown Rows - No concatenated labels! */}
-          <div className="estimator-breakdown-details">
-            <div className="summary-field-row">
-              <span className="field-label">Discipline</span>
-              <strong className="field-value">{currentPillar.name} — {currentPillar.title}</strong>
-            </div>
-
-            <div className="summary-field-row">
-              <span className="field-label">Selected Scope</span>
-              <strong className="field-value">{currentTier.name} ({currentTier.scopeLabel})</strong>
-            </div>
-
-            <div className="summary-field-row">
-              <span className="field-label">Base Price</span>
-              <span className="field-value">{calculation.formattedBase}</span>
-            </div>
-
-            <div className="summary-field-row">
-              <span className="field-label">Add-ons ({activeAddonsList.length})</span>
-              <span className="field-value">
-                {activeAddonsList.length > 0
-                  ? `${activeAddonsList.map((a) => a.name).join(', ')} (${calculation.formattedAddons})`
-                  : 'None selected (+₹0)'}
-              </span>
-            </div>
-
-            <div className="summary-field-row">
-              <span className="field-label">Indicative Turnaround</span>
-              <span className="field-value">{currentTier.turnaround}</span>
-            </div>
-
-            <div className="summary-field-row">
-              <span className="field-label">Payment Terms</span>
-              <span className="field-value">50% deposit to start, 50% on live staging sign-off</span>
-            </div>
-          </div>
-
-          {/* Prominent Total Display */}
-          <div className="summary-total-display">
-            <span className="total-label">Estimated Investment:</span>
-            <div className="total-figure">
-              <strong>{calculation.formattedTotal}</strong>
+          <div className="summary-price-hero">
+            <span className="summary-price-label">Estimated Investment:</span>
+            <div className="summary-price-amount">
+              <motion.strong
+                key={calculation.formattedTotal}
+                initial={{ opacity: 0.5, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {calculation.formattedTotal}
+              </motion.strong>
               {calculation.isRecurring && <span>/month</span>}
             </div>
           </div>
-
-          <p className="summary-footnote">
-            <Info size={12} style={{ display: 'inline', marginRight: '5px', verticalAlign: 'middle' }} />
-            Indicative scope estimate. 100% full source code ownership upon launch.
-            {currency === 'USD' && ` • ${USD_INR_EXCHANGE_NOTE}`}
-          </p>
         </div>
 
-        {/* Right Action Column */}
-        <div className="summary-col-right">
-          <div className="summary-turnaround-box">
-            <span>Sprint Timeline:</span>
-            <strong>{currentTier.turnaround}</strong>
+        {/* 2-Column Balanced Body */}
+        <div className="summary-body-grid">
+          {/* Left Column: Semantic Breakdown Table */}
+          <div className="summary-col-left">
+            <div className="estimator-breakdown-details">
+              <div className="summary-field-row">
+                <span className="field-label">Discipline</span>
+                <strong className="field-value">{currentPillar.name} — {currentPillar.title}</strong>
+              </div>
+
+              <div className="summary-field-row">
+                <span className="field-label">Selected Scope</span>
+                <strong className="field-value">{currentTier.name} ({currentTier.scopeLabel})</strong>
+              </div>
+
+              <div className="summary-field-row">
+                <span className="field-label">Base Price</span>
+                <span className="field-value">{calculation.formattedBase}</span>
+              </div>
+
+              <div className="summary-field-row">
+                <span className="field-label">Add-ons ({activeAddonsList.length})</span>
+                <span className="field-value">
+                  {activeAddonsList.length > 0
+                    ? `${activeAddonsList.map((a) => a.name).join(', ')} (${calculation.formattedAddons})`
+                    : 'None selected (+₹0)'}
+                </span>
+              </div>
+
+              <div className="summary-field-row">
+                <span className="field-label">Indicative Turnaround</span>
+                <span className="field-value">{currentTier.turnaround}</span>
+              </div>
+
+              <div className="summary-field-row">
+                <span className="field-label">Payment Terms</span>
+                <span className="field-value">50% upfront deposit, 50% on live sign-off</span>
+              </div>
+            </div>
+
+            <p className="summary-footnote">
+              <Info size={12} style={{ display: 'inline', marginRight: '5px', verticalAlign: 'middle' }} />
+              Fixed-milestone scope estimate. 100% full source code ownership upon launch.
+              {currency === 'USD' && ` • ${USD_INR_EXCHANGE_NOTE}`}
+            </p>
           </div>
 
-          <div className="summary-action-cluster">
-            <button
-              type="button"
-              className="primary"
-              onClick={handleEnquireWithEstimate}
-              style={{ width: '100%', fontSize: '14px', padding: '14px 20px', background: 'var(--acid)', color: 'var(--ink)', border: 'none', fontWeight: 700 }}
-            >
-              Lock In Scope &amp; Start Project <ArrowRight size={16} />
-            </button>
+          {/* Right Column: Timeline & Action Cluster */}
+          <div className="summary-col-right">
+            <div className="summary-turnaround-box">
+              <div className="turnaround-detail">
+                <span>Sprint Timeline:</span>
+                <strong>{currentTier.turnaround}</strong>
+              </div>
+              <div className="turnaround-tag">Direct Squad Sprint</div>
+            </div>
 
-            <a
-              href={`https://wa.me/919643820888?text=${whatsappMessage}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="estimator-whatsapp-link"
-            >
-              <MessageSquare size={14} /> WhatsApp This Estimate →
-            </a>
+            <div className="summary-action-cluster">
+              <motion.button
+                type="button"
+                className="summary-cta-btn"
+                onClick={handleEnquireWithEstimate}
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                transition={TRANSITIONS.buttonSpring}
+              >
+                Lock In Scope &amp; Start Project <ArrowRight size={16} />
+              </motion.button>
+
+              <a
+                href={`https://wa.me/919643820888?text=${whatsappMessage}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="estimator-whatsapp-link"
+              >
+                <MessageSquare size={14} /> WhatsApp This Estimate →
+              </a>
+
+              <span className="summary-guarantee-note">
+                ✓ No agency fluff • Direct kickoff with lead engineer
+              </span>
+            </div>
           </div>
         </div>
       </div>

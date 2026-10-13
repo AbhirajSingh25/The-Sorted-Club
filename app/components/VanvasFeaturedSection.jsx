@@ -311,7 +311,7 @@ export default function VanvasFeaturedSection({ onOpenInquiry, onOpenCaseStudy }
               <button
                 type="button"
                 className="card-cta-link"
-                style={{ fontSize: '13px', color: 'var(--muted)', marginLeft: 'auto', padding: '8px 0', border: 'none', background: 'transparent', cursor: 'pointer', fontWeight: 600 }}
+                style={{ fontSize: '13px', color: 'var(--ink)', padding: '8px 12px', border: '1px solid var(--line)', background: 'transparent', cursor: 'pointer', fontWeight: 600 }}
                 onClick={() =>
                   onOpenInquiry({
                     service: 'Website / Build — Custom Web App',
