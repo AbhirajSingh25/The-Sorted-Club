@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { PILLARS_CONFIG, USD_INR_EXCHANGE_NOTE } from './pricingData';
 import { TRANSITIONS } from '../utils/motion';
+import { useCarouselPagination } from '../utils/useCarouselPagination';
 
 const ICON_MAP = {
   Code2,
@@ -40,6 +41,15 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
   const tiersContainerRef = useRef(null);
   const tierCardRefs = useRef({});
 
+  const currentPillar = useMemo(() => {
+    return PILLARS_CONFIG.find((p) => p.id === selectedPillarId) || PILLARS_CONFIG[0];
+  }, [selectedPillarId]);
+
+  const { activeDotIndex, scrollToIndex } = useCarouselPagination(
+    tiersContainerRef,
+    currentPillar.tiers.length
+  );
+
   useEffect(() => {
     if (!estimatorCardRef.current) return;
     if (typeof IntersectionObserver === 'undefined') {
@@ -57,10 +67,6 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
     observer.observe(estimatorCardRef.current);
     return () => observer.disconnect();
   }, []);
-
-  const currentPillar = useMemo(() => {
-    return PILLARS_CONFIG.find((p) => p.id === selectedPillarId) || PILLARS_CONFIG[0];
-  }, [selectedPillarId]);
 
   // When pillar changes, switch to default popular tier and reset add-ons
   const handlePillarChange = (pillarId) => {
@@ -140,10 +146,12 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
 
     onOpenInquiry({
       service: currentPillar.serviceKey,
+      package: currentTier.name,
       scope: currentTier.name,
       addons: addonNames,
       currency,
       estimatedPrice: calculation.formattedTotal,
+      total: calculation.total,
       problem: `[Project Estimator Configuration]
 Service: ${currentPillar.name} (${currentPillar.title})
 Selected Scope: ${currentTier.name} [${currentTier.scopeLabel || 'Custom'}]
@@ -155,17 +163,7 @@ Currency: ${currency}
 Please review this configuration and provide our formal statement of work and kickoff timeline.`,
       budget: calculation.isSuccessBased
         ? 'Pay on Success'
-        : currency === 'USD'
-        ? calculation.total < 1000
-          ? '< $2,500'
-          : calculation.total < 2500
-          ? '$2,500 - $5,000'
-          : '$5,000 - $10,000'
-        : calculation.total < 30000
-        ? '< ₹30,000'
-        : calculation.total < 60000
-        ? '₹30,000 - ₹60,000'
-        : '₹60,000+'
+        : `${calculation.formattedTotal} (${currency})`
     });
   };
 
@@ -433,22 +431,15 @@ Please review this configuration and provide our formal statement of work and ki
                   Swipe to browse packages →
                 </span>
                 <div className="carousel-dots-list">
-                  {currentPillar.tiers.map((t) => {
-                    const isSelected = t.id === selectedTierId;
+                  {currentPillar.tiers.map((t, idx) => {
+                    const isActive = activeDotIndex === idx;
                     return (
                       <button
                         key={t.id}
                         type="button"
-                        className={`carousel-dot-btn ${isSelected ? 'active' : ''}`}
-                        onClick={() => {
-                          setSelectedTierId(t.id);
-                          tierCardRefs.current[t.id]?.scrollIntoView({
-                            behavior: 'smooth',
-                            inline: 'start',
-                            block: 'nearest'
-                          });
-                        }}
-                        aria-label={`Select ${t.name} package`}
+                        className={`carousel-dot-btn ${isActive ? 'active' : ''}`}
+                        onClick={() => scrollToIndex(idx)}
+                        aria-label={`View ${t.name} package`}
                       />
                     );
                   })}

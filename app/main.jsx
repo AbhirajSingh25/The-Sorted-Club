@@ -1025,8 +1025,18 @@ export default function App() {
         setSelectedTemplate(null);
       }
       setInquiryInitialData({
+        currency: serviceOrOpts.currency || 'INR',
         budget: serviceOrOpts.budget,
-        problem: serviceOrOpts.problem
+        problem: serviceOrOpts.problem,
+        package: serviceOrOpts.package,
+        scope: serviceOrOpts.scope,
+        addons: serviceOrOpts.addons,
+        estimatedPrice: serviceOrOpts.estimatedPrice,
+        total: serviceOrOpts.total,
+        pillar: serviceOrOpts.pillar,
+        priceINR: serviceOrOpts.priceINR,
+        priceUSD: serviceOrOpts.priceUSD,
+        ...serviceOrOpts
       });
     } else if (typeof serviceOrOpts === 'string') {
       setSelectedService(serviceOrOpts);

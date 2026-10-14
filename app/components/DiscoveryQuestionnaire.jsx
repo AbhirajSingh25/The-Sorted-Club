@@ -64,12 +64,12 @@ const AVAILABLE_FEATURES = [
 ];
 
 const BUDGET_TIERS = [
-  { id: 'starter', label: 'Starter Website (₹14,999 / $400)', value: '₹14,999' },
-  { id: 'business', label: 'Business Website (₹24,999 / $650)', value: '₹24,999' },
-  { id: 'leadgen', label: 'Lead-Gen Funnel (₹29,999 / $750)', value: '₹29,999' },
-  { id: 'booking', label: 'Booking Website (₹34,999 / $890)', value: '₹34,999' },
-  { id: 'ecommerce', label: 'E-Commerce Storefront (₹39,999 / $990)', value: '₹39,999' },
-  { id: 'custom', label: 'Custom Architecture (From ₹59,999 / $1,500+)', value: 'Custom Scope' },
+  { id: 'starter', label: 'Starter Website (₹14,999 / $400)', value: 'INR ₹14,999 / USD $400' },
+  { id: 'business', label: 'Business Website (₹24,999 / $650)', value: 'INR ₹24,999 / USD $650' },
+  { id: 'leadgen', label: 'Lead-Gen Funnel (₹29,999 / $750)', value: 'INR ₹29,999 / USD $750' },
+  { id: 'booking', label: 'Booking Website (₹34,999 / $890)', value: 'INR ₹34,999 / USD $890' },
+  { id: 'ecommerce', label: 'E-Commerce Storefront (₹39,999 / $990)', value: 'INR ₹39,999 / USD $990' },
+  { id: 'custom', label: 'Custom Architecture (From ₹59,999 / $1,500+)', value: 'Custom Scope (INR ₹59,999+ / USD $1,500+)' },
   { id: 'flexible', label: 'Flexible / Need Expert Recommendation', value: 'Flexible / Open' }
 ];
 
@@ -96,7 +96,7 @@ export default function DiscoveryQuestionnaire({
     selected_features: ['Direct WhatsApp 1-Click Chat CTA', 'Instant Lead Capture Form (Email & CRM Alert)'],
     target_audience: '',
     reference_websites: '',
-    budget: '₹24,999',
+    budget: 'INR ₹24,999 / USD $650',
     timeline: 'Within 2 to 3 weeks',
     additional_notes: ''
   });

@@ -472,7 +472,14 @@ export default function PricingPage({
                     whileHover={{ scale: 1.03, y: -2 }}
                     whileTap={{ scale: 0.97 }}
                     transition={TRANSITIONS.buttonSpring}
-                    onClick={() => onOpenInquiry({ service: `Website / Build — ${pkg.name}` })}
+                    onClick={() => onOpenInquiry({
+                      service: `Website / Build — ${pkg.name}`,
+                      package: pkg.name,
+                      scope: pkg.name,
+                      currency: currency,
+                      estimatedPrice: priceDisplay,
+                      problem: `Interested in ${pkg.name} (${priceDisplay}). Includes: ${pkg.includedPages.length} pages.`
+                    })}
                   >
                     <span className="select-pkg-full">Select {pkg.name}</span>
                     <span className="select-pkg-short">Select Package</span> <ArrowRight size={13} />

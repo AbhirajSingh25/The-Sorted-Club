@@ -44,7 +44,15 @@ const BUSINESS_TYPES = [
   'Other'
 ];
 
-const BUDGET_RANGES = [
+const BUDGET_RANGES_INR = [
+  '< ₹25,000',
+  '₹25,000 - ₹50,000',
+  '₹50,000 - ₹1,00,000',
+  '₹1,00,000 - ₹2,50,000',
+  '₹2,50,000+'
+];
+
+const BUDGET_RANGES_USD = [
   '< $2,500',
   '$2,500 - $5,000',
   '$5,000 - $15,000',
@@ -54,6 +62,8 @@ const BUDGET_RANGES = [
 
 export default function InquiryModal({ isOpen, onClose, initialService = '', initialTemplate = null, initialData = null }) {
   const [selectedTemplate, setSelectedTemplate] = useState(initialTemplate);
+  const [selectedPackageInfo, setSelectedPackageInfo] = useState(initialData?.package || initialData?.estimatedPrice ? initialData : null);
+  const [currency, setCurrency] = useState(initialData?.currency || 'INR');
 
   const getInitialBusinessType = (tmpl) => {
     if (!tmpl) return 'Agency & Consulting';
@@ -74,7 +84,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
     problem: initialTemplate
       ? `I would like to build a website based on the ${initialTemplate.name} demo concept (${initialTemplate.category}). Required features: ${initialTemplate.mainFeatures ? initialTemplate.mainFeatures.slice(0, 3).join(', ') : 'Modern responsive website'}.`
       : (initialData?.problem || ''),
-    budget: initialData?.budget || initialTemplate?.budgetRange || '$2,500 - $5,000',
+    budget: initialData?.budget || initialData?.estimatedPrice || initialTemplate?.budgetRange || (initialData?.currency === 'USD' ? '$2,500 - $5,000' : '₹25,000 - ₹50,000'),
     consent: true
   });
 
@@ -91,6 +101,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
   useEffect(() => {
     if (initialTemplate) {
       setSelectedTemplate(initialTemplate);
+      setSelectedPackageInfo(null);
       setFormData((prev) => ({
         ...prev,
         service_interest: 'Website / Build',
@@ -99,6 +110,13 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
         budget: initialTemplate.budgetRange || prev.budget
       }));
     } else {
+      if (initialData?.package || initialData?.estimatedPrice) {
+        setSelectedPackageInfo(initialData);
+      } else {
+        setSelectedPackageInfo(null);
+      }
+      const activeCurr = initialData?.currency || 'INR';
+      setCurrency(activeCurr);
       if (initialService) {
         setFormData((prev) => ({ ...prev, service_interest: initialService }));
       }
@@ -107,9 +125,49 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
       }
       if (initialData?.budget) {
         setFormData((prev) => ({ ...prev, budget: initialData.budget }));
+      } else if (initialData?.estimatedPrice) {
+        setFormData((prev) => ({ ...prev, budget: initialData.estimatedPrice }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          budget: activeCurr === 'INR' ? '₹25,000 - ₹50,000' : '$2,500 - $5,000'
+        }));
       }
     }
-  }, [initialTemplate, initialService, initialData]);
+  }, [isOpen, initialTemplate, initialService, initialData]);
+
+  const handleCurrencyChange = (newCurrency) => {
+    if (newCurrency === currency) return;
+    setCurrency(newCurrency);
+
+    // If package info has dual prices, update budget
+    if (selectedPackageInfo) {
+      if (newCurrency === 'INR' && selectedPackageInfo.priceINR) {
+        setFormData((prev) => ({ ...prev, budget: selectedPackageInfo.priceINR }));
+        return;
+      } else if (newCurrency === 'USD' && selectedPackageInfo.priceUSD) {
+        setFormData((prev) => ({ ...prev, budget: selectedPackageInfo.priceUSD }));
+        return;
+      }
+    }
+
+    // Map budget range index
+    const inrIdx = BUDGET_RANGES_INR.indexOf(formData.budget);
+    const usdIdx = BUDGET_RANGES_USD.indexOf(formData.budget);
+    if (newCurrency === 'INR') {
+      if (usdIdx !== -1) {
+        setFormData((prev) => ({ ...prev, budget: BUDGET_RANGES_INR[usdIdx] }));
+      } else if (inrIdx === -1) {
+        setFormData((prev) => ({ ...prev, budget: BUDGET_RANGES_INR[1] }));
+      }
+    } else {
+      if (inrIdx !== -1) {
+        setFormData((prev) => ({ ...prev, budget: BUDGET_RANGES_USD[inrIdx] }));
+      } else if (usdIdx === -1) {
+        setFormData((prev) => ({ ...prev, budget: BUDGET_RANGES_USD[1] }));
+      }
+    }
+  };
 
   // Lock body scroll and focus on name input on open
   useEffect(() => {
@@ -251,6 +309,12 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
         calculatedSource = utmSource.charAt(0).toUpperCase() + utmSource.slice(1);
       }
 
+      // Ensure budget has currency code prefix for absolute clarity
+      let budgetString = formData.budget.trim();
+      if (!budgetString.startsWith('INR') && !budgetString.startsWith('USD')) {
+        budgetString = `${currency}: ${budgetString}`;
+      }
+
       const payload = {
         name: formData.name.trim(),
         business_name: formData.business_name.trim(),
@@ -260,7 +324,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
         business_type: formData.business_type.trim(),
         service_interest: formData.service_interest.trim(),
         problem: formData.problem.trim(),
-        budget: formData.budget.trim(),
+        budget: budgetString.slice(0, 100),
         source: calculatedSource,
         utm_source: utmSource || null,
         utm_medium: utmMedium || null,
@@ -505,6 +569,53 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
               </div>
             )}
 
+            {/* Selected Package / Configured Estimate Banner */}
+            {selectedPackageInfo && !selectedTemplate && (
+              <div className="selected-template-banner" role="region" aria-label="Selected package or estimate details" style={{ background: '#f5f3ec', borderColor: 'var(--line)' }}>
+                <div className="template-banner-content">
+                  <div className="template-banner-tags">
+                    <span className="template-badge-pill" style={{ background: 'var(--acid)', color: '#10100f' }}>
+                      {selectedPackageInfo.package ? 'Selected Package' : 'Configured Estimate'}
+                    </span>
+                    <span className="template-concept-tag" style={{ background: '#fff', border: '1px solid var(--line)' }}>
+                      {selectedPackageInfo.pillar ? selectedPackageInfo.pillar.toUpperCase() : 'BUILD'}
+                    </span>
+                  </div>
+                  <h4 className="template-banner-title">
+                    {selectedPackageInfo.package || selectedPackageInfo.scope || 'Website Blueprint'}
+                  </h4>
+                  <div className="template-banner-sub">
+                    <span>
+                      Rate: {currency === 'INR' ? (selectedPackageInfo.priceINR || selectedPackageInfo.total || selectedPackageInfo.estimatedPrice) : (selectedPackageInfo.priceUSD || selectedPackageInfo.total || selectedPackageInfo.estimatedPrice)}
+                    </span>
+                    {selectedPackageInfo.addons && selectedPackageInfo.addons.length > 0 && (
+                      <>
+                        <span>•</span>
+                        <span>+{selectedPackageInfo.addons.length} Add-on{selectedPackageInfo.addons.length > 1 ? 's' : ''}</span>
+                      </>
+                    )}
+                    <span>•</span>
+                    <span>Currency: {currency}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="clear-template-btn"
+                  onClick={() => {
+                    setSelectedPackageInfo(null);
+                    setFormData((prev) => ({
+                      ...prev,
+                      budget: currency === 'INR' ? BUDGET_RANGES_INR[1] : BUDGET_RANGES_USD[1]
+                    }));
+                  }}
+                  title="Remove package selection"
+                  aria-label="Remove package selection"
+                >
+                  <X size={14} /> Clear
+                </button>
+              </div>
+            )}
+
             {submitError && (
               <div className="error-banner" role="alert" style={{ marginBottom: '18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
@@ -513,7 +624,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
                 </div>
                 <a
                   href={`https://wa.me/919643820888?text=${encodeURIComponent(
-                    `Hi The Sorted Club, I am enquiring for ${formData.business_name || 'my business'} (${formData.name || 'Visitor'}). Service: ${formData.service_interest}. Budget: ${formData.budget || 'Not specified'}. Note: ${formData.problem || 'Project brief'}`
+                    `Hi The Sorted Club, I am enquiring for ${formData.business_name || 'my business'} (${formData.name || 'Visitor'}). Service: ${formData.service_interest}. Budget: ${currency} ${formData.budget || 'Not specified'}. Note: ${formData.problem || 'Project brief'}`
                   )}`}
                   target="_blank"
                   rel="noreferrer"
@@ -763,15 +874,33 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
                 )}
               </div>
 
-              {/* Budget Range */}
+              {/* Budget Range & Currency Switcher */}
               <div className="form-group full-width">
-                <label id="budget-label">
-                  Approximate Budget <span className="req" aria-hidden="true">*</span>
-                  <span className="sr-only">(required)</span>
-                </label>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                  <label id="budget-label" style={{ margin: 0 }}>
+                    Approximate Budget <span className="req" aria-hidden="true">*</span>
+                    <span className="sr-only">(required)</span>
+                  </label>
+                  <div className="currency-toggle-container" style={{ margin: 0 }}>
+                    <button
+                      type="button"
+                      className={`currency-btn ${currency === 'INR' ? 'active' : ''}`}
+                      onClick={() => handleCurrencyChange('INR')}
+                    >
+                      INR (₹)
+                    </button>
+                    <button
+                      type="button"
+                      className={`currency-btn ${currency === 'USD' ? 'active' : ''}`}
+                      onClick={() => handleCurrencyChange('USD')}
+                    >
+                      USD ($)
+                    </button>
+                  </div>
+                </div>
                 <div className="budget-pills-grid" role="radiogroup" aria-labelledby="budget-label">
-                  {BUDGET_RANGES.map((range) => {
-                    const isSelected = formData.budget === range;
+                  {(currency === 'INR' ? BUDGET_RANGES_INR : BUDGET_RANGES_USD).map((range) => {
+                    const isSelected = formData.budget === range || formData.budget.includes(range);
                     return (
                       <button
                         type="button"
@@ -786,6 +915,14 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
                     );
                   })}
                 </div>
+                {selectedPackageInfo && (
+                  <div style={{ marginTop: '8px', fontSize: '11.5px', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Tag size={12} color="#15803d" />
+                    <span>
+                      Package / Scope Rate: <strong>{currency === 'INR' ? (selectedPackageInfo.priceINR || selectedPackageInfo.total || selectedPackageInfo.estimatedPrice) : (selectedPackageInfo.priceUSD || selectedPackageInfo.total || selectedPackageInfo.estimatedPrice)}</strong> ({currency})
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Consent Checkbox */}
@@ -838,7 +975,9 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
 
               <div style={{ textAlign: 'center', marginTop: '16px' }}>
                 <a
-                  href="https://wa.me/919643820888?text=Hi%20The%20Sorted%20Club%2C%20I%20have%20a%20business%20inquiry%20regarding%20my%20project."
+                  href={`https://wa.me/919643820888?text=${encodeURIComponent(
+                    `Hi The Sorted Club, I have a business inquiry regarding my project. Preferred Currency: ${currency}.`
+                  )}`}
                   target="_blank"
                   rel="noreferrer"
                   style={{

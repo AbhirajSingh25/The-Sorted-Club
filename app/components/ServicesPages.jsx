@@ -36,6 +36,7 @@ import {
   accordionVariants
 } from '../utils/motion';
 import PublicNavbar from './PublicNavbar';
+import { useCarouselPagination } from '../utils/useCarouselPagination';
 
 const SERVICES_DATA = {
   build: {
@@ -63,7 +64,8 @@ const SERVICES_DATA = {
     packages: [
       {
         name: 'Starter Website',
-        price: '₹14,999',
+        priceINR: '₹14,999',
+        priceUSD: '$400',
         billing: '50% upfront, 50% on completion • 5–7 Days',
         badge: 'Fast Launch',
         desc: 'For local businesses and professionals that need a clean, credible 3–5 page website with WhatsApp lead capture.',
@@ -80,7 +82,8 @@ const SERVICES_DATA = {
       },
       {
         name: 'Business Website',
-        price: '₹24,999',
+        priceINR: '₹24,999',
+        priceUSD: '$650',
         billing: '50% upfront, 50% on completion • 7–10 Days',
         badge: 'Most Popular',
         desc: 'Authoritative multi-page hub with dynamic CMS for case studies, deep service pages, and search rankings.',
@@ -97,7 +100,8 @@ const SERVICES_DATA = {
       },
       {
         name: 'Lead-Gen Website',
-        price: '₹29,999',
+        priceINR: '₹29,999',
+        priceUSD: '$750',
         billing: '50% upfront, 50% on completion • 6–8 Days',
         badge: 'High Conversion',
         desc: 'Sales funnel engineered specifically to convert paid & organic traffic into booked appointments.',
@@ -114,7 +118,8 @@ const SERVICES_DATA = {
       },
       {
         name: 'E-Commerce Website',
-        price: '₹39,999',
+        priceINR: '₹39,999',
+        priceUSD: '$990',
         billing: '50% upfront, 50% on completion • 10–14 Days',
         badge: 'Storefront',
         desc: 'Blazing-fast online store with shopping cart, variant management, and Razorpay/Stripe checkout.',
@@ -131,7 +136,8 @@ const SERVICES_DATA = {
       },
       {
         name: 'Booking Website',
-        price: '₹34,999',
+        priceINR: '₹34,999',
+        priceUSD: '$890',
         billing: '50% upfront, 50% on completion • 8–12 Days',
         badge: 'Automated Slots',
         desc: 'Live scheduling calendar and deposit checkout that fills appointments without phone tag.',
@@ -148,7 +154,8 @@ const SERVICES_DATA = {
       },
       {
         name: 'Custom Web Application',
-        price: 'From ₹59,999',
+        priceINR: 'From ₹59,999',
+        priceUSD: 'From $1,500',
         billing: 'Scope-based milestone pricing • 2–4 Weeks',
         badge: 'Enterprise',
         desc: 'Full-stack software engineering for bespoke portals, dashboards, SaaS platforms, and internal systems.',
@@ -202,7 +209,8 @@ const SERVICES_DATA = {
     packages: [
       {
         name: 'SORTED PRESENCE',
-        price: '₹9,999',
+        priceINR: '₹9,999',
+        priceUSD: '$270',
         billing: 'per month',
         badge: 'Foundations',
         desc: 'Establish active brand credibility and local search dominance.',
@@ -218,7 +226,8 @@ const SERVICES_DATA = {
       },
       {
         name: 'SORTED GROWTH',
-        price: '₹19,999',
+        priceINR: '₹19,999',
+        priceUSD: '$540',
         billing: 'per month',
         badge: 'Most Popular',
         desc: 'Accelerate inbound pipeline with active content production and search acquisition.',
@@ -235,8 +244,9 @@ const SERVICES_DATA = {
       },
       {
         name: 'SORTED SCALE',
-        price: 'Custom',
-        billing: 'Retainer + Performance',
+        priceINR: '₹39,999',
+        priceUSD: '$990',
+        billing: 'per month',
         badge: 'Full Scale',
         desc: 'Full-service omnichannel growth team acting as your dedicated growth department.',
         features: [
@@ -290,7 +300,8 @@ const SERVICES_DATA = {
     packages: [
       {
         name: 'SORTED AUTOMATE',
-        price: '₹24,999',
+        priceINR: '₹24,999',
+        priceUSD: '$650',
         billing: 'one-time setup',
         badge: 'Starter Workflows',
         desc: 'Automate your primary lead intake, notifications, and customer response pipeline.',
@@ -307,7 +318,8 @@ const SERVICES_DATA = {
       },
       {
         name: 'AUTOMATE PRO',
-        price: '₹49,999',
+        priceINR: '₹49,999',
+        priceUSD: '$1,350',
         billing: 'one-time setup',
         badge: 'Most Popular',
         desc: 'Comprehensive business automation with intelligent AI agents and multi-tool sync.',
@@ -325,7 +337,8 @@ const SERVICES_DATA = {
       },
       {
         name: 'AUTOMATE CUSTOM',
-        price: 'Custom',
+        priceINR: 'From ₹79,999',
+        priceUSD: 'From $2,000',
         billing: 'Scope-based architecture',
         badge: 'Enterprise',
         desc: 'Bespoke AI pipelines, custom ERP integrations, and autonomous operational systems.',
@@ -340,7 +353,7 @@ const SERVICES_DATA = {
         popular: false
       }
     ],
-    supportAddon: 'Optional ongoing automation maintenance and optimization available from ₹4,999/month.',
+    supportAddon: 'Optional ongoing automation maintenance and optimization available from ₹4,999 ($130)/month.',
     workflow: [
       { step: '01', title: 'Process Mapping', desc: 'We analyze your team workflows and map out bottlenecks and manual friction points.' },
       { step: '02', title: 'Architecture & Security', desc: 'Designing secure API pipelines without storing credentials in plaintext.' },
@@ -379,7 +392,8 @@ const SERVICES_DATA = {
     packages: [
       {
         name: 'SORTED PLACEMENT',
-        price: 'Success-Based',
+        priceINR: 'Pay on Success',
+        priceUSD: 'Pay on Success',
         billing: 'Pay only upon successful hire',
         badge: 'Pay on Success',
         desc: 'Ideal for critical individual hires where you want zero upfront risk.',
@@ -396,8 +410,9 @@ const SERVICES_DATA = {
       },
       {
         name: 'EMBEDDED TALENT PARTNER',
-        price: 'Monthly Retainer',
-        billing: 'Dedicated hiring operations',
+        priceINR: '₹29,999',
+        priceUSD: '$750',
+        billing: 'per month',
         badge: 'High-Volume',
         desc: 'For companies scaling teams and making 3+ hires across engineering, sales, and operations.',
         features: [
@@ -434,7 +449,7 @@ export default function ServicesPages({
   onBackToSite = () => {}
 }) {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
-  const [activePackageIdx, setActivePackageIdx] = useState(0);
+  const [currency, setCurrency] = useState('INR'); // 'INR' or 'USD'
   const packageContainerRef = React.useRef(null);
   const packageCardRefs = React.useRef({});
 
@@ -443,12 +458,14 @@ export default function ServicesPages({
   const activePillarKey = ['build', 'grow', 'automate', 'hire'].includes(subroute) ? subroute : null;
   const pillarData = activePillarKey ? SERVICES_DATA[activePillarKey] : null;
 
+  const { activeDotIndex, scrollToIndex } = useCarouselPagination(
+    packageContainerRef,
+    pillarData?.packages?.length || 0
+  );
+
   useEffect(() => {
-    setActivePackageIdx(0);
-    if (packageContainerRef.current) {
-      packageContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-    }
-  }, [activePillarKey]);
+    scrollToIndex(0);
+  }, [activePillarKey, scrollToIndex]);
 
   const toggleFaq = (idx) => {
     setOpenFaqIndex(openFaqIndex === idx ? null : idx);
@@ -927,7 +944,7 @@ export default function ServicesPages({
             viewport={{ once: true, margin: '-60px' }}
             variants={staggerContainer}
           >
-            <motion.div style={{ textAlign: 'center', marginBottom: '40px' }} variants={fadeInUp}>
+            <motion.div style={{ textAlign: 'center', marginBottom: '32px' }} variants={fadeInUp}>
               <label className="section-subtitle">TRANSPARENT PACKAGES</label>
               <h2 style={{ font: '700 32px "Space Grotesk"', margin: '4px 0 0' }}>
                 Choose Your {pillarData.title} Package
@@ -935,6 +952,29 @@ export default function ServicesPages({
               <p style={{ color: 'var(--muted)', fontSize: '14px', margin: '8px auto 16px', maxWidth: '500px' }}>
                 Simple, transparent pricing. No hidden agency markups or surprises.
               </p>
+
+              {/* Currency Selector Pill */}
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '14px 0 20px' }}>
+                <div className="currency-toggle-container">
+                  <button
+                    type="button"
+                    className={`currency-btn ${currency === 'INR' ? 'active' : ''}`}
+                    onClick={() => setCurrency('INR')}
+                    aria-label="View pricing in INR"
+                  >
+                    INR (₹)
+                  </button>
+                  <button
+                    type="button"
+                    className={`currency-btn ${currency === 'USD' ? 'active' : ''}`}
+                    onClick={() => setCurrency('USD')}
+                    aria-label="View pricing in USD"
+                  >
+                    USD ($)
+                  </button>
+                </div>
+              </div>
+
               {pillarData.id === 'build' && (
                 <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <motion.button
@@ -965,83 +1005,95 @@ export default function ServicesPages({
               ref={packageContainerRef}
               className="service-pillar-packages-grid"
             >
-              {pillarData.packages.map((pkg, idx) => (
-                <motion.div
-                  key={idx}
-                  ref={(el) => {
-                    if (el) packageCardRefs.current[idx] = el;
-                  }}
-                  className="package-card"
-                  style={{
-                    background: pkg.popular ? '#fff' : '#fdfcf9',
-                    border: `2px solid ${pkg.popular ? 'var(--ink)' : 'var(--line)'}`,
-                    borderRadius: '12px',
-                    padding: '30px 24px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    position: 'relative',
-                    boxShadow: pkg.popular ? '0 10px 30px rgba(0,0,0,0.06)' : 'none'
-                  }}
-                  variants={fadeInUp}
-                  whileHover={{ y: -6, boxShadow: pkg.popular ? '0 16px 40px rgba(0,0,0,0.12)' : '0 10px 24px rgba(0,0,0,0.06)' }}
-                  transition={TRANSITIONS.cardSpring}
-                >
-                  {pkg.badge && (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        top: '-12px',
-                        right: '20px',
-                        background: pkg.popular ? 'var(--acid)' : '#10100f',
-                        color: '#10100f',
-                        padding: '3px 10px',
-                        borderRadius: '999px',
-                        font: '700 10px "Space Grotesk"',
-                        letterSpacing: '0.08em',
-                        textTransform: 'uppercase',
-                        border: pkg.popular ? '1px solid #bfe63c' : 'none'
-                      }}
-                    >
-                      {pkg.badge}
-                    </span>
-                  )}
+              {pillarData.packages.map((pkg, idx) => {
+                const displayPrice = currency === 'USD' ? (pkg.priceUSD || pkg.priceINR) : (pkg.priceINR || pkg.priceUSD);
+                return (
+                  <motion.div
+                    key={idx}
+                    ref={(el) => {
+                      if (el) packageCardRefs.current[idx] = el;
+                    }}
+                    className="package-card"
+                    style={{
+                      background: pkg.popular ? '#fff' : '#fdfcf9',
+                      border: `2px solid ${pkg.popular ? 'var(--ink)' : 'var(--line)'}`,
+                      borderRadius: '12px',
+                      padding: '30px 24px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      position: 'relative',
+                      boxShadow: pkg.popular ? '0 10px 30px rgba(0,0,0,0.06)' : 'none'
+                    }}
+                    variants={fadeInUp}
+                    whileHover={{ y: -6, boxShadow: pkg.popular ? '0 16px 40px rgba(0,0,0,0.12)' : '0 10px 24px rgba(0,0,0,0.06)' }}
+                    transition={TRANSITIONS.cardSpring}
+                  >
+                    {pkg.badge && (
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: '-12px',
+                          right: '20px',
+                          background: pkg.popular ? 'var(--acid)' : '#10100f',
+                          color: '#10100f',
+                          padding: '3px 10px',
+                          borderRadius: '999px',
+                          font: '700 10px "Space Grotesk"',
+                          letterSpacing: '0.08em',
+                          textTransform: 'uppercase',
+                          border: pkg.popular ? '1px solid #bfe63c' : 'none'
+                        }}
+                      >
+                        {pkg.badge}
+                      </span>
+                    )}
 
-                  <div>
-                    <h3 style={{ font: '700 20px "Space Grotesk"', margin: '0 0 6px' }}>{pkg.name}</h3>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', margin: '14px 0 4px' }}>
-                      <span style={{ font: '700 32px "Space Grotesk"', color: 'var(--ink)' }}>{pkg.price}</span>
-                      <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{pkg.billing}</span>
-                    </div>
-                    <p style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5, margin: '0 0 20px' }}>
-                      {pkg.desc}
-                    </p>
+                    <div>
+                      <h3 style={{ font: '700 20px "Space Grotesk"', margin: '0 0 6px' }}>{pkg.name}</h3>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', margin: '14px 0 4px' }}>
+                        <span className="package-price-number" style={{ font: '700 32px "Space Grotesk"', color: 'var(--ink)' }}>{displayPrice}</span>
+                        <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{pkg.billing}</span>
+                      </div>
+                      <p style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5, margin: '0 0 20px' }}>
+                        {pkg.desc}
+                      </p>
 
-                    <div style={{ borderTop: '1px solid var(--line)', paddingTop: '18px', marginBottom: '24px' }}>
-                      <label className="section-subtitle" style={{ fontSize: '10px', marginBottom: '10px' }}>WHAT'S INCLUDED</label>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {pkg.features.map((feat, fIdx) => (
-                          <div key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '12px', color: 'var(--ink)' }}>
-                            <CheckCircle2 size={14} color="#15803d" style={{ flexShrink: 0, marginTop: '2px' }} />
-                            <span>{feat}</span>
-                          </div>
-                        ))}
+                      <div style={{ borderTop: '1px solid var(--line)', paddingTop: '18px', marginBottom: '24px' }}>
+                        <label className="section-subtitle" style={{ fontSize: '10px', marginBottom: '10px' }}>WHAT'S INCLUDED</label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {pkg.features.map((feat, fIdx) => (
+                            <div key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '12px', color: 'var(--ink)' }}>
+                              <CheckCircle2 size={14} color="#15803d" style={{ flexShrink: 0, marginTop: '2px' }} />
+                              <span>{feat}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <motion.button
-                    type="button"
-                    className="primary"
-                    style={{ width: '100%', height: '42px', fontSize: '13px' }}
-                    onClick={() => onOpenInquiry(pillarData.serviceName)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {pkg.ctaText} <ArrowRight size={14} />
-                  </motion.button>
-                </motion.div>
-              ))}
+                    <motion.button
+                      type="button"
+                      className="primary"
+                      style={{ width: '100%', height: '42px', fontSize: '13px' }}
+                      onClick={() =>
+                        onOpenInquiry({
+                          service: pillarData.serviceName,
+                          package: pkg.name,
+                          scope: pkg.name,
+                          currency,
+                          estimatedPrice: displayPrice,
+                          problem: `I am interested in the ${pkg.name} package for ${pillarData.title}. Investment: ${displayPrice} (${currency}).`
+                        })
+                      }
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {pkg.ctaText} <ArrowRight size={14} />
+                    </motion.button>
+                  </motion.div>
+                );
+              })}
             </div>
 
             {/* Subtle Carousel Pagination Indicators on Mobile */}
@@ -1055,15 +1107,8 @@ export default function ServicesPages({
                     <button
                       key={idx}
                       type="button"
-                      className={`carousel-dot-btn ${activePackageIdx === idx ? 'active' : ''}`}
-                      onClick={() => {
-                        setActivePackageIdx(idx);
-                        packageCardRefs.current[idx]?.scrollIntoView({
-                          behavior: 'smooth',
-                          inline: 'start',
-                          block: 'nearest'
-                        });
-                      }}
+                      className={`carousel-dot-btn ${activeDotIndex === idx ? 'active' : ''}`}
+                      onClick={() => scrollToIndex(idx)}
                       aria-label={`View ${pkg.name} package`}
                     />
                   ))}
