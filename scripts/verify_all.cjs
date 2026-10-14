@@ -113,7 +113,8 @@ async function runComprehensiveVerification() {
   console.log('  Scrolling to Card 1...');
   await page.evaluate(() => {
     const grid = document.querySelector('.service-pillar-packages-grid');
-    grid.scrollTo({ left: 320, behavior: 'smooth' });
+    grid.scrollLeft = 320;
+    grid.dispatchEvent(new Event('scroll'));
   });
   await new Promise(r => setTimeout(r, 600));
 
@@ -128,7 +129,8 @@ async function runComprehensiveVerification() {
   console.log('  Scrolling to Card 2...');
   await page.evaluate(() => {
     const grid = document.querySelector('.service-pillar-packages-grid');
-    grid.scrollTo({ left: 640, behavior: 'smooth' });
+    grid.scrollLeft = 640;
+    grid.dispatchEvent(new Event('scroll'));
   });
   await new Promise(r => setTimeout(r, 600));
 
@@ -159,7 +161,7 @@ async function runComprehensiveVerification() {
 
   // 2B: Estimator Scope Tiers Carousel (/#estimator)
   console.log('\nTesting Homepage Estimator scope tiers carousel...');
-  await page.goto('http://localhost:5173/#estimator', { waitUntil: 'networkidle0' });
+  await page.goto('http://localhost:5173/#estimator', { waitUntil: 'domcontentloaded' });
   await new Promise(r => setTimeout(r, 500));
 
   const estGrid = await page.$('.estimator-tiers-grid');
@@ -176,7 +178,8 @@ async function runComprehensiveVerification() {
   console.log('  Scrolling Estimator carousel to Card 1...');
   await page.evaluate(() => {
     const grid = document.querySelector('.estimator-tiers-grid');
-    grid.scrollTo({ left: 320, behavior: 'smooth' });
+    grid.scrollLeft = 320;
+    grid.dispatchEvent(new Event('scroll'));
   });
   await new Promise(r => setTimeout(r, 600));
 

@@ -369,7 +369,8 @@ export const PILLARS_CONFIG = [
     addons: [
       { id: 'whatsapp_ai', name: 'WhatsApp AI Instant Responder', priceINR: 4999, priceUSD: 130, desc: 'Automated 24/7 lead qualification & response bot connected to WhatsApp' },
       { id: 'seo_boost', name: 'Local SEO & Google Maps Domination Pack', priceINR: 4999, priceUSD: 130, desc: 'Targeted local schema, Google Business Profile audit & keyword ranking setup' },
-      { id: 'fast_track', name: 'Priority Fast-Track Delivery (5-Day Sprint)', priceINR: 4999, priceUSD: 130, desc: 'Dedicated squad acceleration to launch within 5 business days' }
+      { id: 'fast_track', name: 'Priority Fast-Track Delivery (5-Day Sprint)', priceINR: 4999, priceUSD: 130, desc: 'Dedicated squad acceleration to launch within 5 business days' },
+      { id: 'analytics_tracking', name: 'Analytics & Conversion Tracking', priceINR: 4999, priceUSD: 130, desc: 'Google Analytics 4 setup, conversion-event tracking, and basic performance measurement configuration' }
     ]
   },
   {

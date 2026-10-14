@@ -1,7 +1,7 @@
 // The Sorted Club - Service Worker
 // Ultra-safe caching strategy: NEVER cache dynamic admin API calls. Fresh data always.
 
-const CACHE_NAME = 'sorted-club-static-v3';
+const CACHE_NAME = 'sorted-club-static-v4';
 const STATIC_ASSETS = [
   '/',
   '/favicon-32.png',
