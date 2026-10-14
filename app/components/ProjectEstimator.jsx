@@ -37,6 +37,8 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
 
   const summaryRef = useRef(null);
   const estimatorCardRef = useRef(null);
+  const tiersContainerRef = useRef(null);
+  const tierCardRefs = useRef({});
 
   useEffect(() => {
     if (!estimatorCardRef.current) return;
@@ -68,6 +70,9 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
     setSelectedTierId(defaultTier.id);
     setSelectedAddonIds([]);
     setExpandedTierId(null);
+    if (tiersContainerRef.current) {
+      tiersContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+    }
   };
 
   const currentTier = useMemo(() => {
@@ -313,8 +318,11 @@ Please review this configuration and provide our formal statement of work and ki
               </span>
             </div>
 
-            {/* Tiers Grid */}
-            <div className={`estimator-tiers-grid ${currentPillar.tiers.length === 2 ? 'two-col' : 'three-col'}`}>
+            {/* Tiers Grid / Horizontal Carousel */}
+            <div
+              ref={tiersContainerRef}
+              className={`estimator-tiers-grid ${currentPillar.tiers.length === 2 ? 'two-col' : 'three-col'}`}
+            >
               {currentPillar.tiers.map((tier) => {
                 const isSelected = tier.id === selectedTierId;
                 const isExpanded = expandedTierId === tier.id;
@@ -327,6 +335,9 @@ Please review this configuration and provide our formal statement of work and ki
                 return (
                   <motion.div
                     key={tier.id}
+                    ref={(el) => {
+                      if (el) tierCardRefs.current[tier.id] = el;
+                    }}
                     className={`estimator-tier-card ${isSelected ? 'selected' : ''}`}
                     onClick={() => setSelectedTierId(tier.id)}
                     role="button"
@@ -414,6 +425,36 @@ Please review this configuration and provide our formal statement of work and ki
                 );
               })}
             </div>
+
+            {/* Subtle Carousel Pagination Indicators on Mobile */}
+            {currentPillar.tiers.length > 1 && (
+              <div className="estimator-carousel-indicators" aria-label="Package Carousel Controls">
+                <span className="carousel-swipe-hint">
+                  Swipe to browse packages →
+                </span>
+                <div className="carousel-dots-list">
+                  {currentPillar.tiers.map((t) => {
+                    const isSelected = t.id === selectedTierId;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        className={`carousel-dot-btn ${isSelected ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedTierId(t.id);
+                          tierCardRefs.current[t.id]?.scrollIntoView({
+                            behavior: 'smooth',
+                            inline: 'start',
+                            block: 'nearest'
+                          });
+                        }}
+                        aria-label={`Select ${t.name} package`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* STEP 03: ADD OPTIONAL CAPABILITIES */}

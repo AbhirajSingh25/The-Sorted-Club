@@ -22,6 +22,7 @@ import {
   staggerContainer,
   TRANSITIONS
 } from '../utils/motion';
+import PublicNavbar from './PublicNavbar';
 import { submitLead } from '../api/client';
 
 const BUSINESS_TYPES = [
@@ -104,7 +105,6 @@ export default function DiscoveryQuestionnaire({
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handlePageToggle = (pageName) => {
     setFormData((prev) => {
@@ -315,90 +315,77 @@ export default function DiscoveryQuestionnaire({
   return (
     <div className="discovery-page-root">
       {/* Public Navbar */}
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={TRANSITIONS.editorial}
+      <PublicNavbar
+        onNavigate={onNavigate}
+        onOpenInquiry={onOpenInquiry}
+        currentPath="/discovery"
       >
-        <div
-          className="brand"
-          style={{ cursor: 'pointer' }}
-          onClick={() => onNavigate('/')}
-        >
-          THE SORTED <span>CLUB</span>
-        </div>
-
-        <button
-          className="menu-button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle navigation menu"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        <div className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
-          <motion.button
-            type="button"
-            className="nav-sublink"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/services');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Services
-          </motion.button>
-          <motion.button
-            type="button"
-            className="nav-sublink"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/templates');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Templates &amp; Portfolio
-          </motion.button>
-          <motion.button
-            type="button"
-            className="nav-sublink"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/pricing');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Pricing
-          </motion.button>
-          <motion.button
-            type="button"
-            className="nav-sublink active"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/discovery');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Discovery Brief
-          </motion.button>
-          <motion.button
-            className="navcta"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenInquiry({ service: 'Website / Build' });
-            }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            transition={TRANSITIONS.buttonSpring}
-          >
-            Get in Touch <ArrowRight size={16} />
-          </motion.button>
-        </div>
-      </motion.nav>
+        {({ closeMenu }) => (
+          <>
+            <motion.button
+              type="button"
+              className="nav-sublink"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/services');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Services
+            </motion.button>
+            <motion.button
+              type="button"
+              className="nav-sublink"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/templates');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Templates &amp; Portfolio
+            </motion.button>
+            <motion.button
+              type="button"
+              className="nav-sublink"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/pricing');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Pricing
+            </motion.button>
+            <motion.button
+              type="button"
+              className="nav-sublink active"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/discovery');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Discovery Brief
+            </motion.button>
+            <motion.button
+              type="button"
+              className="navcta"
+              onClick={() => {
+                closeMenu();
+                onOpenInquiry({ service: 'Website / Build' });
+              }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
+            >
+              Get in Touch <ArrowRight size={16} />
+            </motion.button>
+          </>
+        )}
+      </PublicNavbar>
 
       {/* Hero Header */}
       <motion.section

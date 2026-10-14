@@ -56,6 +56,7 @@ import ProjectEstimator from './components/ProjectEstimator';
 import VanvasFeaturedSection, { VANVAS_CASE_STUDY_DATA } from './components/VanvasFeaturedSection';
 import TechStackSection from './components/TechStackSection';
 import FounderSection from './components/FounderSection';
+import PublicNavbar from './components/PublicNavbar';
 import { useIsMobile } from './utils/responsive';
 import { getAdminToken, verifyAdminSession, clearAdminAuth } from './api/client';
 
@@ -159,87 +160,76 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
   return (
     <main>
       {/* Navigation */}
-      <motion.nav
-        className="landing-nav"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={TRANSITIONS.editorial}
+      <PublicNavbar
+        onNavigate={onNavigate}
+        onOpenInquiry={onOpenInquiry}
+        currentPath="/"
       >
-        <div className="brand" style={{ cursor: 'pointer' }} onClick={() => onNavigate('/')}>
-          THE SORTED <span>CLUB</span>
-        </div>
-
-        <button
-          className="menu-button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={mobileMenuOpen}
-          aria-controls="landing-mobile-navlinks"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        {mobileMenuOpen && (
-          <div
-            className="mobile-nav-backdrop"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
+        {({ closeMenu }) => (
+          <>
+            <a
+              href="/services"
+              onClick={(e) => {
+                e.preventDefault();
+                closeMenu();
+                onNavigate('/services');
+              }}
+            >
+              Services
+            </a>
+            <a
+              href="#work"
+              onClick={(e) => {
+                closeMenu();
+                handleScrollToHash(e, '#work');
+              }}
+            >
+              Work
+            </a>
+            <a
+              href="#tech"
+              onClick={(e) => {
+                closeMenu();
+                handleScrollToHash(e, '#tech');
+              }}
+            >
+              Approach
+            </a>
+            <a
+              href="/pricing"
+              onClick={(e) => {
+                e.preventDefault();
+                closeMenu();
+                onNavigate('/pricing');
+              }}
+            >
+              Pricing
+            </a>
+            <a
+              href="#founder"
+              onClick={(e) => {
+                closeMenu();
+                handleScrollToHash(e, '#founder');
+              }}
+            >
+              About
+            </a>
+            <motion.button
+              type="button"
+              className="navcta"
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
+              onClick={() => {
+                closeMenu();
+                onOpenInquiry({ service: 'Website / Build' });
+              }}
+            >
+              Get in Touch <ArrowRight size={16} />
+            </motion.button>
+          </>
         )}
-
-        <div id="landing-mobile-navlinks" className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
-          <a
-            href="/services"
-            onClick={(e) => {
-              e.preventDefault();
-              setMobileMenuOpen(false);
-              onNavigate('/services');
-            }}
-          >
-            Services
-          </a>
-          <a
-            href="#work"
-            onClick={(e) => handleScrollToHash(e, '#work')}
-          >
-            Work
-          </a>
-          <a
-            href="#tech"
-            onClick={(e) => handleScrollToHash(e, '#tech')}
-          >
-            Approach
-          </a>
-          <a
-            href="/pricing"
-            onClick={(e) => {
-              e.preventDefault();
-              setMobileMenuOpen(false);
-              onNavigate('/pricing');
-            }}
-          >
-            Pricing
-          </a>
-          <a
-            href="#founder"
-            onClick={(e) => handleScrollToHash(e, '#founder')}
-          >
-            About
-          </a>
-          <motion.button
-            className="navcta"
-            whileHover={{ scale: 1.03, y: -1 }}
-            whileTap={{ scale: 0.97 }}
-            transition={TRANSITIONS.buttonSpring}
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenInquiry({ service: 'Website / Build' });
-            }}
-          >
-            Get in Touch <ArrowRight size={16} />
-          </motion.button>
-        </div>
-      </motion.nav>
+      </PublicNavbar>
 
       {/* Hero */}
       <section className="hero">

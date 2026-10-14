@@ -32,11 +32,11 @@ import {
   staggerContainer,
   TRANSITIONS
 } from '../utils/motion';
+import PublicNavbar from './PublicNavbar';
 
 export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavigateToAdmin }) {
   const template = TEMPLATES.find((t) => t.slug === slug) || TEMPLATES[0];
   const [devicePreviewMode, setDevicePreviewMode] = useState('desktop'); // 'desktop' | 'mobile'
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showCaseStudy, setShowCaseStudy] = useState(false);
 
   // Update SEO Title & Meta tags
@@ -51,59 +51,49 @@ export default function TemplateDetail({ slug, onNavigate, onOpenInquiry, onNavi
   return (
     <div className="template-detail-page">
       {/* Navigation */}
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={TRANSITIONS.editorial}
+      <PublicNavbar
+        onNavigate={onNavigate}
+        onOpenInquiry={onOpenInquiry}
+        currentPath={`/templates/${slug}`}
       >
-        <div className="brand" style={{ cursor: 'pointer' }} onClick={() => onNavigate('/')}>
-          THE SORTED <span>CLUB</span>
-        </div>
-
-        <button
-          className="menu-button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle navigation menu"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        <div className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
-          <button
-            type="button"
-            className="navlink-btn"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/templates');
-            }}
-          >
-            ← All Templates
-          </button>
-          <button
-            type="button"
-            className="navlink-btn"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/pricing');
-            }}
-          >
-            Pricing &amp; Packages
-          </button>
-          <motion.button
-            type="button"
-            className="navcta"
-            whileHover={{ scale: 1.03, y: -1 }}
-            whileTap={{ scale: 0.97 }}
-            transition={TRANSITIONS.buttonSpring}
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenInquiry({ template });
-            }}
-          >
-            Build this Website <ArrowRight size={16} />
-          </motion.button>
-        </div>
-      </motion.nav>
+        {({ closeMenu }) => (
+          <>
+            <button
+              type="button"
+              className="navlink-btn"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/templates');
+              }}
+            >
+              ← All Templates
+            </button>
+            <button
+              type="button"
+              className="navlink-btn"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/pricing');
+              }}
+            >
+              Pricing &amp; Packages
+            </button>
+            <motion.button
+              type="button"
+              className="navcta"
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
+              onClick={() => {
+                closeMenu();
+                onOpenInquiry({ template });
+              }}
+            >
+              Build this Website <ArrowRight size={16} />
+            </motion.button>
+          </>
+        )}
+      </PublicNavbar>
 
       {/* Breadcrumb Row */}
       <div className="detail-breadcrumb-bar">

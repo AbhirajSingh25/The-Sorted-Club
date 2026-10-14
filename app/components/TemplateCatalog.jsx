@@ -30,6 +30,7 @@ import {
   TRANSITIONS,
   accordionVariants
 } from '../utils/motion';
+import PublicNavbar from './PublicNavbar';
 
 export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateToAdmin }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -123,78 +124,59 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
   return (
     <div className="template-catalog-page">
       {/* Navigation */}
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={TRANSITIONS.editorial}
+      <PublicNavbar
+        onNavigate={onNavigate}
+        onOpenInquiry={onOpenInquiry}
+        currentPath="/templates"
       >
-        <div className="brand" style={{ cursor: 'pointer' }} onClick={() => onNavigate('/')}>
-          THE SORTED <span>CLUB</span>
-        </div>
-
-        <button
-          className="menu-button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={mobileMenuOpen}
-          aria-controls="catalog-mobile-navlinks"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        {mobileMenuOpen && (
-          <div
-            className="mobile-nav-backdrop"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
+        {({ closeMenu }) => (
+          <>
+            <a
+              href="/services"
+              onClick={(e) => {
+                e.preventDefault();
+                closeMenu();
+                onNavigate('/services');
+              }}
+            >
+              Services
+            </a>
+            <a
+              href="/templates"
+              className="active-navlink active"
+              onClick={(e) => {
+                e.preventDefault();
+                closeMenu();
+              }}
+            >
+              Templates &amp; Examples
+            </a>
+            <a
+              href="/pricing"
+              onClick={(e) => {
+                e.preventDefault();
+                closeMenu();
+                onNavigate('/pricing');
+              }}
+            >
+              Pricing &amp; Packages
+            </a>
+            <motion.button
+              type="button"
+              className="navcta"
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
+              onClick={() => {
+                closeMenu();
+                onOpenInquiry({ service: 'Website / Build' });
+              }}
+            >
+              Get in Touch <ArrowRight size={16} />
+            </motion.button>
+          </>
         )}
-
-        <div id="catalog-mobile-navlinks" className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
-          <a
-            href="/services"
-            onClick={(e) => {
-              e.preventDefault();
-              setMobileMenuOpen(false);
-              onNavigate('/services');
-            }}
-          >
-            Services
-          </a>
-          <a
-            href="/templates"
-            className="active-navlink"
-            onClick={(e) => {
-              e.preventDefault();
-              setMobileMenuOpen(false);
-            }}
-          >
-            Templates & Examples
-          </a>
-          <a
-            href="/pricing"
-            onClick={(e) => {
-              e.preventDefault();
-              setMobileMenuOpen(false);
-              onNavigate('/pricing');
-            }}
-          >
-            Pricing & Packages
-          </a>
-          <motion.button
-            className="navcta"
-            whileHover={{ scale: 1.03, y: -1 }}
-            whileTap={{ scale: 0.97 }}
-            transition={TRANSITIONS.buttonSpring}
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenInquiry({ service: 'Website / Build' });
-            }}
-          >
-            Get in Touch <ArrowRight size={16} />
-          </motion.button>
-        </div>
-      </motion.nav>
+      </PublicNavbar>
 
       {/* Hero Header */}
       <motion.header

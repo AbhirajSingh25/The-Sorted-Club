@@ -30,6 +30,7 @@ import {
   TRANSITIONS,
   accordionVariants
 } from '../utils/motion';
+import PublicNavbar from './PublicNavbar';
 
 export default function PricingPage({
   onNavigate = () => {},
@@ -39,7 +40,6 @@ export default function PricingPage({
   const [currency, setCurrency] = useState('INR'); // 'INR' or 'USD'
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedPkgId, setExpandedPkgId] = useState(null);
 
   // Cleanly handle #estimator deep link by sending user to homepage estimator
@@ -48,29 +48,6 @@ export default function PricingPage({
       onNavigate('/#estimator');
     }
   }, [onNavigate]);
-
-  // Keyboard accessibility: Close mobile drawer on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mobileMenuOpen]);
-
-  // Lock body scroll when mobile menu is open to prevent background scrolling
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [mobileMenuOpen]);
 
   const toggleFaq = (idx) => {
     setOpenFaqIndex(openFaqIndex === idx ? null : idx);
@@ -87,100 +64,77 @@ export default function PricingPage({
   return (
     <div className="pricing-page-root">
       {/* Public Navbar */}
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={TRANSITIONS.editorial}
+      <PublicNavbar
+        onNavigate={onNavigate}
+        onOpenInquiry={onOpenInquiry}
+        currentPath="/pricing"
       >
-        <div
-          className="brand"
-          style={{ cursor: 'pointer' }}
-          onClick={() => onNavigate('/')}
-        >
-          THE SORTED <span>CLUB</span>
-        </div>
-
-        <button
-          className="menu-button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={mobileMenuOpen}
-          aria-controls="pricing-mobile-navlinks"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        {mobileMenuOpen && (
-          <div
-            className="mobile-nav-backdrop"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
+        {({ closeMenu }) => (
+          <>
+            <motion.button
+              type="button"
+              className="nav-sublink"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/services');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Services
+            </motion.button>
+            <motion.button
+              type="button"
+              className="nav-sublink"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/templates');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Templates &amp; Portfolio
+            </motion.button>
+            <motion.button
+              type="button"
+              className="nav-sublink active"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/pricing');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Pricing
+            </motion.button>
+            <motion.button
+              type="button"
+              className="nav-sublink"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/discovery');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Discovery Brief
+            </motion.button>
+            <motion.button
+              type="button"
+              className="navcta"
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
+              onClick={() => {
+                closeMenu();
+                onOpenInquiry({ service: 'Website / Build' });
+              }}
+            >
+              Get in Touch <ArrowRight size={16} />
+            </motion.button>
+          </>
         )}
-
-        <div id="pricing-mobile-navlinks" className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
-          <motion.button
-            type="button"
-            className="nav-sublink"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/services');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Services
-          </motion.button>
-          <motion.button
-            type="button"
-            className="nav-sublink"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/templates');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Templates &amp; Portfolio
-          </motion.button>
-          <motion.button
-            type="button"
-            className="nav-sublink active"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/pricing');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Pricing
-          </motion.button>
-          <motion.button
-            type="button"
-            className="nav-sublink"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/discovery');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Discovery Brief
-          </motion.button>
-          <motion.button
-            className="navcta"
-            whileHover={{ scale: 1.03, y: -1 }}
-            whileTap={{ scale: 0.97 }}
-            transition={TRANSITIONS.buttonSpring}
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenInquiry({ service: 'Website / Build' });
-            }}
-          >
-            Get in Touch <ArrowRight size={16} />
-          </motion.button>
-        </div>
-      </motion.nav>
+      </PublicNavbar>
 
       {/* Hero Section */}
       <motion.section

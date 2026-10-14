@@ -35,6 +35,7 @@ import {
   TRANSITIONS,
   accordionVariants
 } from '../utils/motion';
+import PublicNavbar from './PublicNavbar';
 
 const SERVICES_DATA = {
   build: {
@@ -433,35 +434,21 @@ export default function ServicesPages({
   onBackToSite = () => {}
 }) {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activePackageIdx, setActivePackageIdx] = useState(0);
+  const packageContainerRef = React.useRef(null);
+  const packageCardRefs = React.useRef({});
 
   // Determine active pillar view
   const subroute = currentPath.replace('/services', '').replace(/^\//, '').toLowerCase();
   const activePillarKey = ['build', 'grow', 'automate', 'hire'].includes(subroute) ? subroute : null;
   const pillarData = activePillarKey ? SERVICES_DATA[activePillarKey] : null;
 
-  // Keyboard accessibility: Close mobile drawer on Escape key
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mobileMenuOpen]);
-
-  // Lock body scroll when mobile menu is open to prevent background scrolling
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+    setActivePackageIdx(0);
+    if (packageContainerRef.current) {
+      packageContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
     }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [mobileMenuOpen]);
+  }, [activePillarKey]);
 
   const toggleFaq = (idx) => {
     setOpenFaqIndex(openFaqIndex === idx ? null : idx);
@@ -470,136 +457,113 @@ export default function ServicesPages({
   return (
     <div className="services-page-root">
       {/* Public Header / Navbar */}
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={TRANSITIONS.editorial}
+      <PublicNavbar
+        onNavigate={onNavigate}
+        onOpenInquiry={onOpenInquiry}
+        currentPath={currentPath}
       >
-        <div
-          className="brand"
-          style={{ cursor: 'pointer' }}
-          onClick={() => onNavigate('/')}
-        >
-          THE SORTED <span>CLUB</span>
-        </div>
-
-        <button
-          className="menu-button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={mobileMenuOpen}
-          aria-controls="services-mobile-navlinks"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        {mobileMenuOpen && (
-          <div
-            className="mobile-nav-backdrop"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
+        {({ closeMenu }) => (
+          <>
+            <motion.button
+              type="button"
+              className={`nav-sublink ${!activePillarKey ? 'active' : ''}`}
+              onClick={() => {
+                closeMenu();
+                onNavigate('/services');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              All Services
+            </motion.button>
+            <motion.button
+              type="button"
+              className={`nav-sublink ${activePillarKey === 'build' ? 'active' : ''}`}
+              onClick={() => {
+                closeMenu();
+                onNavigate('/services/build');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Build
+            </motion.button>
+            <motion.button
+              type="button"
+              className={`nav-sublink ${activePillarKey === 'grow' ? 'active' : ''}`}
+              onClick={() => {
+                closeMenu();
+                onNavigate('/services/grow');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Grow
+            </motion.button>
+            <motion.button
+              type="button"
+              className={`nav-sublink ${activePillarKey === 'automate' ? 'active' : ''}`}
+              onClick={() => {
+                closeMenu();
+                onNavigate('/services/automate');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Automate
+            </motion.button>
+            <motion.button
+              type="button"
+              className={`nav-sublink ${activePillarKey === 'hire' ? 'active' : ''}`}
+              onClick={() => {
+                closeMenu();
+                onNavigate('/services/hire');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Hire
+            </motion.button>
+            <motion.button
+              type="button"
+              className="nav-sublink"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/templates');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Templates &amp; Portfolio
+            </motion.button>
+            <motion.button
+              type="button"
+              className="nav-sublink"
+              onClick={() => {
+                closeMenu();
+                onNavigate('/pricing');
+              }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Pricing
+            </motion.button>
+            <motion.button
+              type="button"
+              className="navcta"
+              onClick={() => {
+                closeMenu();
+                onOpenInquiry(pillarData ? pillarData.serviceName : undefined);
+              }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={TRANSITIONS.buttonSpring}
+            >
+              Get in Touch <ArrowRight size={16} />
+            </motion.button>
+          </>
         )}
-
-        <div id="services-mobile-navlinks" className={`navlinks ${mobileMenuOpen ? 'open' : ''}`}>
-          <motion.button
-            type="button"
-            className={`nav-sublink ${!activePillarKey ? 'active' : ''}`}
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/services');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            All Services
-          </motion.button>
-          <motion.button
-            type="button"
-            className={`nav-sublink ${activePillarKey === 'build' ? 'active' : ''}`}
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/services/build');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Build
-          </motion.button>
-          <motion.button
-            type="button"
-            className={`nav-sublink ${activePillarKey === 'grow' ? 'active' : ''}`}
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/services/grow');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Grow
-          </motion.button>
-          <motion.button
-            type="button"
-            className={`nav-sublink ${activePillarKey === 'automate' ? 'active' : ''}`}
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/services/automate');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Automate
-          </motion.button>
-          <motion.button
-            type="button"
-            className={`nav-sublink ${activePillarKey === 'hire' ? 'active' : ''}`}
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/services/hire');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Hire
-          </motion.button>
-          <motion.button
-            type="button"
-            className="nav-sublink"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/templates');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Templates &amp; Portfolio
-          </motion.button>
-          <motion.button
-            type="button"
-            className="nav-sublink"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onNavigate('/pricing');
-            }}
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            Pricing
-          </motion.button>
-          <motion.button
-            className="navcta"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenInquiry(pillarData ? pillarData.serviceName : undefined);
-            }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            transition={TRANSITIONS.buttonSpring}
-          >
-            Get in Touch <ArrowRight size={16} />
-          </motion.button>
-        </div>
-      </motion.nav>
+      </PublicNavbar>
 
       {/* =====================================================================
           VIEW A: ALL SERVICES OVERVIEW (/services)
@@ -997,10 +961,16 @@ export default function ServicesPages({
               )}
             </motion.div>
 
-            <div className="service-pillar-packages-grid">
+            <div
+              ref={packageContainerRef}
+              className="service-pillar-packages-grid"
+            >
               {pillarData.packages.map((pkg, idx) => (
                 <motion.div
                   key={idx}
+                  ref={(el) => {
+                    if (el) packageCardRefs.current[idx] = el;
+                  }}
                   className="package-card"
                   style={{
                     background: pkg.popular ? '#fff' : '#fdfcf9',
@@ -1073,6 +1043,33 @@ export default function ServicesPages({
                 </motion.div>
               ))}
             </div>
+
+            {/* Subtle Carousel Pagination Indicators on Mobile */}
+            {pillarData.packages && pillarData.packages.length > 1 && (
+              <div className="services-carousel-indicators" aria-label="Package Carousel Controls">
+                <span className="carousel-swipe-hint">
+                  Swipe to explore packages →
+                </span>
+                <div className="carousel-dots-list">
+                  {pillarData.packages.map((pkg, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`carousel-dot-btn ${activePackageIdx === idx ? 'active' : ''}`}
+                      onClick={() => {
+                        setActivePackageIdx(idx);
+                        packageCardRefs.current[idx]?.scrollIntoView({
+                          behavior: 'smooth',
+                          inline: 'start',
+                          block: 'nearest'
+                        });
+                      }}
+                      aria-label={`View ${pkg.name} package`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Ad Spend or Support Disclaimers */}
             {pillarData.adSpendNote && (
