@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { Menu, X, ArrowRight } from 'lucide-react';
@@ -11,44 +11,101 @@ export default function PublicNavbar({
   children
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [headerBottom, setHeaderBottom] = useState(68);
+  const [headerBottom, setHeaderBottom] = useState(72);
   const navRef = useRef(null);
+  const menuButtonRef = useRef(null);
+  const drawerRef = useRef(null);
+  const scrollYRef = useRef(0);
 
   // Close mobile drawer on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [currentPath]);
 
-  // Keyboard accessibility: Close mobile drawer on Escape key
+  // Synchronize header bottom position on resize or scroll while open
+  const updateHeaderBottom = useCallback(() => {
+    if (navRef.current) {
+      const rect = navRef.current.getBoundingClientRect();
+      setHeaderBottom(rect.bottom > 0 ? rect.bottom : 72);
+    }
+  }, []);
+
+  // Keyboard accessibility: Close mobile drawer on Escape key & manage focus
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
+        closeMenu();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [mobileMenuOpen]);
 
-  // Lock scroll cleanly via documentElement when mobile menu is open without breaking sticky position
+  // Scroll lock and exact scroll position restoration
   useEffect(() => {
     if (mobileMenuOpen) {
-      if (navRef.current) {
-        const rect = navRef.current.getBoundingClientRect();
-        setHeaderBottom(rect.bottom > 0 ? rect.bottom : 68);
-      }
+      const currentScroll = window.scrollY;
+      scrollYRef.current = currentScroll;
+      updateHeaderBottom();
+
+      // Lock document scrolling
       document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+
+      // Keep scroll position stable
+      if (window.scrollY !== currentScroll) {
+        window.scrollTo(0, currentScroll);
+      }
+
+      window.addEventListener('resize', updateHeaderBottom);
+      window.addEventListener('scroll', updateHeaderBottom, { passive: true });
     } else {
       document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+
+      // Cleanly restore scroll position if shifted
+      if (typeof window !== 'undefined' && scrollYRef.current > 0) {
+        if (Math.abs(window.scrollY - scrollYRef.current) > 1) {
+          window.scrollTo(0, scrollYRef.current);
+        }
+      }
+
+      window.removeEventListener('resize', updateHeaderBottom);
+      window.removeEventListener('scroll', updateHeaderBottom);
     }
+
     return () => {
       document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      window.removeEventListener('resize', updateHeaderBottom);
+      window.removeEventListener('scroll', updateHeaderBottom);
     };
-  }, [mobileMenuOpen]);
+  }, [mobileMenuOpen, updateHeaderBottom]);
+
+  const toggleMobileMenu = () => {
+    if (!mobileMenuOpen) {
+      scrollYRef.current = window.scrollY;
+      if (navRef.current) {
+        const rect = navRef.current.getBoundingClientRect();
+        setHeaderBottom(rect.bottom > 0 ? rect.bottom : 72);
+      }
+      setMobileMenuOpen(true);
+    } else {
+      closeMenu();
+    }
+  };
+
+  const closeMenu = () => {
+    setMobileMenuOpen(false);
+    if (menuButtonRef.current) {
+      menuButtonRef.current.focus();
+    }
+  };
 
   const handleNavClick = (path, e) => {
     if (e) e.preventDefault();
-    setMobileMenuOpen(false);
+    closeMenu();
+
     if (path.startsWith('#')) {
       const el = document.querySelector(path);
       if (el) {
@@ -61,8 +118,6 @@ export default function PublicNavbar({
       onNavigate(path);
     }
   };
-
-  const closeMenu = () => setMobileMenuOpen(false);
 
   const navContent = children ? (
     typeof children === 'function' ? children({ closeMenu, handleNavClick }) : children
@@ -137,9 +192,10 @@ export default function PublicNavbar({
         </div>
 
         <button
+          ref={menuButtonRef}
           type="button"
           className="menu-button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={toggleMobileMenu}
           aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={mobileMenuOpen}
           aria-controls="public-mobile-navlinks"
@@ -171,6 +227,7 @@ export default function PublicNavbar({
             }}
           />
           <div
+            ref={drawerRef}
             id="public-mobile-navlinks"
             className="navlinks open"
             role="dialog"

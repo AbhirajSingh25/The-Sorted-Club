@@ -1081,8 +1081,11 @@ export default function ServicesPages({
                           service: pillarData.serviceName,
                           package: pkg.name,
                           scope: pkg.name,
+                          pillar: pillarData.title,
                           currency,
                           estimatedPrice: displayPrice,
+                          priceINR: pkg.priceINR,
+                          priceUSD: pkg.priceUSD,
                           problem: `I am interested in the ${pkg.name} package for ${pillarData.title}. Investment: ${displayPrice} (${currency}).`
                         })
                       }

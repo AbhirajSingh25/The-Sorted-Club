@@ -476,8 +476,11 @@ export default function PricingPage({
                       service: `Website / Build — ${pkg.name}`,
                       package: pkg.name,
                       scope: pkg.name,
+                      pillar: 'BUILD',
                       currency: currency,
                       estimatedPrice: priceDisplay,
+                      priceINR: pkg.priceINR,
+                      priceUSD: pkg.priceUSD,
                       problem: `Interested in ${pkg.name} (${priceDisplay}). Includes: ${pkg.includedPages.length} pages.`
                     })}
                   >

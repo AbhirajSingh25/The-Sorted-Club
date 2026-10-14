@@ -144,14 +144,32 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
       ? 'Success-Based (Zero Upfront)'
       : `${calculation.formattedTotal}${calculation.isRecurring ? '/mo' : ''} [Base: ${calculation.formattedBase}${calculation.addonsCost > 0 ? ` + Add-ons: ${calculation.formattedAddons}` : ''}]`;
 
+    const totalINRNum = currentTier.isSuccessBased
+      ? 0
+      : (currentTier.priceINR ?? 0) +
+        selectedAddonIds.reduce((sum, id) => sum + ((currentPillar.addons || []).find((x) => x.id === id)?.priceINR ?? 0), 0);
+
+    const totalUSDNum = currentTier.isSuccessBased
+      ? 0
+      : (currentTier.priceUSD ?? 0) +
+        selectedAddonIds.reduce((sum, id) => sum + ((currentPillar.addons || []).find((x) => x.id === id)?.priceUSD ?? 0), 0);
+
+    const dualPriceINR = currentTier.isSuccessBased ? 'Pay on Success' : `₹${totalINRNum.toLocaleString()}`;
+    const dualPriceUSD = currentTier.isSuccessBased ? 'Pay on Success' : `$${totalUSDNum.toLocaleString()}`;
+
     onOpenInquiry({
       service: currentPillar.serviceKey,
       package: currentTier.name,
       scope: currentTier.name,
+      pillar: currentPillar.name,
       addons: addonNames,
       currency,
       estimatedPrice: calculation.formattedTotal,
+      priceINR: dualPriceINR,
+      priceUSD: dualPriceUSD,
       total: calculation.total,
+      totalINR: totalINRNum,
+      totalUSD: totalUSDNum,
       problem: `[Project Estimator Configuration]
 Service: ${currentPillar.name} (${currentPillar.title})
 Selected Scope: ${currentTier.name} [${currentTier.scopeLabel || 'Custom'}]

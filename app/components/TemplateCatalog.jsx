@@ -36,7 +36,6 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [selectedStyle, setSelectedStyle] = useState('All Styles');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [selectedCaseStudy, setSelectedCaseStudy] = useState(null);
 
@@ -97,29 +96,6 @@ export default function TemplateCatalog({ onNavigate, onOpenInquiry, onNavigateT
       a: 'Our website builds start at transparent flat-rate investments (from ₹19,999 to ₹34,999 depending on scope), with zero hidden agency fees and complete code ownership upon handover.'
     }
   ];
-
-  // Keyboard accessibility: Close mobile drawer on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mobileMenuOpen]);
-
-  // Lock body scroll when mobile menu is open to prevent background scrolling
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [mobileMenuOpen]);
 
   return (
     <div className="template-catalog-page">

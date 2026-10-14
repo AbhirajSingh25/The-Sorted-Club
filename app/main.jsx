@@ -104,7 +104,6 @@ const pillars = [
 ];
 
 function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [caseStudyTemplate, setCaseStudyTemplate] = useState(null);
 
   const featuredBlueprints = TEMPLATES.filter((t) =>
@@ -122,32 +121,8 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
     }
   }, []);
 
-  // Keyboard accessibility: Close mobile drawer on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mobileMenuOpen]);
-
-  // Lock body scroll when mobile menu is open to prevent background scrolling
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [mobileMenuOpen]);
-
   const handleScrollToHash = (e, hash) => {
     e.preventDefault();
-    setMobileMenuOpen(false);
     const el = document.querySelector(hash);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });

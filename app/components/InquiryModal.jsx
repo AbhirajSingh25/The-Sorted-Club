@@ -123,10 +123,12 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
       if (initialData?.problem) {
         setFormData((prev) => ({ ...prev, problem: initialData.problem }));
       }
-      if (initialData?.budget) {
-        setFormData((prev) => ({ ...prev, budget: initialData.budget }));
-      } else if (initialData?.estimatedPrice) {
-        setFormData((prev) => ({ ...prev, budget: initialData.estimatedPrice }));
+      const initialBudgetPrice = activeCurr === 'INR'
+        ? (initialData?.priceINR || initialData?.budget || initialData?.estimatedPrice)
+        : (initialData?.priceUSD || initialData?.budget || initialData?.estimatedPrice);
+
+      if (initialBudgetPrice) {
+        setFormData((prev) => ({ ...prev, budget: initialBudgetPrice }));
       } else {
         setFormData((prev) => ({
           ...prev,
@@ -313,6 +315,15 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
       let budgetString = formData.budget.trim();
       if (!budgetString.startsWith('INR') && !budgetString.startsWith('USD')) {
         budgetString = `${currency}: ${budgetString}`;
+      }
+      if (selectedPackageInfo) {
+        const pkgTitle = selectedPackageInfo.package || selectedPackageInfo.scope || '';
+        const addonsInfo = selectedPackageInfo.addons && selectedPackageInfo.addons.length > 0
+          ? ` (+${selectedPackageInfo.addons.length} Add-on${selectedPackageInfo.addons.length > 1 ? 's' : ''})`
+          : '';
+        if (pkgTitle && !budgetString.includes(pkgTitle)) {
+          budgetString = `${budgetString} [${pkgTitle}${addonsInfo}]`;
+        }
       }
 
       const payload = {
@@ -586,12 +597,12 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
                   </h4>
                   <div className="template-banner-sub">
                     <span>
-                      Rate: {currency === 'INR' ? (selectedPackageInfo.priceINR || selectedPackageInfo.total || selectedPackageInfo.estimatedPrice) : (selectedPackageInfo.priceUSD || selectedPackageInfo.total || selectedPackageInfo.estimatedPrice)}
+                      Rate: <strong>{currency === 'INR' ? (selectedPackageInfo.priceINR || selectedPackageInfo.estimatedPrice || (selectedPackageInfo.total ? `₹${selectedPackageInfo.total.toLocaleString()}` : '')) : (selectedPackageInfo.priceUSD || selectedPackageInfo.estimatedPrice || (selectedPackageInfo.total ? `$${selectedPackageInfo.total.toLocaleString()}` : ''))}</strong>
                     </span>
                     {selectedPackageInfo.addons && selectedPackageInfo.addons.length > 0 && (
                       <>
                         <span>•</span>
-                        <span>+{selectedPackageInfo.addons.length} Add-on{selectedPackageInfo.addons.length > 1 ? 's' : ''}</span>
+                        <span>+{selectedPackageInfo.addons.length} Add-on{selectedPackageInfo.addons.length > 1 ? 's' : ''} ({selectedPackageInfo.addons.join(', ')})</span>
                       </>
                     )}
                     <span>•</span>
@@ -878,7 +889,7 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
               <div className="form-group full-width">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
                   <label id="budget-label" style={{ margin: 0 }}>
-                    Approximate Budget <span className="req" aria-hidden="true">*</span>
+                    {selectedPackageInfo ? 'Configured Project Investment' : 'Approximate Budget'} <span className="req" aria-hidden="true">*</span>
                     <span className="sr-only">(required)</span>
                   </label>
                   <div className="currency-toggle-container" style={{ margin: 0 }}>
@@ -898,9 +909,45 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
                     </button>
                   </div>
                 </div>
+
+                {selectedPackageInfo && (
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#f5f3ec', border: '1.5px solid var(--ink)', borderRadius: '6px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Tag size={15} color="#15803d" />
+                        <div>
+                          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ink)' }}>
+                            {selectedPackageInfo.package || selectedPackageInfo.scope} Total: {currency === 'INR' ? (selectedPackageInfo.priceINR || selectedPackageInfo.estimatedPrice) : (selectedPackageInfo.priceUSD || selectedPackageInfo.estimatedPrice)}
+                          </span>
+                          {selectedPackageInfo.addons && selectedPackageInfo.addons.length > 0 && (
+                            <span style={{ fontSize: '11px', color: 'var(--muted)', display: 'block', marginTop: '2px' }}>
+                              Base + {selectedPackageInfo.addons.length} Add-on{selectedPackageInfo.addons.length > 1 ? 's' : ''}: {selectedPackageInfo.addons.join(', ')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <span style={{ fontSize: '10.5px', background: 'var(--acid)', padding: '3px 8px', borderRadius: '4px', fontWeight: 700, color: '#10100f', whiteSpace: 'nowrap' }}>
+                        Exact Estimate
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="budget-pills-grid" role="radiogroup" aria-labelledby="budget-label">
+                  {selectedPackageInfo && (
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={formData.budget === (currency === 'INR' ? (selectedPackageInfo.priceINR || selectedPackageInfo.estimatedPrice) : (selectedPackageInfo.priceUSD || selectedPackageInfo.estimatedPrice))}
+                      className={`budget-pill-btn ${formData.budget === (currency === 'INR' ? (selectedPackageInfo.priceINR || selectedPackageInfo.estimatedPrice) : (selectedPackageInfo.priceUSD || selectedPackageInfo.estimatedPrice)) ? 'selected' : ''}`}
+                      onClick={() => setFormData({ ...formData, budget: currency === 'INR' ? (selectedPackageInfo.priceINR || selectedPackageInfo.estimatedPrice) : (selectedPackageInfo.priceUSD || selectedPackageInfo.estimatedPrice) })}
+                      style={{ fontWeight: 700 }}
+                    >
+                      ✓ Configured Rate ({currency === 'INR' ? (selectedPackageInfo.priceINR || selectedPackageInfo.estimatedPrice) : (selectedPackageInfo.priceUSD || selectedPackageInfo.estimatedPrice)})
+                    </button>
+                  )}
                   {(currency === 'INR' ? BUDGET_RANGES_INR : BUDGET_RANGES_USD).map((range) => {
-                    const isSelected = formData.budget === range || formData.budget.includes(range);
+                    const isSelected = formData.budget === range;
                     return (
                       <button
                         type="button"
@@ -915,14 +962,6 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
                     );
                   })}
                 </div>
-                {selectedPackageInfo && (
-                  <div style={{ marginTop: '8px', fontSize: '11.5px', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Tag size={12} color="#15803d" />
-                    <span>
-                      Package / Scope Rate: <strong>{currency === 'INR' ? (selectedPackageInfo.priceINR || selectedPackageInfo.total || selectedPackageInfo.estimatedPrice) : (selectedPackageInfo.priceUSD || selectedPackageInfo.total || selectedPackageInfo.estimatedPrice)}</strong> ({currency})
-                    </span>
-                  </div>
-                )}
               </div>
 
               {/* Consent Checkbox */}
