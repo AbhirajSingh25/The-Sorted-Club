@@ -5,7 +5,9 @@ import {
   Server,
   Database,
   Cpu,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { TRANSITIONS } from '../utils/motion';
 
@@ -240,11 +242,12 @@ const TECH_CATEGORIES = [
 
 export default function TechStackSection({ onOpenInquiry }) {
   const [activeCategory, setActiveCategory] = useState('frontend');
+  const [guaranteesOpen, setGuaranteesOpen] = useState(false);
   const currentCat = TECH_CATEGORIES.find((c) => c.id === activeCategory) || TECH_CATEGORIES[0];
 
   return (
     <section className="tech-stack-section" id="tech">
-      <div className="section-head" style={{ marginBottom: '32px' }}>
+      <div className="section-head tech-section-head">
         <span>04</span>
         <div>
           <p className="eyebrow">TECHNICAL ARSENAL &amp; CAPABILITIES</p>
@@ -252,13 +255,13 @@ export default function TechStackSection({ onOpenInquiry }) {
             Engineered with modern,<br />
             <i>battle-tested tools.</i>
           </h2>
-          <p style={{ color: 'var(--muted)', fontSize: '15px', maxWidth: '640px', marginTop: '10px', lineHeight: 1.55 }}>
+          <p className="tech-intro-p">
             No fragile drag-and-drop page builders or black-box dependencies. Every product we ship runs on clean, open-source architectures with 100% full source code ownership upon launch.
           </p>
         </div>
       </div>
 
-      {/* Category Tabs */}
+      {/* Category Tabs / 2x2 Grid on Mobile */}
       <div className="tech-category-tabs" role="tablist" aria-label="Technology categories">
         {TECH_CATEGORIES.map((cat) => {
           const Icon = cat.icon;
@@ -272,9 +275,13 @@ export default function TechStackSection({ onOpenInquiry }) {
               className={`tech-tab-btn ${isActive ? 'active' : ''}`}
               onClick={() => setActiveCategory(cat.id)}
             >
-              <Icon size={16} />
-              <span>{cat.category}</span>
-              <span className="tech-count-badge">{cat.items.length}</span>
+              <div className="tab-tile-header">
+                <div className="tab-icon-wrap">
+                  <Icon size={16} />
+                </div>
+                <span className="tech-count-badge">{cat.items.length} tools</span>
+              </div>
+              <span className="tab-title-text">{cat.category}</span>
             </button>
           );
         })}
@@ -285,17 +292,17 @@ export default function TechStackSection({ onOpenInquiry }) {
         <motion.div
           key={currentCat.id}
           className="tech-active-card"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
-          transition={TRANSITIONS.editorial}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
         >
           <div className="tech-cat-header">
-            <div>
+            <div className="tech-cat-header-top">
               <h3 className="tech-cat-title">{currentCat.category}</h3>
-              <p className="tech-cat-desc">{currentCat.desc}</p>
+              <span className="tech-ownership-badge">✓ 100% Code Ownership</span>
             </div>
-            <span className="tech-ownership-badge">✓ 100% Client Code Ownership</span>
+            <p className="tech-cat-desc">{currentCat.desc}</p>
           </div>
 
           <div className="tech-items-grid">
@@ -317,21 +324,43 @@ export default function TechStackSection({ onOpenInquiry }) {
         </motion.div>
       </AnimatePresence>
 
-      {/* Guarantees Strip */}
-      <div className="tech-guarantee-strip">
-        <div className="guarantee-cell">
-          <CheckCircle2 size={16} color="#15803d" />
-          <span>Zero proprietary page-builder lock-in (WordPress, Wix, Webflow plugins)</span>
-        </div>
-        <div className="guarantee-cell">
-          <CheckCircle2 size={16} color="#15803d" />
-          <span>90+ PageSpeed target &amp; clean semantic HTML5 / CSS3</span>
-        </div>
-        <div className="guarantee-cell">
-          <CheckCircle2 size={16} color="#15803d" />
-          <span>Full source repository handover with Git version history</span>
+      {/* Guarantees Strip: Collapsible on Mobile, 3-Column on Desktop */}
+      <div className="tech-guarantees-wrapper">
+        <button
+          type="button"
+          className="tech-guarantees-mobile-trigger"
+          onClick={() => setGuaranteesOpen(!guaranteesOpen)}
+          aria-expanded={guaranteesOpen}
+        >
+          <div className="trigger-text-wrap">
+            <CheckCircle2 size={15} color="#15803d" />
+            <span>Architecture &amp; Code Ownership Standards (3)</span>
+          </div>
+          <span className="trigger-state-indicator">
+            {guaranteesOpen ? (
+              <span className="toggle-btn-pill">Hide <ChevronUp size={13} /></span>
+            ) : (
+              <span className="toggle-btn-pill">Details <ChevronDown size={13} /></span>
+            )}
+          </span>
+        </button>
+
+        <div className={`tech-guarantee-strip ${guaranteesOpen ? 'open' : ''}`}>
+          <div className="guarantee-cell">
+            <CheckCircle2 size={16} color="#15803d" className="guarantee-icon" />
+            <span>Zero proprietary page-builder lock-in (WordPress, Wix, Webflow plugins)</span>
+          </div>
+          <div className="guarantee-cell">
+            <CheckCircle2 size={16} color="#15803d" className="guarantee-icon" />
+            <span>90+ PageSpeed target &amp; clean semantic HTML5 / CSS3</span>
+          </div>
+          <div className="guarantee-cell">
+            <CheckCircle2 size={16} color="#15803d" className="guarantee-icon" />
+            <span>Full source repository handover with Git version history</span>
+          </div>
         </div>
       </div>
     </section>
   );
 }
+
