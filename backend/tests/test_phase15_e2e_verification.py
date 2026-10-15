@@ -45,10 +45,14 @@ def test_phase15_complete_end_to_end_business_flow(client, admin_headers, monkey
     notif_list = notifs_res.json()["notifications"]
     assert any(n["type"] == "NEW_INQUIRY" and n["entity_id"] == lead_id for n in notif_list)
 
+    # Process queued outbox jobs via worker
+    from services.notification_worker import get_notification_worker
+    get_notification_worker().process_all_pending()
+
     email_logs_res = client.get("/api/notifications/email-logs", headers=admin_headers)
     assert email_logs_res.status_code == 200
     email_logs = email_logs_res.json()
-    assert any(log["event_type"] in ("NEW_INQUIRY", "CUSTOMER_INQUIRY_RECEIVED") for log in email_logs)
+    assert any(log["event_type"] in ("NEW_INQUIRY", "CUSTOMER_INQUIRY_RECEIVED", "CUSTOMER_CUSTOMER_ACK") for log in email_logs)
 
     # 3. Lead appearing in Inquiry Dashboard
     inquiries_res = client.get("/api/leads?status=ALL", headers=admin_headers)

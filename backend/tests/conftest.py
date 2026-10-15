@@ -36,6 +36,10 @@ test_engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
+import database
+database.engine = test_engine
+database.SessionLocal = TestingSessionLocal
+
 
 @pytest.fixture(autouse=True)
 def block_unmocked_real_smtp_connections(monkeypatch):

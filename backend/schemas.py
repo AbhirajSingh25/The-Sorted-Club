@@ -196,6 +196,7 @@ class LeadOut(LeadBase):
     is_converted: bool = False
     client_id: Optional[int] = None
     client_code: Optional[str] = None
+    notification_status: Optional[str] = "QUEUED"
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -1269,9 +1270,49 @@ class EmailLogOut(BaseModel):
     subject: str
     status: str
     error_message: Optional[str] = None
+    lead_id: Optional[int] = None
+    attempts: Optional[int] = 1
+    last_attempt_at: Optional[datetime] = None
+    next_retry_at: Optional[datetime] = None
     sent_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class NotificationJobOut(BaseModel):
+    id: int
+    idempotency_key: str
+    channel: str
+    event_type: str
+    lead_id: Optional[int] = None
+    recipient: Optional[str] = None
+    subject: Optional[str] = None
+    status: str
+    attempts: int
+    max_attempts: int
+    next_retry_at: Optional[datetime] = None
+    last_attempt_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    last_error: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class NotificationDiagnosticsOut(BaseModel):
+    email_notifications_enabled: bool
+    smtp_host: str
+    smtp_port: int
+    smtp_username: str
+    smtp_from_email: str
+    business_notification_email: str
+    smtp_use_ssl: bool
+    smtp_password_configured: bool
+    app_env: str
+    queue_summary: dict
+    active_push_subscriptions: int
+    push_configured: bool
 
 # ==============================================================================
 # ADMIN COMMAND CENTER OPERATING SYSTEM SCHEMAS

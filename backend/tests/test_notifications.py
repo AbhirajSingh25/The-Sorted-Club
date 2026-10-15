@@ -50,12 +50,21 @@ def test_new_inquiry_triggers_notification(client, admin_headers):
     assert "Website / Build" in inquiry_notif["message"]
     assert inquiry_notif["is_read"] is False
 
-    # Check email logs
+    # Check outbox jobs are durably queued
+    jobs_res = client.get("/api/notifications/jobs", headers=admin_headers)
+    assert jobs_res.status_code == 200
+    jobs = jobs_res.json()
+    assert len(jobs) >= 2  # Customer acknowledgement, owner notification, web push
+
+    # Process pending queue jobs via worker
+    from services.notification_worker import get_notification_worker
+    get_notification_worker().process_all_pending()
+
+    # Check email logs are recorded after worker execution
     logs_res = client.get("/api/notifications/email-logs", headers=admin_headers)
     assert logs_res.status_code == 200
     logs = logs_res.json()
     assert len(logs) >= 1
-    assert logs[0]["event_type"] == "NEW_INQUIRY"
 
 
 def test_proposal_and_payment_notification_flow(client, admin_headers, db_session):

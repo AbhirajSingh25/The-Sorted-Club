@@ -20,6 +20,7 @@ load_dotenv(dotenv_path=env_path, override=not is_test)
 from database import engine, Base, upgrade_schema, DATABASE_URL, create_db_engine
 from auth import validate_production_auth_config
 from routes import leads, auth, clients, proposals, contracts, invoices, finance, projects, notifications, admin
+from services.notification_worker import get_notification_worker
 
 # Structured logging configuration
 logging.basicConfig(
@@ -62,13 +63,19 @@ def validate_production_environment():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Validate production environment and perform schema upgrades
+    # Startup: Validate production environment, perform schema upgrades, and boot notification worker
     validate_production_environment()
     upgrade_schema(engine)
+    app_env = os.getenv("APP_ENV", "development").lower()
+    worker = get_notification_worker()
+    if app_env != "test":
+        worker.start()
     logger.info("The Sorted Club API startup initialized successfully.")
     yield
-    # Shutdown: Cleanly dispose DB engine pool connections
+    # Shutdown: Cleanly stop notification worker and dispose DB engine pool connections
     logger.info("The Sorted Club API shutting down...")
+    if app_env != "test":
+        await worker.stop()
     engine.dispose()
 
 

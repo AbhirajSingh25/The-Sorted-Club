@@ -768,6 +768,49 @@ class Notification(Base):
     def __repr__(self):
         return f"<Notification id={self.id} type='{self.type}' title='{self.title}' is_read={self.is_read}>"
 
+class NotificationJobStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    SKIPPED = "SKIPPED"
+
+
+class NotificationChannel(str, enum.Enum):
+    EMAIL = "EMAIL"
+    PUSH = "PUSH"
+
+
+class NotificationJob(Base):
+    __tablename__ = "notification_jobs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    idempotency_key = Column(String(255), unique=True, nullable=False, index=True)
+    channel = Column(String(50), nullable=False, default="EMAIL", index=True)  # EMAIL, PUSH
+    event_type = Column(String(100), nullable=False, index=True)
+    lead_id = Column(Integer, ForeignKey("leads.id", ondelete="SET NULL"), nullable=True, index=True)
+    recipient = Column(String(255), nullable=True)
+    subject = Column(String(255), nullable=True)
+    payload = Column(JSON, nullable=False, default=dict)
+    status = Column(String(50), nullable=False, default="PENDING", index=True)  # PENDING, PROCESSING, COMPLETED, FAILED, SKIPPED
+    attempts = Column(Integer, nullable=False, default=0)
+    max_attempts = Column(Integer, nullable=False, default=5)
+    next_retry_at = Column(DateTime(timezone=True), nullable=True, index=True)
+    last_attempt_at = Column(DateTime(timezone=True), nullable=True)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    last_error = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        server_default=func.now()
+    )
+
+    def __repr__(self):
+        return f"<NotificationJob id={self.id} key='{self.idempotency_key}' channel='{self.channel}' status='{self.status}'>"
+
+
 class EmailLog(Base):
     __tablename__ = "email_logs"
 
@@ -777,6 +820,10 @@ class EmailLog(Base):
     subject = Column(String(255), nullable=False)
     status = Column(String(50), nullable=False, default="SENT", index=True)  # SENT, FAILED, SKIPPED
     error_message = Column(Text, nullable=True)
+    lead_id = Column(Integer, ForeignKey("leads.id", ondelete="SET NULL"), nullable=True, index=True)
+    attempts = Column(Integer, default=1, nullable=True)
+    last_attempt_at = Column(DateTime(timezone=True), nullable=True)
+    next_retry_at = Column(DateTime(timezone=True), nullable=True)
     sent_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), server_default=func.now())
 
     def __repr__(self):

@@ -54,6 +54,14 @@ def create_db_engine(db_url: str = DATABASE_URL):
     else:
         # SQLite configuration with 30s busy timeout for concurrent transactions
         connect_args = {"check_same_thread": False, "timeout": 30} if db_url.startswith("sqlite") else {}
+        if ":memory:" in db_url:
+            from sqlalchemy.pool import StaticPool
+            return create_engine(
+                db_url,
+                connect_args=connect_args,
+                poolclass=StaticPool,
+                echo=False
+            )
         eng = create_engine(
             db_url,
             connect_args=connect_args,
@@ -242,6 +250,20 @@ def upgrade_schema(db_engine):
                             text("UPDATE projects SET public_token = :tok WHERE id = :id"),
                             {"tok": secrets.token_urlsafe(24), "id": pr[0]}
                         )
+                    conn.commit()
+
+                # Check existing columns in email_logs table
+                email_log_result = conn.execute(text("PRAGMA table_info(email_logs)"))
+                email_log_cols = {row[1] for row in email_log_result.fetchall()}
+                if email_log_cols:
+                    if "lead_id" not in email_log_cols:
+                        conn.execute(text("ALTER TABLE email_logs ADD COLUMN lead_id INTEGER"))
+                    if "attempts" not in email_log_cols:
+                        conn.execute(text("ALTER TABLE email_logs ADD COLUMN attempts INTEGER DEFAULT 1"))
+                    if "last_attempt_at" not in email_log_cols:
+                        conn.execute(text("ALTER TABLE email_logs ADD COLUMN last_attempt_at DATETIME"))
+                    if "next_retry_at" not in email_log_cols:
+                        conn.execute(text("ALTER TABLE email_logs ADD COLUMN next_retry_at DATETIME"))
                     conn.commit()
 
             except Exception as e:

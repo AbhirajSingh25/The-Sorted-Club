@@ -4,12 +4,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status, Request, B
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
+from datetime import datetime, timezone
 from database import get_db
-from models import Notification, EmailLog, AdminPushSubscription, PushLog
+from models import Notification, EmailLog, AdminPushSubscription, PushLog, NotificationJob, NotificationJobStatus
 from schemas import (
     NotificationOut,
     NotificationListOut,
     EmailLogOut,
+    NotificationJobOut,
+    NotificationDiagnosticsOut,
     VapidPublicKeyResponse,
     PushSubscriptionCreate,
     PushSubscriptionDelete,
@@ -109,6 +112,103 @@ def trigger_test_email(
     limiter.check(request, "diagnostic_email", max_requests=5, window_seconds=60)
     from services.notification_service import test_smtp_delivery
     return test_smtp_delivery(recipient=recipient, db=db)
+
+
+@router.get("/jobs", response_model=List[NotificationJobOut])
+def get_notification_jobs(
+    status: Optional[str] = Query(None, description="Filter by status (PENDING, PROCESSING, COMPLETED, FAILED, SKIPPED)"),
+    channel: Optional[str] = Query(None, description="Filter by channel (EMAIL, PUSH)"),
+    lead_id: Optional[int] = Query(None, description="Filter by associated lead"),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    _admin: str = Depends(get_current_admin)
+):
+    """
+    Protected endpoint: View the durable notification queue / outbox jobs.
+    """
+    query = db.query(NotificationJob)
+    if status:
+        query = query.filter(NotificationJob.status == status.upper())
+    if channel:
+        query = query.filter(NotificationJob.channel == channel.upper())
+    if lead_id:
+        query = query.filter(NotificationJob.lead_id == lead_id)
+    return query.order_by(desc(NotificationJob.created_at)).offset(offset).limit(limit).all()
+
+
+@router.post("/jobs/{job_id}/retry", response_model=NotificationJobOut)
+def retry_notification_job(
+    job_id: int,
+    db: Session = Depends(get_db),
+    _admin: str = Depends(get_current_admin)
+):
+    """
+    Protected endpoint: Manually re-queue a pending or failed notification job for immediate processing.
+    """
+    job = db.query(NotificationJob).filter(NotificationJob.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification job not found")
+
+    job.status = NotificationJobStatus.PENDING.value
+    job.next_retry_at = datetime.now(timezone.utc)
+    job.last_error = None
+    db.commit()
+    db.refresh(job)
+
+    from services.notification_worker import notify_worker
+    notify_worker()
+    return job
+
+
+@router.get("/diagnostics", response_model=NotificationDiagnosticsOut)
+def get_notification_diagnostics(
+    db: Session = Depends(get_db),
+    _admin: str = Depends(get_current_admin)
+):
+    """
+    Protected endpoint: Return operational notification & email delivery diagnostics
+    without exposing any passwords or private secret keys.
+    """
+    from services.notification_service import get_email_config
+    from services.push_service import get_vapid_config
+    from sqlalchemy import func
+
+    email_cfg = get_email_config()
+    vapid_cfg = get_vapid_config()
+
+    # Aggregate queue summary
+    counts = dict(
+        db.query(NotificationJob.status, func.count(NotificationJob.id))
+        .group_by(NotificationJob.status)
+        .all()
+    )
+    queue_summary = {
+        "pending": counts.get("PENDING", 0),
+        "processing": counts.get("PROCESSING", 0),
+        "completed": counts.get("COMPLETED", 0),
+        "failed": counts.get("FAILED", 0),
+        "skipped": counts.get("SKIPPED", 0)
+    }
+
+    active_push_count = db.query(AdminPushSubscription).filter(
+        AdminPushSubscription.is_active == True
+    ).count()
+
+    return NotificationDiagnosticsOut(
+        email_notifications_enabled=bool(email_cfg.get("enabled")),
+        smtp_host=email_cfg.get("host", ""),
+        smtp_port=email_cfg.get("port", 587),
+        smtp_username=email_cfg.get("username", ""),
+        smtp_from_email=email_cfg.get("from_email", ""),
+        business_notification_email=email_cfg.get("business_email", ""),
+        smtp_use_ssl=bool(email_cfg.get("use_ssl")),
+        smtp_password_configured=bool(email_cfg.get("password")),
+        app_env=email_cfg.get("app_env", "development"),
+        queue_summary=queue_summary,
+        active_push_subscriptions=active_push_count,
+        push_configured=bool(vapid_cfg.get("configured"))
+    )
 
 
 # ==============================================================================

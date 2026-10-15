@@ -35,11 +35,34 @@ async function request(path, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  // Set up a 20-second timeout controller unless caller provided an explicit signal
+  const timeoutMs = options.timeout || 20000;
+  let timeoutId = null;
+  let signal = options.signal;
+  if (!signal && typeof AbortController !== 'undefined') {
+    const controller = new AbortController();
+    signal = controller.signal;
+    timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeoutMs);
+  }
+
+  const startTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
+
   try {
     const response = await fetch(url, {
       ...options,
-      headers
+      headers,
+      signal
     });
+
+    if (timeoutId) clearTimeout(timeoutId);
+
+    const endTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const duration = Math.round(endTime - startTime);
+    if (import.meta.env?.DEV) {
+      console.debug(`[API] ${options.method || 'GET'} ${path} - ${response.status} (${duration}ms)`);
+    }
 
     const isJson = (response.headers.get('content-type') || '').includes('application/json');
     const data = isJson ? await response.json() : await response.text();
@@ -78,6 +101,12 @@ async function request(path, options = {}) {
 
     return data;
   } catch (err) {
+    if (timeoutId) clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      const timeoutErr = new Error('Request timed out. Please check your network connection and try again.');
+      timeoutErr.status = 408;
+      throw timeoutErr;
+    }
     if (err.name === 'TypeError' && err.message && err.message.includes('fetch')) {
       const connErr = new Error('Unable to connect to the backend server. Please verify the API is running.');
       connErr.status = 0;
@@ -817,6 +846,27 @@ export async function testPushNotification() {
 export async function fetchPushLogs(limit = 50) {
   return request(`/api/notifications/push-logs?limit=${limit}`);
 }
+
+export async function fetchNotificationJobs({ lead_id = '', status = '', channel = '', limit = 50 } = {}) {
+  const params = new URLSearchParams();
+  if (lead_id) params.append('lead_id', lead_id);
+  if (status) params.append('status', status);
+  if (channel) params.append('channel', channel);
+  if (limit) params.append('limit', limit);
+  const query = params.toString() ? `?${params.toString()}` : '';
+  return request(`/api/notifications/jobs${query}`);
+}
+
+export async function retryNotificationJob(jobId) {
+  return request(`/api/notifications/jobs/${jobId}/retry`, {
+    method: 'POST'
+  });
+}
+
+export async function fetchNotificationDiagnostics() {
+  return request('/api/notifications/diagnostics');
+}
+
 
 
 

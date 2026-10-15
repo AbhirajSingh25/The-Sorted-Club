@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_, desc, asc, func
 
 from database import get_db
-from models import Lead, Client, LeadActivity, LeadStatus, LeadPriority, ActivityType
+from models import Lead, Client, LeadActivity, LeadStatus, LeadPriority, ActivityType, Notification
 from schemas import (
     LeadCreate,
     LeadUpdate,
@@ -18,7 +18,8 @@ from schemas import (
 )
 from auth import get_current_admin
 from rate_limiter import limiter
-from services.notification_service import send_business_notification, send_customer_email
+from services.notification_service import enqueue_inquiry_notifications, send_business_notification, send_customer_email
+from services.notification_worker import notify_worker
 
 router = APIRouter(prefix="/api/leads", tags=["Leads & CRM"])
 
@@ -77,10 +78,9 @@ def create_lead(lead_in: LeadCreate, request: Request, db: Session = Depends(get
             ])
         )
         db.add(new_lead)
-        db.commit()
-        db.refresh(new_lead)
+        db.flush()
 
-        # Record initial inquiry submission activity
+        # 1. Record initial inquiry submission activity
         initial_activity = LeadActivity(
             lead_id=new_lead.id,
             type=ActivityType.NOTE.value,
@@ -88,71 +88,31 @@ def create_lead(lead_in: LeadCreate, request: Request, db: Session = Depends(get
             created_by="System"
         )
         db.add(initial_activity)
-        db.commit()
 
-        # Trigger customer acknowledgement email
-        send_customer_email(
-            db=db,
-            recipient=new_lead.email,
-            event_type="INQUIRY_RECEIVED",
-            subject="We received your brief — The Sorted Club",
-            title=f"Thanks for reaching out, {new_lead.name}!",
-            message=f"We have received your inquiry for {new_lead.service_interest}. Our core team is reviewing your requirements and will connect with you within 24 business hours.",
-            data={
-                "Requested Service": new_lead.service_interest,
-                "Company": new_lead.business_name,
-                "Indicated Budget": new_lead.budget
-            }
-        )
-
-        # Trigger admin notification & email
-        send_business_notification(
-            db=db,
-            event_type="NEW_INQUIRY",
-            subject=f"[The Sorted Club] New Inquiry — {new_lead.business_name}",
+        # 2. Record in-app admin dashboard notification
+        admin_notification = Notification(
+            type="NEW_INQUIRY",
             title=f"New Inquiry: {new_lead.business_name}",
             message=f"New business inquiry received for {new_lead.service_interest}. Budget: {new_lead.budget}. Contact: {new_lead.name} ({new_lead.phone}).",
-            data={
-                "Business": new_lead.business_name,
-                "Contact Name": new_lead.name,
-                "Email": new_lead.email,
-                "Phone": new_lead.phone,
-                "Service Needed": new_lead.service_interest,
-                "Budget": new_lead.budget,
-                "Source Channel": new_lead.source,
-                "Problem Brief": new_lead.problem
-            },
             entity_type="lead",
             entity_id=new_lead.id,
-            action_url=f"/admin/crm?selectedLead={new_lead.id}"
+            action_url=f"/admin/crm?selectedLead={new_lead.id}",
+            is_read=False
         )
+        db.add(admin_notification)
 
-        # Trigger Web Push notification for iPhone & desktop admin devices
-        try:
-            from services.push_service import send_web_push
+        # 3. Persist durable notification jobs (customer acknowledgement, owner email, web push)
+        enqueue_inquiry_notifications(db=db, lead=new_lead)
 
-            lead_name = (new_lead.name or new_lead.business_name or "").strip()
-            service = (new_lead.service_interest or "").strip()
-            if lead_name and service:
-                push_body = f"{lead_name} · {service}"
-            elif lead_name:
-                push_body = lead_name
-            elif service:
-                push_body = service
-            else:
-                push_body = "A new inquiry has arrived."
+        # 4. Commit all database mutations transactionally
+        db.commit()
+        db.refresh(new_lead)
 
-            send_web_push(
-                db=db,
-                title="New website inquiry",
-                body=push_body,
-                url=f"/admin/crm?selectedLead={new_lead.id}",
-                tag=f"lead-{new_lead.id}",
-                event_type="NEW_INQUIRY"
-            )
-        except Exception:
-            pass
+        # 5. Signal the durable background worker to deliver outbox jobs asynchronously
+        notify_worker()
 
+        # 6. Return accepted lead with explicit queued status
+        new_lead.notification_status = "QUEUED"
         return new_lead
     except Exception as e:
         db.rollback()

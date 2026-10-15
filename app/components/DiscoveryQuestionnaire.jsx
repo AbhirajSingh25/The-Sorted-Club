@@ -103,6 +103,7 @@ export default function DiscoveryQuestionnaire({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submittedLead, setSubmittedLead] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
 
@@ -202,7 +203,8 @@ export default function DiscoveryQuestionnaire({
         timeline: formData.timeline
       };
 
-      await submitLead(leadPayload);
+      const result = await submitLead(leadPayload);
+      setSubmittedLead(result);
       setIsSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
@@ -244,7 +246,7 @@ export default function DiscoveryQuestionnaire({
             </motion.div>
 
             <motion.span className="client-code-tag" style={{ background: 'var(--acid)', color: '#10100f', marginBottom: '12px', display: 'inline-block' }} variants={fadeInUp}>
-              DISCOVERY BRIEF RECEIVED
+              DISCOVERY BRIEF RECEIVED {submittedLead?.id ? `· #${submittedLead.id}` : ''}
             </motion.span>
 
             <motion.h1 style={{ font: '700 32px "Space Grotesk"', margin: '0 0 12px', color: 'var(--ink)' }} variants={fadeInUp}>
@@ -254,6 +256,26 @@ export default function DiscoveryQuestionnaire({
             <motion.p style={{ color: 'var(--muted)', fontSize: '15px', lineHeight: 1.6, margin: '0 auto 28px', maxWidth: '540px' }} variants={fadeInUp}>
               Thank you, <strong>{formData.name}</strong>. Our digital architecture squad is reviewing your requirements for <strong>{formData.business_name}</strong>. We will formulate a tailored blueprint and proposal within <strong>24 business hours</strong>.
             </motion.p>
+
+            <motion.div style={{
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '10px',
+              padding: '16px 20px',
+              textAlign: 'left',
+              margin: '0 0 24px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px'
+            }} variants={fadeInUp}>
+              <span style={{ fontSize: '18px', lineHeight: 1 }}>✉️</span>
+              <div style={{ fontSize: '13px', color: '#334155', lineHeight: 1.5 }}>
+                <strong style={{ color: '#0f172a', display: 'block', marginBottom: '2px' }}>
+                  Confirmation Queued for Delivery
+                </strong>
+                An automated brief acknowledgement has been queued for <strong>{submittedLead?.email || formData.email}</strong> and typically arrives in 1–2 minutes. Please check your spam or promotions folder if it is not visible in your main inbox.
+              </div>
+            </motion.div>
 
             <motion.div style={{ background: '#faf9f5', border: '1px solid var(--line)', borderRadius: '10px', padding: '20px', textAlign: 'left', margin: '0 0 32px' }} variants={fadeInUp}>
               <label className="section-subtitle" style={{ fontSize: '11px', marginBottom: '8px' }}>WHAT HAPPENS NEXT</label>

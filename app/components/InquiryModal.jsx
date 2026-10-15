@@ -516,6 +516,28 @@ export default function InquiryModal({ isOpen, onClose, initialService = '', ini
               </div>
             </div>
 
+            <div className="email-dispatch-notice" style={{
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '8px',
+              padding: '12px 14px',
+              marginTop: '16px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '10px',
+              fontSize: '12px',
+              lineHeight: '1.5',
+              color: '#a3a199'
+            }}>
+              <Mail size={16} color="#d4af37" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <strong style={{ color: '#f5f5f4', display: 'block', marginBottom: '2px' }}>
+                  Confirmation Queued for Delivery
+                </strong>
+                An automated brief acknowledgement has been queued for <strong>{submittedLead?.email || formData.email}</strong> and typically arrives in 1–2 minutes. Please check your spam or promotions folder if it is not visible in your main inbox.
+              </div>
+            </div>
+
             <div className="success-actions" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>
               <button
                 type="button"

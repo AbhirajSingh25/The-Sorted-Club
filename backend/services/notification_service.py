@@ -9,12 +9,127 @@ from pathlib import Path
 from dotenv import dotenv_values
 from sqlalchemy.orm import Session
 
-from models import Notification, EmailLog, NotificationType
+from models import (
+    Notification,
+    EmailLog,
+    NotificationType,
+    NotificationJob,
+    NotificationJobStatus,
+    NotificationChannel
+)
 
 logger = logging.getLogger("the_sorted_club.notifications")
 
 # Module flag used only by specialized unit tests to test mocked SMTP dispatch paths in test mode
 _allow_test_smtp_mock: bool = False
+
+
+def enqueue_inquiry_notifications(db: Session, lead: Any) -> Dict[str, Any]:
+    """
+    Durable transactional outbox enqueue:
+    Creates and persists outgoing notification jobs for customer acknowledgement,
+    business owner email, and admin web-push inside the active database transaction.
+    Guarantees duplicate prevention using stable idempotency keys.
+    Does NOT make any blocking external network or SMTP calls.
+    """
+    config = get_email_config()
+    jobs_created = []
+
+    # 1. Customer Acknowledgement Email Job
+    if lead.email and lead.email.strip():
+        ack_key = f"lead_{lead.id}_customer_ack"
+        existing_ack = db.query(NotificationJob).filter_by(idempotency_key=ack_key).first()
+        if not existing_ack:
+            ack_job = NotificationJob(
+                idempotency_key=ack_key,
+                channel=NotificationChannel.EMAIL.value,
+                event_type="INQUIRY_RECEIVED",
+                lead_id=lead.id,
+                recipient=lead.email.strip().lower(),
+                subject="We received your brief — The Sorted Club",
+                payload={
+                    "title": f"Thanks for reaching out, {lead.name}!",
+                    "message": f"We have received your project brief for {lead.service_interest}. Our core team is reviewing your requirements and will connect with you within 24 business hours.",
+                    "data": {
+                        "Reference ID": f"#{lead.id}",
+                        "Company": lead.business_name,
+                        "Requested Service": lead.service_interest,
+                        "Indicated Budget": lead.budget,
+                        "Expected Response": "Within 24 business hours"
+                    },
+                    "cta_text": "VIEW THE SORTED CLUB →",
+                    "cta_url": "/"
+                },
+                status=NotificationJobStatus.PENDING.value
+            )
+            db.add(ack_job)
+            jobs_created.append("customer_ack")
+
+    # 2. Business Owner Notification Email Job
+    owner_key = f"lead_{lead.id}_owner_email"
+    existing_owner = db.query(NotificationJob).filter_by(idempotency_key=owner_key).first()
+    if not existing_owner:
+        owner_job = NotificationJob(
+            idempotency_key=owner_key,
+            channel=NotificationChannel.EMAIL.value,
+            event_type="NEW_INQUIRY",
+            lead_id=lead.id,
+            recipient=config["business_email"],
+            subject=f"[The Sorted Club] New Inquiry — {lead.business_name}",
+            payload={
+                "title": f"New Inquiry: {lead.business_name}",
+                "message": f"New business inquiry received for {lead.service_interest}. Budget: {lead.budget}. Contact: {lead.name} ({lead.phone}).",
+                "data": {
+                    "Contact Name": lead.name,
+                    "Business Name": lead.business_name,
+                    "Customer Email": lead.email,
+                    "Phone / WhatsApp": lead.phone,
+                    "Requested Service": lead.service_interest,
+                    "Project Brief": lead.problem,
+                    "Budget & Currency": lead.budget,
+                    "Submission Time": datetime.now(timezone.utc).strftime("%d %b %Y, %I:%M %p UTC"),
+                    "Source Channel": lead.source or "Website",
+                    "Website": lead.website or "Not specified",
+                    "Selected Blueprint": lead.relevant_template or "Custom Requirements"
+                },
+                "action_url": f"/admin/crm?selectedLead={lead.id}"
+            },
+            status=NotificationJobStatus.PENDING.value
+        )
+        db.add(owner_job)
+        jobs_created.append("owner_email")
+
+    # 3. Web Push Job
+    push_key = f"lead_{lead.id}_web_push"
+    existing_push = db.query(NotificationJob).filter_by(idempotency_key=push_key).first()
+    if not existing_push:
+        lead_name = (lead.name or lead.business_name or "").strip()
+        service = (lead.service_interest or "").strip()
+        push_body = f"{lead_name} · {service}" if (lead_name and service) else (lead_name or service or "A new inquiry has arrived.")
+        push_job = NotificationJob(
+            idempotency_key=push_key,
+            channel=NotificationChannel.PUSH.value,
+            event_type="NEW_INQUIRY",
+            lead_id=lead.id,
+            recipient="all_admin_devices",
+            subject="New website inquiry",
+            payload={
+                "title": "New website inquiry",
+                "body": push_body,
+                "url": f"/admin/crm?selectedLead={lead.id}",
+                "tag": f"lead-{lead.id}",
+                "event_type": "NEW_INQUIRY"
+            },
+            status=NotificationJobStatus.PENDING.value
+        )
+        db.add(push_job)
+        jobs_created.append("web_push")
+
+    return {
+        "lead_id": lead.id,
+        "status": "QUEUED",
+        "jobs_enqueued": jobs_created
+    }
 
 
 def get_app_env() -> str:

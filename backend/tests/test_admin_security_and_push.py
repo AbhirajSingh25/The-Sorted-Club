@@ -131,6 +131,10 @@ def test_lead_creation_triggers_push_notification(client):
         assert resp.status_code == 201
         data = resp.json()
         assert data["name"] == "Jane Austen"
+
+        from services.notification_worker import get_notification_worker
+        get_notification_worker().process_all_pending()
+
         assert mock_push.called
         call_kwargs = mock_push.call_args.kwargs
         assert call_kwargs["title"] == "New website inquiry"
