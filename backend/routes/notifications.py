@@ -16,11 +16,14 @@ from schemas import (
     VapidPublicKeyResponse,
     PushSubscriptionCreate,
     PushSubscriptionDelete,
-    PushLogOut
+    PushLogOut,
+    JobRecoveryRequest,
+    JobRecoveryResponse
 )
 from auth import get_current_admin
 from rate_limiter import limiter
 from services.push_service import get_vapid_config, send_web_push
+from services.notification_worker import recover_historical_skipped_jobs, notify_worker
 
 logger = logging.getLogger("the_sorted_club.notifications")
 router = APIRouter(prefix="/api/notifications", tags=["Admin Notifications & Push"])
@@ -137,6 +140,35 @@ def get_notification_jobs(
     return query.order_by(desc(NotificationJob.created_at)).offset(offset).limit(limit).all()
 
 
+@router.post("/jobs/recover", response_model=JobRecoveryResponse)
+@router.post("/jobs/requeue-blocked", response_model=JobRecoveryResponse)
+def recover_notification_jobs(
+    payload: Optional[JobRecoveryRequest] = Body(default=None),
+    lead_id: Optional[int] = Query(None, description="Optional lead ID filter"),
+    dry_run: bool = Query(False, description="Preview recovery without modifying records"),
+    db: Session = Depends(get_db),
+    admin_user: str = Depends(get_current_admin)
+):
+    """
+    Protected endpoint: Authenticated, auditable recovery of notification jobs
+    deferred (CONFIG_BLOCKED) or historical jobs skipped due to missing or disabled email configuration.
+    Strictly excludes Push notifications and already-completed jobs.
+    """
+    req = payload or JobRecoveryRequest()
+    target_lead_id = lead_id if lead_id is not None else req.lead_id
+    is_dry_run = dry_run or req.dry_run
+
+    result = recover_historical_skipped_jobs(
+        db=db,
+        admin_username=admin_user,
+        lead_id=target_lead_id,
+        dry_run=is_dry_run,
+        include_historical_skipped=req.include_historical_skipped,
+        include_config_blocked=req.include_config_blocked
+    )
+    return result
+
+
 @router.post("/jobs/{job_id}/retry", response_model=NotificationJobOut)
 def retry_notification_job(
     job_id: int,
@@ -188,7 +220,8 @@ def get_notification_diagnostics(
         "processing": counts.get("PROCESSING", 0),
         "completed": counts.get("COMPLETED", 0),
         "failed": counts.get("FAILED", 0),
-        "skipped": counts.get("SKIPPED", 0)
+        "skipped": counts.get("SKIPPED", 0),
+        "config_blocked": counts.get("CONFIG_BLOCKED", 0)
     }
 
     active_push_count = db.query(AdminPushSubscription).filter(

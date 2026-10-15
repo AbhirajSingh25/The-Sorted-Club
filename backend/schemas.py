@@ -1314,6 +1314,32 @@ class NotificationDiagnosticsOut(BaseModel):
     active_push_subscriptions: int
     push_configured: bool
 
+
+class JobRecoveryRequest(BaseModel):
+    lead_id: Optional[int] = None
+    dry_run: bool = False
+    include_historical_skipped: bool = True
+    include_config_blocked: bool = True
+
+
+class JobRecoveryResultItem(BaseModel):
+    job_id: int
+    idempotency_key: str
+    channel: str
+    event_type: str
+    lead_id: Optional[int] = None
+    recipient: Optional[str] = None
+    previous_status: str
+    reason: str
+
+
+class JobRecoveryResponse(BaseModel):
+    success: bool
+    dry_run: bool
+    recovered_count: int
+    jobs: List[JobRecoveryResultItem] = []
+    audit: dict
+
 # ==============================================================================
 # ADMIN COMMAND CENTER OPERATING SYSTEM SCHEMAS
 # ==============================================================================

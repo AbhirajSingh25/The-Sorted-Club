@@ -774,6 +774,7 @@ class NotificationJobStatus(str, enum.Enum):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     SKIPPED = "SKIPPED"
+    CONFIG_BLOCKED = "CONFIG_BLOCKED"
 
 
 class NotificationChannel(str, enum.Enum):

@@ -420,22 +420,22 @@ def send_business_notification(
             logger.debug(f"[TEST] Notification recorded for {event_type}. Real email delivery skipped.")
 
     elif app_env == "development" and not config["enabled"]:
-        email_status = "SKIPPED"
+        email_status = "CONFIG_BLOCKED"
         error_msg = "Automated email delivery disabled in development mode (APP_ENV=development)"
         logger.info(f"[DEV] Notification recorded for {event_type}. Automated email skipped (use admin test-email for manual testing).")
 
     elif not config["enabled"]:
-        email_status = "SKIPPED"
+        email_status = "CONFIG_BLOCKED"
         error_msg = "EMAIL_NOTIFICATIONS_ENABLED is false"
         logger.info(f"Email notifications disabled. Event {event_type} logged to database.")
 
     elif not config["password"]:
-        email_status = "SKIPPED"
+        email_status = "CONFIG_BLOCKED"
         error_msg = "SMTP_PASSWORD is not set (requires Gmail 16-char App Password)"
         logger.info(f"Email notifications enabled but SMTP_PASSWORD missing for {event_type}.")
 
     elif not config["host"] or not target_email:
-        email_status = "SKIPPED"
+        email_status = "CONFIG_BLOCKED"
         error_msg = "SMTP_HOST or recipient email missing"
         logger.warning(f"SMTP configuration incomplete for event {event_type}.")
 
@@ -693,10 +693,10 @@ def send_customer_email(
         email_status = "SKIPPED"
         error_msg = "Customer email delivery disabled in test environment"
     elif app_env == "development" and not config["enabled"]:
-        email_status = "SKIPPED"
+        email_status = "CONFIG_BLOCKED"
         error_msg = "Automated customer email disabled in development mode"
     elif not config["enabled"] or not config["password"]:
-        email_status = "SKIPPED"
+        email_status = "CONFIG_BLOCKED"
         error_msg = "Email delivery disabled or SMTP credentials missing"
     else:
         try:
@@ -736,7 +736,10 @@ def send_customer_email(
             logger.info(f"Customer email successfully sent to {recipient} for event {event_type}")
         except Exception as e:
             error_msg = str(e).replace(config.get("password", ""), "********") if config.get("password") else str(e)
-            email_status = "FAILED"
+            if isinstance(e, smtplib.SMTPAuthenticationError) or "535" in str(e) or "authentication" in str(e).lower():
+                email_status = "CONFIG_BLOCKED"
+            else:
+                email_status = "FAILED"
             logger.warning(f"Failed to send customer email to {recipient}: {error_msg}")
 
     # Record delivery log

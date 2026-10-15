@@ -62,7 +62,7 @@ def is_permanent_email_error(error_str: str) -> bool:
     return any(p in lower for p in permanent_patterns)
 
 
-def is_config_error(error_str: str) -> bool:
+def is_config_error(error_str: Optional[str]) -> bool:
     """
     Identifies if delivery failure is due to missing or invalid credentials / config.
     """
@@ -73,11 +73,36 @@ def is_config_error(error_str: str) -> bool:
         "smtp_password",
         "app password",
         "authentication rejected",
+        "authentication failed",
+        "smtpauthenticationerror",
         "535",
-        "disabled",
-        "missing credentials"
+        "email_notifications_enabled",
+        "email delivery disabled",
+        "credentials missing",
+        "missing credentials",
+        "configuration incomplete",
+        "config_blocked",
+        "disabled"
     ]
     return any(p in lower for p in config_patterns)
+
+
+def is_historical_config_skipped(job: NotificationJob) -> bool:
+    """
+    Determines if an existing NotificationJob was marked SKIPPED (or CONFIG_BLOCKED)
+    due to missing or disabled email configuration.
+    Explicitly excludes Web Push jobs (which were legitimately skipped due to no devices).
+    """
+    channel = (job.channel or "").upper()
+    if channel != "EMAIL" and channel != NotificationChannel.EMAIL.value:
+        return False
+    if job.status == NotificationJobStatus.CONFIG_BLOCKED.value:
+        return True
+    if job.status != NotificationJobStatus.SKIPPED.value:
+        return False
+    if not job.last_error:
+        return True
+    return is_config_error(job.last_error)
 
 
 def sanitize_error(error_str: Optional[str], password: Optional[str]) -> Optional[str]:
@@ -116,17 +141,26 @@ def execute_single_job(job_id: int, db: Session) -> Tuple[str, Optional[str]]:
                 app_env = config["app_env"]
                 if app_env == "test":
                     if config["configured_enabled"] and notif_svc._allow_test_smtp_mock:
-                        # Test with mocked SMTP
-                        status_result, err_result = _dispatch_customer_smtp(config, target_email, subject, payload)
+                        if not config["password"]:
+                            status_result = "CONFIG_BLOCKED"
+                            err_result = "SMTP credentials missing (SMTP_PASSWORD is not set)"
+                        else:
+                            status_result, err_result = _dispatch_customer_smtp(config, target_email, subject, payload)
+                    elif not config["configured_enabled"] and notif_svc._allow_test_smtp_mock:
+                        status_result = "CONFIG_BLOCKED"
+                        err_result = "Email delivery disabled (EMAIL_NOTIFICATIONS_ENABLED is false)"
                     else:
                         status_result = "SKIPPED"
                         err_result = "Email delivery disabled in test environment"
                 elif not config["enabled"]:
-                    status_result = "SKIPPED"
+                    status_result = "CONFIG_BLOCKED"
                     err_result = "EMAIL_NOTIFICATIONS_ENABLED is false"
                 elif not config["password"]:
-                    status_result = "SKIPPED"
+                    status_result = "CONFIG_BLOCKED"
                     err_result = "SMTP_PASSWORD is not set (requires Gmail 16-char App Password)"
+                elif not config["host"] or not config["username"]:
+                    status_result = "CONFIG_BLOCKED"
+                    err_result = "SMTP configuration incomplete (missing host or username)"
                 else:
                     status_result, err_result = _dispatch_customer_smtp(config, target_email, subject, payload)
 
@@ -135,26 +169,36 @@ def execute_single_job(job_id: int, db: Session) -> Tuple[str, Optional[str]]:
                 app_env = config["app_env"]
                 if app_env == "test":
                     if config["configured_enabled"] and notif_svc._allow_test_smtp_mock:
-                        raw_status, err_result = _dispatch_smtp_email(
-                            config=config,
-                            target_email=target_email,
-                            event_type=job.event_type,
-                            subject=subject,
-                            title=payload.get("title", subject),
-                            message=payload.get("message", ""),
-                            data=payload.get("data"),
-                            action_url=payload.get("action_url")
-                        )
-                        status_result = raw_status
+                        if not config["password"]:
+                            status_result = "CONFIG_BLOCKED"
+                            err_result = "SMTP credentials missing (SMTP_PASSWORD is not set)"
+                        else:
+                            raw_status, err_result = _dispatch_smtp_email(
+                                config=config,
+                                target_email=target_email,
+                                event_type=job.event_type,
+                                subject=subject,
+                                title=payload.get("title", subject),
+                                message=payload.get("message", ""),
+                                data=payload.get("data"),
+                                action_url=payload.get("action_url")
+                            )
+                            status_result = raw_status
+                    elif not config["configured_enabled"] and notif_svc._allow_test_smtp_mock:
+                        status_result = "CONFIG_BLOCKED"
+                        err_result = "Email delivery disabled (EMAIL_NOTIFICATIONS_ENABLED is false)"
                     else:
                         status_result = "SKIPPED"
                         err_result = "Email delivery disabled in test environment"
                 elif not config["enabled"]:
-                    status_result = "SKIPPED"
+                    status_result = "CONFIG_BLOCKED"
                     err_result = "EMAIL_NOTIFICATIONS_ENABLED is false"
                 elif not config["password"]:
-                    status_result = "SKIPPED"
+                    status_result = "CONFIG_BLOCKED"
                     err_result = "SMTP_PASSWORD is not set (requires Gmail 16-char App Password)"
+                elif not config["host"] or not config["username"]:
+                    status_result = "CONFIG_BLOCKED"
+                    err_result = "SMTP configuration incomplete (missing host or username)"
                 else:
                     raw_status, err_result = _dispatch_smtp_email(
                         config=config,
@@ -225,6 +269,8 @@ def execute_single_job(job_id: int, db: Session) -> Tuple[str, Optional[str]]:
     # Standardize return status
     if status_result in ("SENT", "COMPLETED"):
         return "COMPLETED", None
+    elif status_result == "CONFIG_BLOCKED":
+        return "CONFIG_BLOCKED", err_result
     elif status_result == "SKIPPED":
         return "SKIPPED", err_result
     else:
@@ -273,7 +319,157 @@ def _dispatch_customer_smtp(config: Dict[str, Any], target_email: str, subject: 
     except Exception as e:
         sanitized = sanitize_error(str(e), config.get("password"))
         logger.warning(f"Failed to dispatch customer email to {target_email}: {sanitized}")
+        if isinstance(e, smtplib.SMTPAuthenticationError) or "535" in str(e) or "authentication" in str(e).lower():
+            return "CONFIG_BLOCKED", sanitized
         return "FAILED", sanitized
+
+
+def unblock_config_blocked_jobs(db: Session) -> int:
+    """
+    Checks if email delivery configuration is currently valid.
+    If valid, automatically restores all CONFIG_BLOCKED email jobs to PENDING
+    with next_retry_at = now, making them eligible for immediate processing.
+    Preserves all lead references, idempotency keys, and payloads.
+    Returns the count of unblocked jobs.
+    """
+    config = get_email_config()
+    app_env = config.get("app_env", "development")
+
+    # In test mode, only unblock if test mock is explicitly active
+    if app_env == "test":
+        if not (config.get("configured_enabled") and notif_svc._allow_test_smtp_mock):
+            return 0
+        if not config.get("password"):
+            return 0
+    else:
+        if not (config.get("enabled") and config.get("password") and config.get("host") and config.get("username")):
+            return 0
+
+    now = datetime.now(timezone.utc)
+    try:
+        count = db.query(NotificationJob).filter(
+            NotificationJob.status == NotificationJobStatus.CONFIG_BLOCKED.value,
+            or_(
+                NotificationJob.channel == NotificationChannel.EMAIL.value,
+                NotificationJob.channel == "EMAIL"
+            )
+        ).update({
+            NotificationJob.status: NotificationJobStatus.PENDING.value,
+            NotificationJob.next_retry_at: now
+        }, synchronize_session=False)
+
+        if count > 0:
+            db.commit()
+            logger.info(f"Automatically restored {count} CONFIG_BLOCKED notification job(s) to PENDING after valid email configuration detected.")
+        return count
+    except Exception as e:
+        logger.error(f"Failed to unblock CONFIG_BLOCKED jobs: {e}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return 0
+
+
+def recover_historical_skipped_jobs(
+    db: Session,
+    admin_username: str = "system",
+    lead_id: Optional[int] = None,
+    dry_run: bool = False,
+    include_historical_skipped: bool = True,
+    include_config_blocked: bool = True
+) -> Dict[str, Any]:
+    """
+    Identifies and safely recovers historical notification jobs that were deferred
+    or skipped due to missing/disabled email configuration.
+
+    Strict Safety Rules:
+    - Only jobs with channel == 'EMAIL' are evaluated.
+    - Push notifications (e.g. intentionally absent devices) are NEVER recovered.
+    - Jobs that already completed successfully are NEVER requeued.
+    - If an identical job for the same lead and event type has already completed, it is skipped.
+    - All lead references, idempotency keys, and payloads are preserved.
+    - Audits the operation and returns detailed telemetry.
+    """
+    candidate_statuses = []
+    if include_config_blocked:
+        candidate_statuses.append(NotificationJobStatus.CONFIG_BLOCKED.value)
+    if include_historical_skipped:
+        candidate_statuses.append(NotificationJobStatus.SKIPPED.value)
+
+    now = datetime.now(timezone.utc)
+    if not candidate_statuses:
+        return {
+            "success": True,
+            "dry_run": dry_run,
+            "recovered_count": 0,
+            "jobs": [],
+            "audit": {"operator": admin_username, "timestamp": now.isoformat(), "target_lead_id": lead_id, "requeued_ids": []}
+        }
+
+    query = db.query(NotificationJob).filter(
+        NotificationJob.status.in_(candidate_statuses),
+        or_(
+            NotificationJob.channel == NotificationChannel.EMAIL.value,
+            NotificationJob.channel == "EMAIL"
+        )
+    )
+    if lead_id:
+        query = query.filter(NotificationJob.lead_id == lead_id)
+
+    candidates = query.order_by(NotificationJob.created_at.asc()).all()
+
+    requeued_items = []
+
+    for job in candidates:
+        if not is_historical_config_skipped(job):
+            continue
+
+        # Check if already delivered in another job record
+        already_completed = db.query(NotificationJob).filter(
+            NotificationJob.idempotency_key == job.idempotency_key,
+            NotificationJob.status == NotificationJobStatus.COMPLETED.value
+        ).first()
+        if already_completed:
+            continue
+
+        prev_status = job.status
+        reason = "Unblocked configuration failure" if prev_status == NotificationJobStatus.CONFIG_BLOCKED.value else "Recovered historical skipped email job"
+
+        requeued_items.append({
+            "job_id": job.id,
+            "idempotency_key": job.idempotency_key,
+            "channel": job.channel,
+            "event_type": job.event_type,
+            "lead_id": job.lead_id,
+            "recipient": job.recipient,
+            "previous_status": prev_status,
+            "reason": reason
+        })
+
+        if not dry_run:
+            job.status = NotificationJobStatus.PENDING.value
+            job.next_retry_at = now
+            job.completed_at = None
+            job.attempts = 0
+
+    if not dry_run and requeued_items:
+        db.commit()
+        logger.info(f"Admin {admin_username} recovered {len(requeued_items)} historical/blocked notification job(s).")
+        notify_worker()
+
+    return {
+        "success": True,
+        "dry_run": dry_run,
+        "recovered_count": len(requeued_items),
+        "jobs": requeued_items,
+        "audit": {
+            "operator": admin_username,
+            "timestamp": now.isoformat(),
+            "target_lead_id": lead_id,
+            "requeued_ids": [item["job_id"] for item in requeued_items]
+        }
+    }
 
 
 class NotificationWorker:
@@ -378,31 +574,49 @@ class NotificationWorker:
     def process_next_due_job(self) -> bool:
         """
         Claims and processes a single due job.
+        Ensures strict concurrency isolation and idempotency across multiple workers.
         Returns True if a job was found and processed, False if queue was empty.
         """
         db = get_worker_db()
         try:
             now = datetime.now(timezone.utc)
 
+            # Auto-unblock any CONFIG_BLOCKED jobs if email configuration is currently valid
+            unblock_config_blocked_jobs(db)
+
             # Query the oldest pending job that is due
-            job = db.query(NotificationJob).filter(
+            query = db.query(NotificationJob).filter(
                 NotificationJob.status == NotificationJobStatus.PENDING.value,
                 NotificationJob.attempts < NotificationJob.max_attempts,
                 or_(
                     NotificationJob.next_retry_at.is_(None),
                     NotificationJob.next_retry_at <= now
                 )
-            ).order_by(NotificationJob.created_at.asc()).first()
+            ).order_by(NotificationJob.created_at.asc())
 
-            if not job:
+            if db.bind and db.bind.dialect.name == "postgresql":
+                query = query.with_for_update(skip_locked=True)
+
+            candidate = query.first()
+            if not candidate:
                 return False
 
-            # Atomically claim job
-            job.status = NotificationJobStatus.PROCESSING.value
-            job.attempts += 1
-            job.last_attempt_at = now
-            job_id = job.id
+            # Atomically claim job with Compare-And-Swap to prevent concurrent worker races
+            claimed = db.query(NotificationJob).filter(
+                NotificationJob.id == candidate.id,
+                NotificationJob.status == NotificationJobStatus.PENDING.value
+            ).update({
+                NotificationJob.status: NotificationJobStatus.PROCESSING.value,
+                NotificationJob.attempts: candidate.attempts + 1,
+                NotificationJob.last_attempt_at: now
+            }, synchronize_session=False)
             db.commit()
+
+            if claimed == 0:
+                # Concurrently claimed by another worker process
+                return False
+
+            job_id = candidate.id
 
             # Execute delivery
             outcome, err_msg = execute_single_job(job_id=job_id, db=db)
@@ -420,19 +634,28 @@ class NotificationWorker:
                     job.completed_at = datetime.now(timezone.utc)
                     job.last_error = err_msg
                     job.next_retry_at = None
+                elif outcome == "CONFIG_BLOCKED":
+                    job.status = NotificationJobStatus.CONFIG_BLOCKED.value
+                    job.completed_at = None
+                    job.last_error = err_msg
+                    job.next_retry_at = None
+                    # Configuration-related failures must not consume the normal transient-delivery retry budget
+                    job.attempts = max(0, job.attempts - 1)
                 else:  # FAILED
                     job.last_error = err_msg
-                    # Check retry policy
-                    if is_permanent_email_error(err_msg or "") or job.attempts >= job.max_attempts:
+                    # Check if error is actually a configuration problem
+                    if is_config_error(err_msg or ""):
+                        job.status = NotificationJobStatus.CONFIG_BLOCKED.value
+                        job.completed_at = None
+                        job.next_retry_at = None
+                        job.attempts = max(0, job.attempts - 1)
+                    elif is_permanent_email_error(err_msg or "") or job.attempts >= job.max_attempts:
                         job.status = NotificationJobStatus.FAILED.value
                         job.next_retry_at = None
                     else:
                         job.status = NotificationJobStatus.PENDING.value
                         delay_idx = min(job.attempts - 1, len(BACKOFF_DELAYS) - 1)
                         delay_sec = BACKOFF_DELAYS[delay_idx]
-                        if is_config_error(err_msg or ""):
-                            # If config is missing, back off for 5 minutes instead of spinning
-                            delay_sec = 300
                         job.next_retry_at = datetime.now(timezone.utc) + timedelta(seconds=delay_sec)
 
                 db.commit()
@@ -452,6 +675,12 @@ class NotificationWorker:
         Synchronously processes up to max_jobs pending jobs immediately.
         Useful for automated tests, deployment health checks, and CLI triggers.
         """
+        db = get_worker_db()
+        try:
+            unblock_config_blocked_jobs(db)
+        finally:
+            db.close()
+
         count = 0
         while count < max_jobs:
             processed = self.process_next_due_job()

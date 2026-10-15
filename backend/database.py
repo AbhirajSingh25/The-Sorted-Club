@@ -98,6 +98,7 @@ def upgrade_schema(db_engine):
     On PostgreSQL, schema creation is database-agnostic.
     """
     # 1. Create any missing tables defined in metadata
+    import models  # noqa: F401 - ensures all ORM classes are registered with Base.metadata
     Base.metadata.create_all(bind=db_engine)
 
     # 2. For SQLite development, safely alter tables to add any missing columns if needed
