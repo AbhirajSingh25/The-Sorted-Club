@@ -27,7 +27,10 @@ import {
   heroLineReveal,
   staggerContainer,
   TRANSITIONS,
-  routeVariants
+  routeVariants,
+  sectionViewport,
+  editorialLineReveal,
+  cardReveal
 } from './utils/motion';
 import InquiryModal from './components/InquiryModal';
 import CaseStudyModal from './components/CaseStudyModal';
@@ -310,7 +313,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         className="services"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={sectionViewport}
         variants={staggerContainer(0.08, 0.05)}
       >
         <motion.div className="section-head" variants={fadeInUp}>
@@ -321,6 +324,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
               Whatever your business needs,<br />
               <i>we'll get it sorted.</i>
             </h2>
+            <motion.div className="editorial-heading-line" variants={editorialLineReveal} />
           </div>
         </motion.div>
 
@@ -417,7 +421,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         className="home-portfolio"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={sectionViewport}
         variants={staggerContainer(0.08, 0.05)}
       >
         <motion.div className="section-head" variants={fadeInUp}>
@@ -428,6 +432,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
               Live concepts,<br />
               <i>engineered results.</i>
             </h2>
+            <motion.div className="editorial-heading-line" variants={editorialLineReveal} />
             <p style={{ color: 'var(--muted)', fontSize: '15px', maxWidth: '640px', marginTop: '12px', lineHeight: 1.5 }}>
               Production architectures engineered for speed, conversions, and direct client management. Every concept includes 100% full source code ownership upon launch.
             </p>
@@ -549,7 +554,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         className="process-section"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={sectionViewport}
         variants={staggerContainer(0.08, 0.05)}
       >
         <motion.div className="section-head" variants={fadeInUp}>
@@ -560,6 +565,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
               How it gets sorted.<br />
               <i>Direct sprints. Zero agency fluff.</i>
             </h2>
+            <motion.div className="editorial-heading-line" variants={editorialLineReveal} />
             <p style={{ color: 'var(--muted)', fontSize: '15px', maxWidth: '640px', marginTop: '12px', lineHeight: 1.5 }}>
               No 40-page agency decks. No bloated retainers. A battle-tested engineering sprint with a dedicated squad from day one.
             </p>
@@ -655,7 +661,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         className="manifesto"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={sectionViewport}
         variants={staggerContainer(0.1, 0.08)}
       >
         <motion.div className="manifesto-label" variants={fadeInUp}>
@@ -666,6 +672,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
             You bring the problem.<br />
             <span>We get it sorted.</span>
           </h2>
+          <motion.div className="editorial-heading-line" variants={editorialLineReveal} />
           <p className="manifesto-copy">
             Businesses shouldn't need five agencies, ten tools and a small miracle to get things done. The Sorted Club brings technology, growth and people together under one roof.
           </p>
@@ -689,12 +696,13 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         className="club"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={sectionViewport}
         variants={staggerContainer(0.1, 0.05)}
       >
         <motion.div className="club-copy" variants={fadeInUp}>
           <p className="eyebrow">09 / MEMBERSHIP</p>
           <h2>Join the club.</h2>
+          <motion.div className="editorial-heading-line" variants={editorialLineReveal} />
           <p>Start with one problem. Stay for everything else we can sort.</p>
           <div style={{ marginTop: '24px' }}>
             <motion.button
@@ -713,7 +721,7 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
           className="club-card"
           initial={{ opacity: 0, rotate: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, rotate: 2, scale: 1 }}
-          viewport={{ once: true }}
+          viewport={sectionViewport}
           transition={TRANSITIONS.cardSpring}
           whileHover={{ rotate: 0, scale: 1.02, y: -4 }}
           data-cursor="Member Pass"
@@ -734,12 +742,13 @@ function LandingPage({ onOpenInquiry, onNavigate, onNavigateToAdmin }) {
         className="contact"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={sectionViewport}
         variants={staggerContainer(0.1, 0.05)}
       >
         <motion.div variants={fadeInUp}>
           <p className="eyebrow">10 / GET STARTED</p>
           <h2>What's not sorted yet?</h2>
+          <motion.div className="editorial-heading-line" variants={editorialLineReveal} />
           <p>Tell us what you're trying to fix, build or grow. We'll figure out the next move.</p>
         </motion.div>
 

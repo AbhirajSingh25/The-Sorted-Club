@@ -28,7 +28,9 @@ import {
   scaleIn,
   staggerContainer,
   TRANSITIONS,
-  accordionVariants
+  accordionVariants,
+  editorialLineReveal,
+  sectionViewport
 } from '../utils/motion';
 import PublicNavbar from './PublicNavbar';
 
@@ -511,7 +513,7 @@ export default function PricingPage({
         style={{ maxWidth: '1180px', margin: '0 auto 80px', padding: '0 20px' }}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={sectionViewport}
         variants={staggerContainer(0.08, 0.05)}
       >
         <motion.div style={{ textAlign: 'center', marginBottom: '36px' }} variants={fadeInUp}>
@@ -519,6 +521,7 @@ export default function PricingPage({
           <h2 style={{ font: '700 32px "Space Grotesk"', margin: '4px 0 0' }}>
             Feature Comparison Matrix
           </h2>
+          <motion.div className="editorial-heading-line centered" variants={editorialLineReveal} />
           <p style={{ color: 'var(--muted)', fontSize: '14px', margin: '6px auto 0', maxWidth: '560px' }}>
             Compare specifications, delivery timelines, and technical capabilities side-by-side.
           </p>
@@ -566,7 +569,7 @@ export default function PricingPage({
         style={{ maxWidth: '1000px', margin: '0 auto 80px', padding: '0 20px' }}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={sectionViewport}
         variants={staggerContainer(0.08, 0.05)}
       >
         <motion.div className="discovery-callout-card" variants={fadeInUp}>
@@ -577,6 +580,7 @@ export default function PricingPage({
             <h2 style={{ font: '700 30px "Space Grotesk"', margin: '0 0 10px', color: '#fff' }}>
               Have specific website requirements?
             </h2>
+            <motion.div className="editorial-heading-line" variants={editorialLineReveal} />
             <p style={{ color: '#a09f98', fontSize: '14px', lineHeight: 1.6, margin: '0 0 20px' }}>
               Fill out our simple 9-question discovery intake questionnaire. We'll analyze your business model, recommend the optimal blueprint, and generate a tailored proposal within 24 hours.
             </p>
@@ -613,7 +617,7 @@ export default function PricingPage({
         style={{ maxWidth: '840px', margin: '0 auto 80px', padding: '0 20px' }}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={sectionViewport}
         variants={staggerContainer(0.08, 0.05)}
       >
         <motion.div style={{ textAlign: 'center', marginBottom: '32px' }} variants={fadeInUp}>
@@ -621,6 +625,7 @@ export default function PricingPage({
           <h2 style={{ font: '700 28px "Space Grotesk"', margin: '4px 0 0' }}>
             Frequently Asked Pricing Questions
           </h2>
+          <motion.div className="editorial-heading-line centered" variants={editorialLineReveal} />
         </motion.div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

@@ -33,7 +33,10 @@ import {
   scaleIn,
   staggerContainer,
   TRANSITIONS,
-  accordionVariants
+  accordionVariants,
+  editorialLineReveal,
+  sectionViewport,
+  cardReveal
 } from '../utils/motion';
 import PublicNavbar from './PublicNavbar';
 import { useCarouselPagination } from '../utils/useCarouselPagination';
@@ -916,7 +919,7 @@ export default function ServicesPages({
             style={{ maxWidth: '1240px', margin: '0 auto 80px', padding: '0 24px' }}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={sectionViewport}
             variants={staggerContainer}
           >
             <div className="services-overview-pillars-grid">
@@ -1138,7 +1141,7 @@ export default function ServicesPages({
             style={{ maxWidth: '1160px', margin: '0 auto 60px', padding: '0 24px' }}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={sectionViewport}
             variants={staggerContainer(0.08, 0.05)}
           >
             <motion.div style={{ marginBottom: '24px' }} variants={fadeInUp}>
@@ -1149,6 +1152,7 @@ export default function ServicesPages({
               <h2 style={{ font: '700 clamp(24px, 3.5vw, 32px) "Space Grotesk"', margin: '0 0 8px', color: 'var(--ink)' }}>
                 Built for businesses where credibility and conversion matter.
               </h2>
+              <motion.div className="editorial-heading-line" variants={editorialLineReveal} />
               <p style={{ color: 'var(--muted)', fontSize: '14px', maxWidth: '640px', margin: 0, lineHeight: 1.5 }}>
                 Tailored digital systems designed for high-conviction outcomes across distinct business models.
               </p>
@@ -1159,7 +1163,7 @@ export default function ServicesPages({
                 <motion.div
                   key={idx}
                   className="audience-compact-card audience-profile-card"
-                  variants={fadeInUp}
+                  variants={cardReveal}
                   whileHover={{ y: -3, boxShadow: '0 12px 28px rgba(16, 16, 15, 0.06)' }}
                   transition={TRANSITIONS.cardSpring}
                 >
@@ -1179,7 +1183,7 @@ export default function ServicesPages({
             style={{ maxWidth: '1160px', margin: '0 auto 60px', padding: '0 24px' }}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={sectionViewport}
             variants={staggerContainer(0.08, 0.05)}
           >
             <motion.div style={{ marginBottom: '24px' }} variants={fadeInUp}>
@@ -1190,6 +1194,7 @@ export default function ServicesPages({
               <h2 style={{ font: '700 clamp(24px, 3.5vw, 32px) "Space Grotesk"', margin: '0 0 8px', color: 'var(--ink)' }}>
                 Common roadblocks we eliminate in {pillarData.title}.
               </h2>
+              <motion.div className="editorial-heading-line" variants={editorialLineReveal} />
               <p style={{ color: 'var(--muted)', fontSize: '14px', maxWidth: '640px', margin: 0, lineHeight: 1.5 }}>
                 We replace recurring industry bottlenecks with engineered clarity and measurable velocity.
               </p>
@@ -1200,7 +1205,7 @@ export default function ServicesPages({
                 <motion.div
                   key={idx}
                   className="roadblock-compact-card roadblock-resolution-card"
-                  variants={fadeInUp}
+                  variants={cardReveal}
                   whileHover={{ y: -3, boxShadow: '0 12px 28px rgba(16, 16, 15, 0.06)' }}
                   transition={TRANSITIONS.cardSpring}
                 >
@@ -1211,9 +1216,6 @@ export default function ServicesPages({
                     <div className="roadblock-problem-line">
                       <span className="roadblock-dot problem">✕</span>
                       <h4 className="roadblock-problem-text">{road.problem}</h4>
-                    </div>
-                    <div className="roadblock-connector">
-                      <span className="roadblock-arrow">→</span>
                     </div>
                     <div className="roadblock-solution-line">
                       <span className="roadblock-dot solution">✓</span>
@@ -1231,7 +1233,7 @@ export default function ServicesPages({
             style={{ maxWidth: '1160px', margin: '0 auto 60px', padding: '0 24px' }}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={sectionViewport}
             variants={staggerContainer(0.08, 0.05)}
           >
             <motion.div style={{ textAlign: 'center', marginBottom: '32px' }} variants={fadeInUp}>
@@ -1242,6 +1244,7 @@ export default function ServicesPages({
               <h2 style={{ font: '700 clamp(24px, 3.5vw, 32px) "Space Grotesk"', margin: '4px 0 8px' }}>
                 What We Deliver in {pillarData.title}
               </h2>
+              <motion.div className="editorial-heading-line centered" variants={editorialLineReveal} />
               <p style={{ color: 'var(--muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto', lineHeight: 1.5 }}>
                 Engineered deliverables with rigorous technical standards, zero bloat, and 100% intellectual property ownership.
               </p>
@@ -1320,7 +1323,7 @@ export default function ServicesPages({
             style={{ maxWidth: '1160px', margin: '0 auto 80px', padding: '0 24px' }}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={sectionViewport}
             variants={staggerContainer(0.08, 0.05)}
           >
             <motion.div style={{ textAlign: 'center', marginBottom: '32px' }} variants={fadeInUp}>
@@ -1331,6 +1334,7 @@ export default function ServicesPages({
               <h2 style={{ font: '700 clamp(26px, 4vw, 36px) "Space Grotesk"', margin: '4px 0 0' }}>
                 Choose Your {pillarData.title} Package
               </h2>
+              <motion.div className="editorial-heading-line centered" variants={editorialLineReveal} />
               <p style={{ color: 'var(--muted)', fontSize: '14px', margin: '8px auto 16px', maxWidth: '500px' }}>
                 Simple, transparent pricing. 50% deposit on start, 50% only upon live staging sign-off.
               </p>
@@ -1539,7 +1543,7 @@ export default function ServicesPages({
             style={{ maxWidth: '1100px', margin: '0 auto 80px', padding: '0 24px' }}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={sectionViewport}
             variants={staggerContainer}
           >
             <motion.div style={{ textAlign: 'center', marginBottom: '40px' }} variants={fadeInUp}>
@@ -1547,6 +1551,7 @@ export default function ServicesPages({
               <h2 style={{ font: '700 32px "Space Grotesk"', margin: '4px 0 0' }}>
                 How We Get It Sorted
               </h2>
+              <motion.div className="editorial-heading-line centered" variants={editorialLineReveal} />
             </motion.div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
               {pillarData.workflow.map((st, idx) => (
@@ -1559,7 +1564,7 @@ export default function ServicesPages({
                     padding: '24px 20px',
                     position: 'relative'
                   }}
-                  variants={fadeInUp}
+                  variants={cardReveal}
                   whileHover={{ y: -4, boxShadow: '0 8px 20px rgba(0,0,0,0.05)' }}
                   transition={TRANSITIONS.cardSpring}
                 >
@@ -1582,7 +1587,7 @@ export default function ServicesPages({
             style={{ maxWidth: '800px', margin: '0 auto 80px', padding: '0 24px' }}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={sectionViewport}
             variants={staggerContainer}
           >
             <motion.div style={{ textAlign: 'center', marginBottom: '32px' }} variants={fadeInUp}>
@@ -1590,6 +1595,7 @@ export default function ServicesPages({
               <h2 style={{ font: '700 28px "Space Grotesk"', margin: '4px 0 0' }}>
                 Frequently Asked Questions
               </h2>
+              <motion.div className="editorial-heading-line centered" variants={editorialLineReveal} />
             </motion.div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1598,7 +1604,7 @@ export default function ServicesPages({
                 return (
                   <motion.div
                     key={idx}
-                    variants={fadeInUp}
+                    variants={cardReveal}
                     style={{
                       background: '#fff',
                       border: '1px solid var(--line)',
@@ -1658,7 +1664,7 @@ export default function ServicesPages({
             style={{ maxWidth: '900px', margin: '0 auto 80px', padding: '0 24px', textAlign: 'center' }}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={sectionViewport}
             variants={staggerContainer}
           >
             <motion.div

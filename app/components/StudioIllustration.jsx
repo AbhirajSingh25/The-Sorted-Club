@@ -383,7 +383,7 @@ export default function StudioIllustration({ name, size = 44, className = '' }) 
         return (
           <>
             <path d="M22 6 L35 11 V20 C35 28 22 36 22 36 C22 36 9 28 9 20 V11 Z" stroke={stroke} strokeWidth={strokeW} />
-            <text x="22" y="24" textAnchor="middle" font-family="'Space Grotesk', sans-serif" fontWeight="700" fontSize="10" fill={stroke}>90d</text>
+            <text x="22" y="24" textAnchor="middle" fontFamily="'Space Grotesk', sans-serif" fontWeight="700" fontSize="10" fill={stroke}>90d</text>
             <circle cx="22" cy="12" r="1.5" fill={accent} />
           </>
         );

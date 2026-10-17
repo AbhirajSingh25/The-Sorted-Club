@@ -179,3 +179,36 @@ export const routeVariants = {
     }
   }
 };
+
+// Editorial accent line reveal
+export const editorialLineReveal = {
+  hidden: { scaleX: 0, opacity: 0 },
+  visible: {
+    scaleX: 1,
+    opacity: 1,
+    transition: {
+      duration: 0.75,
+      ease: [0.16, 1, 0.3, 1]
+    }
+  }
+};
+
+// Default bidirectional viewport config for smooth mobile and desktop scrolling
+export const sectionViewport = {
+  once: false,
+  amount: 0.12,
+  margin: '0px 0px -40px 0px'
+};
+
+// Card stagger reveal for mobile grids
+export const cardReveal = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1]
+    }
+  }
+};

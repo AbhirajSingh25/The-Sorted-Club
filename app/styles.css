@@ -16174,7 +16174,7 @@ select.mobile-input:focus {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .roadblock-dot.problem {
@@ -16190,22 +16190,11 @@ select.mobile-input:focus {
   margin: 0;
 }
 
-.roadblock-connector {
-  margin: 2px 0 4px 18px;
-  color: var(--muted);
-  line-height: 1;
-}
-
-.roadblock-arrow {
-  font-family: monospace;
-  font-size: 13px;
-  color: var(--muted);
-}
-
 .roadblock-solution-line {
   display: flex;
   align-items: baseline;
   gap: 8px;
+  margin: 0;
 }
 
 .roadblock-dot.solution {
@@ -16343,10 +16332,23 @@ select.mobile-input:focus {
 /* 4. Active Card Outline & Carousel UX */
 .package-active-outline {
   position: absolute;
-  inset: -1px;
+  inset: 0;
   pointer-events: none;
   box-sizing: border-box;
   z-index: 4;
+}
+
+.editorial-heading-line {
+  display: block;
+  height: 2px;
+  width: 44px;
+  background: var(--ink);
+  margin: 10px 0 14px;
+  border-radius: 1px;
+}
+
+.editorial-heading-line.centered {
+  margin: 10px auto 14px;
 }
 
 .package-popular-badge {
