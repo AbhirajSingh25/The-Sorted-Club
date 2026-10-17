@@ -20,6 +20,8 @@ import {
 import { PILLARS_CONFIG, USD_INR_EXCHANGE_NOTE } from './pricingData';
 import { TRANSITIONS } from '../utils/motion';
 import { useCarouselPagination } from '../utils/useCarouselPagination';
+import { useIsMobile } from '../utils/responsive';
+import SignaturePerimeterOutline from './SignaturePerimeterOutline';
 
 const ICON_MAP = {
   Code2,
@@ -35,6 +37,7 @@ export default function ProjectEstimator({ onOpenInquiry, initialPillar = 'build
   const [currency, setCurrency] = useState('INR'); // 'INR' or 'USD'
   const [expandedTierId, setExpandedTierId] = useState(null);
   const [isEstimatorInView, setIsEstimatorInView] = useState(false);
+  const isMobile = useIsMobile(768);
 
   const summaryRef = useRef(null);
   const estimatorCardRef = useRef(null);
@@ -339,8 +342,9 @@ Please review this configuration and provide our formal statement of work and ki
               ref={tiersContainerRef}
               className={`estimator-tiers-grid ${currentPillar.tiers.length === 2 ? 'two-col' : 'three-col'}`}
             >
-              {currentPillar.tiers.map((tier) => {
+              {currentPillar.tiers.map((tier, idx) => {
                 const isSelected = tier.id === selectedTierId;
+                const isFocused = isMobile ? activeDotIndex === idx : isSelected;
                 const isExpanded = expandedTierId === tier.id;
                 const priceStr = tier.isSuccessBased
                   ? 'Pay on Success'
@@ -354,7 +358,7 @@ Please review this configuration and provide our formal statement of work and ki
                     ref={(el) => {
                       if (el) tierCardRefs.current[tier.id] = el;
                     }}
-                    className={`estimator-tier-card ${isSelected ? 'selected' : ''}`}
+                    className={`estimator-tier-card ${isSelected ? 'selected' : ''} ${isFocused ? 'focused' : ''}`}
                     onClick={() => setSelectedTierId(tier.id)}
                     role="button"
                     tabIndex={0}
@@ -367,6 +371,12 @@ Please review this configuration and provide our formal statement of work and ki
                       }
                     }}
                   >
+                    <SignaturePerimeterOutline
+                      isFocused={isFocused}
+                      isSelected={isSelected}
+                      borderRadius={10}
+                    />
+
                     <div className="tier-card-head">
                       <div className="tier-title-wrap">
                         <h4>{tier.name}</h4>

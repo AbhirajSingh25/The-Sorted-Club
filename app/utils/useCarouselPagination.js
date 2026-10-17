@@ -34,13 +34,20 @@ export function useCarouselPagination(containerRef, itemCount) {
       return;
     }
 
-    // Hard boundary 2: Scrolled to the absolute end of the carousel
-    if (maxScrollLeft > 0 && scrollLeft >= maxScrollLeft - 8) {
+    const containerRect = container.getBoundingClientRect();
+
+    // Hard boundary 2: Scrolled to or near the end of the carousel
+    const lastCard = cards[cards.length - 1];
+    const lastCardRect = lastCard ? lastCard.getBoundingClientRect() : null;
+    const isAtEnd =
+      (maxScrollLeft > 0 && scrollLeft >= maxScrollLeft - 24) ||
+      (lastCardRect && lastCardRect.right <= containerRect.right + 12);
+
+    if (isAtEnd) {
       setActiveDotIndex(cards.length - 1);
       return;
     }
 
-    const containerRect = container.getBoundingClientRect();
     const snapPoint = containerRect.left + 24; // Snap target alignment point (accounting for horizontal padding)
 
     let bestIdx = 0;
@@ -154,6 +161,7 @@ export function useCarouselPagination(containerRef, itemCount) {
 
   return {
     activeDotIndex,
+    focusedIndex: activeDotIndex,
     setActiveDotIndex,
     scrollToIndex
   };

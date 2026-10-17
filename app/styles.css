@@ -9240,9 +9240,9 @@ textarea:focus-visible {
   }
 
   .estimator-tier-card.selected {
-    border: 2px solid var(--ink) !important;
+    border: 1.5px solid rgba(16, 16, 15, 0.25) !important;
     background: #ffffff !important;
-    box-shadow: 0 10px 28px rgba(16, 16, 15, 0.12) !important;
+    box-shadow: 0 8px 24px rgba(16, 16, 15, 0.08) !important;
   }
 
   .estimator-carousel-indicators,
@@ -16057,4 +16057,407 @@ select.mobile-input:focus {
     font-size: 14.5px !important;
   }
 }
+
+/* ==========================================================================
+   THE SORTED CLUB — EDITORIAL SERVICE LAYOUTS & SIGNATURE MOTION SYSTEM
+   ========================================================================== */
+
+/* 1. Who Is This For? — Audience Profiles */
+.service-audience-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 960px) {
+  .service-audience-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.audience-profile-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 26px 22px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.audience-profile-card:hover {
+  border-color: #10100f;
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(16, 16, 15, 0.08);
+}
+
+.audience-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.audience-index-badge {
+  font: 700 11px monospace;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.audience-category-tag {
+  background: #f4f1e9;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font: 700 10px "Space Grotesk", sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.audience-title {
+  font: 700 20px/1.3 "Space Grotesk", sans-serif;
+  color: var(--ink);
+  margin: 0 0 10px;
+}
+
+.audience-segments-pill {
+  font: 600 12px/1.4 "DM Sans", sans-serif;
+  color: #55524b;
+  background: #faf8f3;
+  border-left: 3px solid var(--ink);
+  padding: 6px 10px;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 14px;
+}
+
+.audience-desc {
+  font: 400 13.5px/1.6 "DM Sans", sans-serif;
+  color: var(--muted);
+  margin: 0 0 18px;
+  flex-grow: 1;
+}
+
+.audience-callout-block {
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.audience-callout-block.signal {
+  background: #fbf9f4;
+  border: 1px solid #e7e3d8;
+}
+
+.audience-callout-block.outcome {
+  background: #f5f9eb;
+  border: 1px solid #d8e8b0;
+}
+
+.callout-label {
+  font: 700 10px "Space Grotesk", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.callout-label .callout-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.callout-label .callout-dot.warning {
+  background: #d97706;
+}
+
+.callout-label .callout-dot.success {
+  background: #15803d;
+}
+
+.audience-callout-block.signal .callout-label {
+  color: #92400e;
+}
+
+.audience-callout-block.outcome .callout-label {
+  color: #166534;
+}
+
+.callout-text {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* 2. Common Roadblocks We Eliminate — Problem-to-Resolution System */
+.service-roadblocks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 860px) {
+  .service-roadblocks-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.roadblock-resolution-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.roadblock-resolution-card:hover {
+  border-color: #10100f;
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(16, 16, 15, 0.08);
+}
+
+.roadblock-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0ede4;
+}
+
+.roadblock-tag {
+  font: 700 11px monospace;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+.roadblock-category {
+  font: 700 10px "Space Grotesk", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: #f4f1e9;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.roadblock-problem-pane {
+  background: #fffafa;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.roadblock-pane-label {
+  font: 700 10.5px "Space Grotesk", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.roadblock-pane-label.problem {
+  color: #b91c1c;
+}
+
+.roadblock-marker-x {
+  background: #fee2e2;
+  color: #dc2626;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.roadblock-problem-text {
+  font: 500 13.5px/1.5 "DM Sans", sans-serif;
+  color: #451a1a;
+  margin: 0;
+}
+
+.roadblock-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px 0 8px;
+}
+
+.roadblock-arrow {
+  font: 700 13px monospace;
+  color: var(--muted);
+  background: #f4f1e9;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+}
+
+.roadblock-resolution-pane {
+  background: #f9fdf2;
+  border: 1.5px solid #d8ff55;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.roadblock-pane-label.resolution {
+  color: #15803d;
+}
+
+.roadblock-marker-check {
+  background: #d8ff55;
+  color: #10100f;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.roadblock-resolution-text {
+  font: 600 13.5px/1.55 "Space Grotesk", sans-serif;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* 3. What We Deliver — Editorial Delivery System */
+.service-deliverables-editorial {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 980px) {
+  .service-deliverables-editorial {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+.deliverable-pillar-col {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 26px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.deliverable-pillar-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0ede4;
+}
+
+.deliverable-pillar-code {
+  font: 700 10.5px monospace;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.deliverable-pillar-headline {
+  font: 700 18px/1.3 "Space Grotesk", sans-serif;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.deliverable-pillar-summary {
+  font: 400 13px/1.5 "DM Sans", sans-serif;
+  color: var(--muted);
+  margin: 0;
+}
+
+.deliverable-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+}
+
+.deliverable-item-card {
+  background: #fbf9f4;
+  border: 1px solid #eeebe2;
+  border-radius: 8px;
+  padding: 14px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.deliverable-item-card:hover {
+  border-color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.deliverable-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  gap: 8px;
+}
+
+.deliverable-item-title {
+  font: 700 14px "Space Grotesk", sans-serif;
+  color: var(--ink);
+  margin: 0;
+}
+
+.deliverable-item-badge {
+  font: 700 9.5px "Space Grotesk", sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: #f4f1e9;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.deliverable-item-desc {
+  font: 400 12.5px/1.5 "DM Sans", sans-serif;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* 4. Signature Perimeter Outline Support */
+.signature-perimeter-root {
+  transition: opacity 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signature-perimeter-active-wrap motion.rect,
+  .signature-perimeter-active-wrap motion.circle,
+  .signature-perimeter-active-wrap motion.div,
+  .signature-perimeter-active-wrap motion.span {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
 
