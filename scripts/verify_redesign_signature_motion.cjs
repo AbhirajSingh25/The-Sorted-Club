@@ -139,15 +139,15 @@ async function runVerification() {
     const focusedCardIndex = cards.findIndex(c => c.querySelector('.signature-perimeter-active-wrap') !== null);
     const activeDot = Array.from(document.querySelectorAll('.services-carousel-indicators .carousel-dot-btn')).findIndex(d => d.classList.contains('active'));
     const focusTag = document.querySelector('.perimeter-focus-tag')?.textContent.trim();
-    const originPip = !!document.querySelector('.perimeter-origin-pip');
-    const svgRect = document.querySelector('.signature-perimeter-active-wrap svg rect');
+    const activeChosenBadge = document.querySelector('.perimeter-active-badge')?.textContent.trim();
+    const hasActiveOutline = !!document.querySelector('.package-active-outline');
 
     return {
       focusedCardIndex,
       activeDot,
       focusTag,
-      originPip,
-      hasSvgRect: !!svgRect
+      activeChosenBadge,
+      hasActiveOutline
     };
   });
 
@@ -155,8 +155,14 @@ async function runVerification() {
   if (initialFocusCheck.focusedCardIndex !== 0) {
     throw new Error(`Expected Card 0 to be initial focused card, got ${initialFocusCheck.focusedCardIndex}`);
   }
-  if (!initialFocusCheck.originPip) {
-    throw new Error('Expected origin marker pip to be present on focused perimeter outline');
+  if (initialFocusCheck.focusTag) {
+    throw new Error(`Forbidden "IN FOCUS" label detected: ${initialFocusCheck.focusTag}`);
+  }
+  if (initialFocusCheck.activeChosenBadge) {
+    throw new Error(`Forbidden "ACTIVE & CHOSEN" label detected: ${initialFocusCheck.activeChosenBadge}`);
+  }
+  if (!initialFocusCheck.hasActiveOutline) {
+    throw new Error('Expected clean active card outline to be present on Card 0');
   }
 
   await page.screenshot({

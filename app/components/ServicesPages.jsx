@@ -39,6 +39,7 @@ import PublicNavbar from './PublicNavbar';
 import { useCarouselPagination } from '../utils/useCarouselPagination';
 import { useIsMobile } from '../utils/responsive';
 import SignaturePerimeterOutline from './SignaturePerimeterOutline';
+import StudioIllustration from './StudioIllustration';
 
 const SERVICES_DATA = {
   build: {
@@ -51,130 +52,69 @@ const SERVICES_DATA = {
     whoFor: 'Restaurants, salons, gyms, clinics, consultants, local service contractors, real estate, small manufacturers, retailers, and startups needing a clean, high-converting digital presence that generates real inquiries.',
     whoForProfiles: [
       {
-        index: '01',
-        title: 'High-Intent Local Services & Practices',
-        segments: 'Clinics, Salons, Consultants, Real Estate & Contractors',
-        desc: 'Businesses where prospective clients evaluate credibility, reviews, and physical location within seconds of landing on a phone.',
-        signal: 'Losing 70%+ of mobile visitors due to slow loading or broken tap-to-call flows.',
-        outcome: 'Sub-second mobile authority hub with 1-tap WhatsApp lead capture and Google Maps integration.',
-        tag: 'LOCAL AUTHORITY'
+        title: 'Local Services & Practices',
+        illustration: 'build-local',
+        desc: 'Turn local mobile visitors into booked appointments and direct WhatsApp enquiries.'
       },
       {
-        index: '02',
-        title: 'Modern Retailers & Specialty Brands',
-        segments: 'Artisanal Goods, Apparel, Specialty Food & Boutiques',
-        desc: 'Product creators needing a high-velocity online storefront with lightning-fast catalog browsing, cart drawers, and secure payment checkout.',
-        signal: 'High cart abandonment on sluggish, bloated off-the-shelf templates.',
-        outcome: 'PageSpeed 90+ storefront with frictionless Razorpay/Stripe checkout and automated order alerts.',
-        tag: 'FAST COMMERCE'
+        title: 'Specialty Brands & Retail',
+        illustration: 'build-commerce',
+        desc: 'Lightning-fast digital storefronts with friction-free cart and payment checkout.'
       },
       {
-        index: '03',
-        title: 'Tech Founders, Platforms & Scaling Ops',
-        segments: 'Software Startups, B2B Platforms & Multi-Branch Operations',
-        desc: 'Teams needing dedicated client portals, custom calculators, internal operational dashboards, or custom full-stack web applications tailored to proprietary workflows.',
-        signal: 'Generic no-code site builders cannot support custom database logic, secure authentication, or REST APIs.',
-        outcome: 'Production full-stack architecture (React, FastAPI, PostgreSQL) with 100% source code and git repository ownership.',
-        tag: 'BESPOKE SOFTWARE'
+        title: 'Tech Startups & Platforms',
+        illustration: 'build-platform',
+        desc: 'Custom full-stack web applications, authenticated client portals, and bespoke tools.'
       }
     ],
     roadblocks: [
       {
-        index: '01',
-        category: 'SPEED & MOBILE EXPERIENCE',
-        problem: 'Outdated or slow websites that repel 75%+ of mobile prospects before the hero section even loads.',
-        resolution: 'Zero-bloat, sub-second PageSpeed architecture (90+ Google score target) engineered specifically for mobile conversion.'
+        illustration: 'build-speed',
+        problem: 'Slow, Bloated Templates',
+        solution: 'Sub-second PageSpeed 90+ custom code. 100% full client code ownership.'
       },
       {
-        index: '02',
-        category: 'CONVERSION & LEAD ROUTING',
-        problem: 'Missing or broken lead capture where inquiries get trapped in spam folders or lost in messy inboxes.',
-        resolution: 'Direct 1-click WhatsApp floating chat button and instant multi-channel CRM routing to notify your phone immediately.'
+        illustration: 'build-mobile-chat',
+        problem: 'Lost Mobile Enquiries',
+        solution: 'Direct 1-tap WhatsApp lead triggers and streamlined mobile inquiry capture.'
       },
       {
-        index: '03',
-        category: 'CODE OWNERSHIP & PLATFORM RISK',
-        problem: 'Proprietary website builders charging recurring hostage fees while retaining custody of your data and code.',
-        resolution: '100% full client ownership of source code, domain, hosting, and assets. Zero vendor lock-in or recurring builder tax.'
+        illustration: 'build-lock-repo',
+        problem: 'Proprietary Builder Lock-in',
+        solution: 'Standard modern React stack. Full Git repository and domain handover upon launch.'
       },
       {
-        index: '04',
-        category: 'DELIVERY VELOCITY & BUDGET',
-        problem: 'Traditional agency scope creep stretching 2-week website projects into 3-month budgetary nightmares.',
-        resolution: 'Fixed-scope, sprint-based delivery in 5–10 business days backed by transparent 50% deposit / 50% launch milestone billing.'
+        illustration: 'build-milestone',
+        problem: 'Agency Scope Creep & Delays',
+        solution: 'Fixed 5–10 day sprint turnaround with 50/50 staging milestone approval.'
       }
     ],
     deliverablesPillars: [
       {
-        category: 'Commercial Web & Conversion Funnels',
-        code: 'CORE-WEB',
-        icon: 'Code2',
-        headline: 'Authoritative Web Presences & High-Converting Funnels',
-        summary: 'Fast, responsive, SEO-structured web platforms engineered to establish instant market authority and turn visits into booked revenue.',
-        items: [
-          {
-            title: 'Business Websites & Digital Flagships',
-            desc: '5–8 custom responsive pages with rich editorial typography, trust badges, and interactive service selectors.',
-            badge: 'Speed 90+'
-          },
-          {
-            title: 'High-Converting Landing Pages & Funnels',
-            desc: 'Dedicated single-page campaigns with multi-step qualification quizzes, dynamic UTM tracking, and sticky mobile CTA docks.',
-            badge: 'Lead Funnel'
-          },
-          {
-            title: 'E-Commerce Storefronts & Shopping Carts',
-            desc: 'Product catalog with variants, shopping cart drawers, and secure Razorpay/Stripe checkout with automated transactional receipts.',
-            badge: 'Storefront'
-          }
+        illustration: 'build-deliver-web',
+        title: 'Commercial Web & Conversion',
+        bullets: [
+          '5–8 custom responsive pages with rich typography',
+          'Direct WhatsApp chat and CRM lead capture',
+          'PageSpeed 90+ optimization and local schema SEO'
         ]
       },
       {
-        category: 'Custom Applications & Operations Hubs',
-        code: 'CUSTOM-APP',
-        icon: 'Layers',
-        headline: 'Bespoke Software, Portals & Data Integrations',
-        summary: 'Full-stack software engineering that replaces disjointed spreadsheets with unified client portals, admin consoles, and two-way API pipelines.',
-        items: [
-          {
-            title: 'Client Portals & Authenticated Dashboards',
-            desc: 'Secure role-based access control (RBAC), personalized client accounts, document vaults, and live status tracking.',
-            badge: 'Auth & Portals'
-          },
-          {
-            title: 'Interactive Calculators & Dynamic CMS',
-            desc: 'Custom quotation estimators, headless content management for case studies, and live booking calendar synchronization.',
-            badge: 'Dynamic CMS'
-          },
-          {
-            title: 'API Webhooks & Third-Party System Sync',
-            desc: 'Seamless real-time synchronization between CRM, WhatsApp Business API, PostgreSQL databases, and payment processors.',
-            badge: 'API Webhooks'
-          }
+        illustration: 'build-deliver-app',
+        title: 'Custom Applications & Portals',
+        bullets: [
+          'Role-based client dashboards and auth systems',
+          'Interactive pricing calculators and dynamic CMS',
+          'Secure PostgreSQL database and REST API webhooks'
         ]
       },
       {
-        category: 'Engineering Standards & Guarantees',
-        code: 'STANDARDS',
-        icon: 'ShieldCheck',
-        headline: 'The Sorted Technical Guarantee',
-        summary: 'Every delivery conforms to our strict engineering protocol: zero vendor lock-in, uncompromising speed, and verified technical warranties.',
-        items: [
-          {
-            title: '100% Asset & Source Code Ownership',
-            desc: 'Complete transfer of git repositories, domain registrations, hosting accounts, and production assets upon launch.',
-            badge: 'Full Ownership'
-          },
-          {
-            title: 'PageSpeed 90+ & Schema SEO Target',
-            desc: 'Rigorous asset minification, Open Graph metadata, semantic HTML5, and automated XML sitemap generation.',
-            badge: 'Schema SEO'
-          },
-          {
-            title: '30 to 90 Days Post-Launch Warranty',
-            desc: 'Dedicated technical SLA covering defect fixes, performance monitoring, and team handover walkthrough.',
-            badge: 'SLA Warranty'
-          }
+        illustration: 'build-deliver-standards',
+        title: 'Standards & Guarantees',
+        bullets: [
+          '100% full client source code and asset ownership',
+          'Private staging sandbox testing before live DNS',
+          '30 to 90 days technical warranty SLA included'
         ]
       }
     ],
@@ -325,130 +265,69 @@ const SERVICES_DATA = {
     whoFor: 'B2B companies, service agencies, D2C brands, and local businesses wanting consistent qualified inquiries rather than vanity metrics.',
     whoForProfiles: [
       {
-        index: '01',
-        title: 'B2B Consultancies, Agencies & Advisors',
-        segments: 'Legal, Financial Advisory, Consulting & Tech Services',
-        desc: 'Practices requiring continuous high-intent inquiries from corporate decision-makers rather than vanity impressions.',
-        signal: 'Erratic pipeline relying entirely on unpredictable word-of-mouth referrals.',
-        outcome: 'Predictable monthly inbound inquiries via founder thought-leadership content and search ranking.',
-        tag: 'B2B PIPELINE'
+        title: 'B2B & Consultancies',
+        illustration: 'grow-b2b',
+        desc: 'Generate consistent qualified inbound inquiries through high-retention video and authority content.'
       },
       {
-        index: '02',
-        title: 'Local Multi-Location Businesses & Health Clinics',
-        segments: 'Specialists, Aesthetic Clinics, Hospitality & Studios',
-        desc: 'Brick-and-mortar operators competing in hyper-local Google Search and Maps catchments.',
-        signal: 'Invisible on Google Maps while nearby competitors capture prime search intent.',
-        outcome: 'Google Business Profile top-pack dominance, review velocity engine, and direct booking capture.',
-        tag: 'MAPS DOMINANCE'
+        title: 'Local Clinics & Practices',
+        illustration: 'grow-local',
+        desc: 'Capture prime local search intent and dominate Google Maps top-3 local pack.'
       },
       {
-        index: '03',
-        title: 'D2C Brands, Retailers & Consumer Products',
-        segments: 'E-Commerce Founders, Artisanal Goods & Consumer Apps',
-        desc: 'Fast-moving brands needing consistent short-form video hooks, creative ad testing, and conversion funnels.',
-        signal: 'Ad fatigue and flat organic reach with zero creative variation.',
-        outcome: 'High-volume short-form video engine (8–20 assets/mo) with full scripting, editing, and hook testing.',
-        tag: 'CREATIVE VELOCITY'
+        title: 'D2C Brands & Commerce',
+        illustration: 'grow-d2c',
+        desc: 'High-velocity creative ad sprints and conversion funnels tied directly to closed revenue.'
       }
     ],
     roadblocks: [
       {
-        index: '01',
-        category: 'PIPELINE PREDICTABILITY',
-        problem: 'Inconsistent monthly lead flow relying entirely on unpredictable, sporadic word-of-mouth.',
-        resolution: 'Systematic inbound pipeline combining local search dominance with founder authority content.'
+        illustration: 'grow-search',
+        problem: 'Invisible Local Search Ranking',
+        solution: 'Google Business Profile dominance, local citation cleanup, and review velocity.'
       },
       {
-        index: '02',
-        category: 'MARKETING ATTRIBUTION',
-        problem: 'Spending on traditional agency retainers with zero clear attribution to booked calls or closed revenue.',
-        resolution: 'End-to-end UTM attribution and CRM tracking matching every lead directly to campaign sources.'
+        illustration: 'grow-stream',
+        problem: 'Unpredictable Referral Pipeline',
+        solution: 'Systematic multi-channel inbound engine pairing short-form video with targeted ads.'
       },
       {
-        index: '03',
-        category: 'CONTENT & CREATIVE VELOCITY',
-        problem: 'Low social engagement and creative ad fatigue with zero consistent, high-grade short-form video content.',
-        resolution: 'Dedicated short-form video engine delivering 8–20 scripted, edited, hook-tested assets monthly.'
+        illustration: 'grow-attribution',
+        problem: 'Vague Agency Retainer Spend',
+        solution: 'End-to-end CRM lead attribution tracking every rupee/dollar directly to closed deals.'
       },
       {
-        index: '04',
-        category: 'LOCAL SEARCH VISIBILITY',
-        problem: 'Invisible Google search rankings while competitors capture prime local search intent and map packs.',
-        resolution: 'Complete Google Business Profile optimization, local schema, and review acceleration engine.'
+        illustration: 'grow-calendar',
+        problem: 'Creative Video Fatigue',
+        solution: 'Done-for-you scriptwriting, hook testing, and professional editing for 8–20 assets monthly.'
       }
     ],
     deliverablesPillars: [
       {
-        category: 'Short-Form Video & Content Engine',
-        code: 'CONTENT-ENGINE',
-        icon: 'Zap',
-        headline: 'High-Retention Video Production & Scripting',
-        summary: 'End-to-end creative production that turns industry expertise into engaging short-form video assets across Reels, Shorts, and LinkedIn.',
-        items: [
-          {
-            title: 'Scriptwriting & Hook Architecture',
-            desc: 'Direct-response narrative hooks crafted to capture mobile attention in the first 3 seconds.',
-            badge: 'Viral Hooks'
-          },
-          {
-            title: 'Professional Editing & Motion Graphics',
-            desc: 'Paced cuts, sound design, on-screen typography, and animated accents optimized for retention.',
-            badge: 'Short-Form Reels'
-          },
-          {
-            title: 'Omnichannel Publishing Schedules',
-            desc: 'Structured monthly content calendars distributed across Instagram, LinkedIn, YouTube, and TikTok.',
-            badge: 'Omnichannel'
-          }
+        illustration: 'grow-calendar',
+        title: 'Short-Form Video Engine',
+        bullets: [
+          'Hook-architected video scripts for Reels and Shorts',
+          'High-retention editing, sound design, and motion text',
+          'Structured monthly cross-platform publishing calendar'
         ]
       },
       {
-        category: 'Search Engine & Local Maps Dominance',
-        code: 'SEO-DOMINANCE',
-        icon: 'Search',
-        headline: 'Technical SEO & Google Business Profile Domination',
-        summary: 'Search optimization designed to capture high-intent inbound searchers at the exact moment they look for your services.',
-        items: [
-          {
-            title: 'Google Business Profile Top-3 Map Pack',
-            desc: 'Local category optimization, geotagged photo updates, and structured review generation.',
-            badge: 'Top Map Pack'
-          },
-          {
-            title: 'Technical On-Page & Schema Domination',
-            desc: 'Local business JSON-LD schema, keyword-focused service pages, and site architecture tuning.',
-            badge: 'Schema Markup'
-          },
-          {
-            title: 'Competitor Citation & Rank Tracking',
-            desc: 'Local directory syndication, citation cleanup, and bi-weekly keyword rank trajectory reports.',
-            badge: 'Rank Tracking'
-          }
+        illustration: 'grow-search',
+        title: 'Search & Maps Dominance',
+        bullets: [
+          'Google Maps top-3 local pack ranking optimization',
+          'Technical on-page SEO and structured JSON-LD schema',
+          'Bi-weekly keyword and competitor rank trajectory reports'
         ]
       },
       {
-        category: 'Paid Acquisition & Pipeline Funnels',
-        code: 'PAID-ACQUISITION',
-        icon: 'BarChart3',
-        headline: 'Targeted Lead Generation & Conversion Funnels',
-        summary: 'High-ROI customer acquisition campaigns across Meta and Google Ads paired with CRM lead attribution.',
-        items: [
-          {
-            title: 'High-Intent Meta & Google Ad Sprints',
-            desc: 'Direct-response ad creative testing, custom audience segmentation, and budget optimization.',
-            badge: 'Paid Ads'
-          },
-          {
-            title: 'Dedicated Landing Page Funnel Sprints',
-            desc: 'Fast-loading intake funnels engineered for maximum appointment booking and WhatsApp conversion.',
-            badge: 'Conversion Funnel'
-          },
-          {
-            title: 'Real-Time CRM Attribution & Reports',
-            desc: 'Granular UTM parameter tracking linking booked calls and customer payments to ad spend.',
-            badge: 'ROI Attribution'
-          }
+        illustration: 'grow-attribution',
+        title: 'Paid Acquisition & Funnels',
+        bullets: [
+          'High-intent Meta and Google Ad campaign management',
+          'Dedicated high-converting appointment landing pages',
+          'Real-time CRM lead attribution and ROI reporting'
         ]
       }
     ],
@@ -545,130 +424,69 @@ const SERVICES_DATA = {
     whoFor: 'Busy founders, sales teams, and operations managers spending hours on manual data entry, slow lead follow-ups, and disconnected tools.',
     whoForProfiles: [
       {
-        index: '01',
-        title: 'High-Volume Sales & Inbound Intake Teams',
-        segments: 'Real Estate, Professional Coaching, Advisory & Financial Services',
-        desc: 'Sales squads receiving inbound leads across WhatsApp, web forms, and Meta ads around the clock.',
-        signal: 'Leads sitting unanswered for 2+ hours; prospects buying from faster competitors.',
-        outcome: '24/7 instant WhatsApp/Email AI qualification bot and auto-routed CRM pipelines.',
-        tag: 'INSTANT RESPONSE'
+        title: 'Sales & Inbound Teams',
+        illustration: 'automate-inbound',
+        desc: 'Instant 24/7 WhatsApp and email responders that pre-qualify and book leads in under 60 seconds.'
       },
       {
-        index: '02',
-        title: 'Operations Managers & Logistics Squads',
-        segments: 'Contracting, Wholesale Distribution, Service Agencies & Delivery',
-        desc: 'Teams spending hours manually copy-pasting customer records between forms, Google Sheets, and CRMs.',
-        signal: 'Repetitive administrative drag causing human errors and forgotten invoice reminders.',
-        outcome: 'Self-healing cross-tool API webhooks eliminating manual data entry and human transcription errors.',
-        tag: 'ZERO COPY-PASTE'
+        title: 'Operations Managers',
+        illustration: 'automate-ops',
+        desc: 'Auto-sync inquiries to CRM, assign pipeline stages, and eliminate repetitive copy-pasting.'
       },
       {
-        index: '03',
-        title: 'Founders Scaling Beyond 5 to 20 Team Members',
-        segments: 'Bootstrapped Operators, Creative Studios & Fast-Growing Agencies',
-        desc: 'Leadership bogged down answering repetitive support questions and chasing overdue invoice status updates.',
-        signal: 'Founder acting as the bottleneck for internal queries and client status reports.',
-        outcome: 'Autonomous knowledge-base AI agents and Slack/WhatsApp internal command bots.',
-        tag: 'FOUNDER AUTONOMY'
+        title: 'Scaling Founders',
+        illustration: 'automate-founders',
+        desc: 'Automate invoice generation, client onboarding, and daily admin tasks so your squad stays lean.'
       }
     ],
     roadblocks: [
       {
-        index: '01',
-        category: 'SPEED TO LEAD',
-        problem: 'Leads sitting unanswered for hours, causing hot prospects to buy from faster competitors.',
-        resolution: 'Under-60-second automated response on WhatsApp and Email that pre-qualifies and books calls 24/7.'
+        illustration: 'automate-speed',
+        problem: 'Hours Lost to Slow Follow-ups',
+        solution: 'Under-60-second automated WhatsApp and email response qualifying prospects 24/7.'
       },
       {
-        index: '02',
-        category: 'MANUAL DATA DRAG',
-        problem: 'Hours lost daily copy-pasting data between lead forms, spreadsheets, and disconnected CRMs.',
-        resolution: 'Self-healing API webhooks and data pipelines synchronizing your software tools with zero manual touch.'
+        illustration: 'automate-sync',
+        problem: 'Disconnected Business Tools',
+        solution: 'Self-healing API webhooks synchronizing lead forms, CRM stages, and team alerts.'
       },
       {
-        index: '03',
-        category: 'FOLLOW-UPS & CASHFLOW',
-        problem: 'Missed client follow-ups, forgotten appointment confirmations, and delayed invoice reminders.',
-        resolution: 'Automated 2-way calendar scheduling and automated payment reminder sequences with checkout links.'
+        illustration: 'automate-invoice',
+        problem: 'Manual Invoicing & Late Payments',
+        solution: 'Automated invoice generation, payment reminders, and instant digital receipts.'
       },
       {
-        index: '04',
-        category: 'SUPPORT OVERHEAD',
-        problem: 'Customer support teams overwhelmed answering identical, repetitive customer policy inquiries.',
-        resolution: 'Guardrailed AI agent trained on your internal documentation that resolves routine questions with zero hallucinations.'
+        illustration: 'automate-guard',
+        problem: 'Repetitive Customer Inquiries',
+        solution: 'Internal AI assistant trained strictly on your documentation with zero hallucinations.'
       }
     ],
     deliverablesPillars: [
       {
-        category: 'Instant AI Responders & Chatbots',
-        code: 'AI-RESPONDER',
-        icon: 'Bot',
-        headline: '24/7 WhatsApp & Email AI Conversational Agents',
-        summary: 'Autonomous conversational agents that instantly greet, qualify, answer questions, and book calendar appointments across WhatsApp and Email.',
-        items: [
-          {
-            title: 'WhatsApp Business API AI Agent',
-            desc: 'Interactive chat agent trained on your knowledge base to qualify inbound prospects and collect lead requirements.',
-            badge: 'WhatsApp Bot'
-          },
-          {
-            title: '2-Way Calendar Booking Integration',
-            desc: 'Instant slot matching with Google Calendar or Outlook, timezone adjustments, and automated reminder notifications.',
-            badge: 'Calendar Sync'
-          },
-          {
-            title: 'Deterministic Knowledge Guardrails',
-            desc: 'Strict knowledge-base scoping ensuring the AI only provides verified company answers, escalating complex cases to humans.',
-            badge: 'Zero Hallucinations'
-          }
+        illustration: 'automate-inbound',
+        title: 'AI Customer Responders',
+        bullets: [
+          '24/7 WhatsApp and Email intelligent lead qualification',
+          'Calendar booking integration with automated confirmations',
+          'Custom guardrails trained on your company knowledge'
         ]
       },
       {
-        category: 'CRM & Pipeline Auto-Routing',
-        code: 'PIPELINE-SYNC',
-        icon: 'Layers',
-        headline: 'End-to-End CRM & Cross-Tool Synchronization',
-        summary: 'Eliminate duplicate data entry by bridging WhatsApp, HubSpot, Zoho, Google Sheets, Airtable, and PostgreSQL in real time.',
-        items: [
-          {
-            title: 'Automated Lead Qualification & Stage Assignment',
-            desc: 'Automatically assess deal size, assign leads to the right salesperson, and update CRM pipeline stages instantly.',
-            badge: 'Auto-Routing'
-          },
-          {
-            title: 'Internal Team Alert Bots',
-            desc: 'Instant WhatsApp and Slack notifications triggered when VIP prospects submit forms or close milestone agreements.',
-            badge: 'Team Alerts'
-          },
-          {
-            title: 'Self-Healing Webhook Error Monitoring',
-            desc: 'Automated retries, fallback notification queues, and error alerting to ensure zero leads are ever dropped.',
-            badge: 'Error Logging'
-          }
+        illustration: 'automate-sync',
+        title: 'CRM & Pipeline Sync',
+        bullets: [
+          'Automatic lead ingestion, deduplication, and stage routing',
+          'Slack and WhatsApp instant hot lead team notifications',
+          'Two-way sync across Google Sheets, Airtable, and custom CRMs'
         ]
       },
       {
-        category: 'Document & Operational Workflows',
-        code: 'DOC-WORKFLOW',
-        icon: 'ShieldCheck',
-        headline: 'Automated Invoicing, Contracts & Document Processing',
-        summary: 'Streamline operational back-office tasks including PDF invoice creation, payment status tracking, and contract handoffs.',
-        items: [
-          {
-            title: 'Automated Invoice & Receipt Generation',
-            desc: 'Trigger professional PDF invoices and automated payment follow-up reminders upon milestone sign-offs.',
-            badge: 'Invoice Engine'
-          },
-          {
-            title: 'Document Data Extraction & Parsing',
-            desc: 'Extract key fields from receipts, invoices, and contracts directly into your financial database.',
-            badge: 'Data Extraction'
-          },
-          {
-            title: 'Staff Training & Video Documentation',
-            desc: 'Custom Loom video tutorials and a simple control console so non-technical team members can manage workflows.',
-            badge: 'Team Handover'
-          }
+        illustration: 'automate-invoice',
+        title: 'Workflow Automation & SLAs',
+        bullets: [
+          'Trigger-based automated invoice and contract workflows',
+          'Error-monitoring webhooks with automatic fallback alerts',
+          '30–60 days technical warranty and video handover docs'
         ]
       }
     ],
@@ -766,130 +584,69 @@ const SERVICES_DATA = {
     whoFor: 'Fast-growing startups, agencies, and enterprises needing engineers, growth leads, marketers, and operations staff without endless recruiter back-and-forth.',
     whoForProfiles: [
       {
-        index: '01',
-        title: 'High-Growth Tech Startups & Engineering Squads',
-        segments: 'Seed & Series A Startups, Boutique Engineering Studios',
-        desc: 'Founders needing reliable Full-Stack Engineers, Product Designers, and Tech Leads without recruiter delay.',
-        signal: 'Sifting through 300+ spam resumes; engineers failing simple technical assessments.',
-        outcome: 'Top 3–5 pre-screened, code-benchmarked candidates delivered in 7–10 days with HireSense AI.',
-        tag: 'ENGINEERING TALENT'
+        title: 'Tech Startups & Squads',
+        illustration: 'hire-tech',
+        desc: 'Top-tier Full-Stack Engineers, Product Designers, and Tech Leads sourced in 7–10 days.'
       },
       {
-        index: '02',
-        title: 'Performance Marketing & Creative Agencies',
-        segments: 'Growth Agencies, Production Houses & Media Collectives',
-        desc: 'Fast-expanding agencies that need immediate account managers, media buyers, and video editors.',
-        signal: 'Traditional recruitment firms charging exorbitant 20% retainers with zero retention guarantee.',
-        outcome: 'Pay-on-success placement model backed by a 90-day free candidate replacement guarantee.',
-        tag: 'ZERO UPFRONT RISK'
+        title: 'Marketing & Creative Agencies',
+        illustration: 'hire-growth',
+        desc: 'Pre-vetted media buyers, performance marketers, and operations leads without recruiter delay.'
       },
       {
-        index: '03',
-        title: 'Enterprises Scaling Multiple Teams Concurrently',
-        segments: 'Mid-Market Operators & Expanding Department Heads',
-        desc: 'Organizations needing an embedded talent partner to handle end-to-end sourcing, ATS setup, and pipeline.',
-        signal: 'Hiring managers spending 15+ hours weekly coordinating interviews and screening calls.',
-        outcome: 'Dedicated embedded recruiter running ATS pipeline, scorecarding, and offer closing.',
-        tag: 'EMBEDDED PARTNER'
+        title: 'Scaling Enterprises',
+        illustration: 'hire-bench',
+        desc: 'Scale dedicated project benches with a 100% pay-on-success model and zero upfront fees.'
       }
     ],
     roadblocks: [
       {
-        index: '01',
-        category: 'SCREENING EFFICIENCY',
-        problem: 'Sorting through hundreds of unqualified resumes wasting dozens of hiring manager hours.',
-        resolution: 'HireSense AI screening algorithm evaluating code samples, portfolio benchmarks, and technical fit.'
+        illustration: 'hire-filter',
+        problem: 'Endless Resume Screening',
+        solution: 'HireSense AI screens thousands of profiles to deliver top 3–5 finalists in 7–10 days.'
       },
       {
-        index: '02',
-        category: 'RECRUITER RISK',
-        problem: 'Traditional recruiters sending spam candidates with high upfront fees and zero performance risk.',
-        resolution: 'Pay-on-success recruitment model: zero upfront fee; you pay only upon a verified, successful hire.'
+        illustration: 'hire-benchmark',
+        problem: 'Unverified Technical Skills',
+        solution: 'Hands-on coding assessments and structured scorecard evaluations before client review.'
       },
       {
-        index: '03',
-        category: 'INTERVIEW VELOCITY',
-        problem: 'Slow interview cycles causing top candidates to drop out and accept competing offers.',
-        resolution: 'Curated shortlist of top 3–5 interview-ready candidates delivered within 5–7 business days.'
+        illustration: 'hire-handshake',
+        problem: 'Exorbitant Upfront Recruiter Fees',
+        solution: '100% pay-on-success commercial model: zero fee until you successfully hire.'
       },
       {
-        index: '04',
-        category: 'RETENTION ASSURANCE',
-        problem: 'Bad hires leaving within weeks, leaving the role vacant and agency recruitment fees lost.',
-        resolution: '90-day comprehensive candidate replacement guarantee with immediate re-sourcing at zero additional cost.'
+        illustration: 'hire-shield',
+        problem: 'Early Candidate Departure',
+        solution: '90-day comprehensive replacement guarantee: immediate re-sourcing at zero extra cost.'
       }
     ],
     deliverablesPillars: [
       {
-        category: 'HireSense AI Sourcing & Benchmarking',
-        code: 'HIRESENSE-AI',
-        icon: 'Users',
-        headline: 'AI-Powered Sourcing & Technical Benchmarking',
-        summary: 'Proprietary sourcing algorithms scouring active and passive candidate networks across GitHub, LinkedIn, and specialized talent communities.',
-        items: [
-          {
-            title: 'Role Scorecards & Technical Profiling',
-            desc: 'Collaborative role scorecard definition establishing exact technical, stack, and cultural expectations.',
-            badge: 'Role Scorecard'
-          },
-          {
-            title: 'Automated Portfolio & Code Screening',
-            desc: 'HireSense AI scans verified work history, past project repositories, and technical benchmarks.',
-            badge: 'Code Benchmark'
-          },
-          {
-            title: 'Technical Screening & Work Sample Evaluation',
-            desc: 'Screening calls conducted by experienced engineers before presenting candidates to your hiring team.',
-            badge: 'Tech Screened'
-          }
+        illustration: 'hire-filter',
+        title: 'HireSense AI Benchmarking',
+        bullets: [
+          'Custom role scorecard and capability bar definition',
+          'AI sourcing across active job boards and passive talent pools',
+          'Technical coding benchmark and portfolio verification'
         ]
       },
       {
-        category: 'Curated Shortlists & Interview Logistics',
-        code: 'SHORTLIST-OPS',
-        icon: 'FileCheck',
-        headline: 'Fast-Track Shortlists & Frictionless Interview Loops',
-        summary: 'Receive only the top 3–5 pre-vetted, interview-ready candidates within 5 to 7 business days, with calendar scheduling managed end-to-end.',
-        items: [
-          {
-            title: 'Comprehensive Candidate Dossiers',
-            desc: 'Receive deep candidate profiles including screening notes, compensation expectations, and notice periods.',
-            badge: 'Vetted Dossier'
-          },
-          {
-            title: 'Automated Interview Scheduling',
-            desc: 'Frictionless calendar slot coordination eliminating back-and-forth email scheduling with candidates.',
-            badge: 'Calendar Booking'
-          },
-          {
-            title: 'Compensation Benchmarking & Offer Closing',
-            desc: 'Market salary data and offer structuring guidance to ensure offer acceptance rates exceed 90%.',
-            badge: 'Offer Advisory'
-          }
+        illustration: 'hire-benchmark',
+        title: 'Curated Candidate Shortlists',
+        bullets: [
+          'Top 3–5 interview-ready candidates delivered in 7–10 days',
+          'Comprehensive candidate dossier with screening notes and salary expectation',
+          'Interview scheduling coordination and structured feedback'
         ]
       },
       {
-        category: 'Accountability & Replacement Protection',
-        code: 'TALENT-SLA',
-        icon: 'ShieldCheck',
-        headline: 'Pay-on-Success Model & 90-Day Placement Guarantee',
-        summary: 'We eliminate recruitment risk entirely. You pay only upon a successful hire, protected by our 90-day replacement warranty.',
-        items: [
-          {
-            title: 'Pay Only Upon Verified Hire',
-            desc: 'Zero upfront retainers or listing fees. Commercial invoices are issued only after candidate contract signing.',
-            badge: 'Zero Upfront Risk'
-          },
-          {
-            title: '90-Day Free Candidate Replacement',
-            desc: 'If a placed candidate leaves or is deemed an unfit match within 90 days, we source a replacement immediately at no charge.',
-            badge: '90-Day Warranty'
-          },
-          {
-            title: 'Dedicated Talent Squad Lead',
-            desc: 'Single point of contact managing pipeline velocity, feedback collection, and candidate debriefs.',
-            badge: 'Dedicated Lead'
-          }
+        illustration: 'hire-shield',
+        title: 'Risk Protection & Guarantees',
+        bullets: [
+          '100% pay-on-success commercial engagement terms',
+          '90-day free candidate replacement guarantee',
+          'Dedicated senior hiring partner managing pipeline to offer closing'
         ]
       }
     ],
@@ -968,6 +725,7 @@ export default function ServicesPages({
 }) {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [currency, setCurrency] = useState('INR'); // 'INR' or 'USD'
+  const [chosenPackageName, setChosenPackageName] = useState(null);
   const isMobile = useIsMobile(768);
   const packageContainerRef = React.useRef(null);
   const packageCardRefs = React.useRef({});
@@ -984,6 +742,7 @@ export default function ServicesPages({
 
   useEffect(() => {
     scrollToIndex(0);
+    setChosenPackageName(null);
   }, [activePillarKey, scrollToIndex]);
 
   const toggleFaq = (idx) => {
@@ -1373,176 +1132,163 @@ export default function ServicesPages({
             </motion.div>
           </motion.section>
 
-          {/* Section: Who This Is For (Editorial Audience System) */}
+          {/* Section: Who This Is For (Compact Visual Studio Cards) */}
           <motion.section
             className="service-audience-section"
-            style={{ maxWidth: '1160px', margin: '0 auto 80px', padding: '0 24px' }}
+            style={{ maxWidth: '1160px', margin: '0 auto 60px', padding: '0 24px' }}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-60px' }}
             variants={staggerContainer(0.08, 0.05)}
           >
-            <motion.div style={{ marginBottom: '32px' }} variants={fadeInUp}>
+            <motion.div style={{ marginBottom: '24px' }} variants={fadeInUp}>
               <div className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <Target size={14} color="var(--ink)" />
-                AUDIENCE PROFILE MAPPING • PILLAR {pillarData.id.toUpperCase()}
+                WHO THIS IS FOR • {pillarData.title.toUpperCase()}
               </div>
-              <h2 style={{ font: '700 clamp(26px, 4vw, 36px) "Space Grotesk"', margin: '0 0 10px', color: 'var(--ink)' }}>
-                Engineered for businesses where credibility &amp; conversion matter.
+              <h2 style={{ font: '700 clamp(24px, 3.5vw, 32px) "Space Grotesk"', margin: '0 0 8px', color: 'var(--ink)' }}>
+                Built for businesses where credibility and conversion matter.
               </h2>
-              <p style={{ color: 'var(--muted)', fontSize: '15px', maxWidth: '680px', margin: 0, lineHeight: 1.55 }}>
-                We do not build generic templates for everyone. We design high-conviction digital systems tailored to distinct operational profiles and conversion requirements.
+              <p style={{ color: 'var(--muted)', fontSize: '14px', maxWidth: '640px', margin: 0, lineHeight: 1.5 }}>
+                Tailored digital systems designed for high-conviction outcomes across distinct business models.
               </p>
             </motion.div>
 
-            <div className="service-audience-grid">
+            <div className="service-audience-compact-grid service-audience-grid">
               {(pillarData.whoForProfiles || []).map((prof, idx) => (
                 <motion.div
                   key={idx}
-                  className="audience-profile-card"
+                  className="audience-compact-card audience-profile-card"
                   variants={fadeInUp}
-                  whileHover={{ y: -4, boxShadow: '0 16px 36px rgba(16, 16, 15, 0.08)' }}
+                  whileHover={{ y: -3, boxShadow: '0 12px 28px rgba(16, 16, 15, 0.06)' }}
                   transition={TRANSITIONS.cardSpring}
                 >
-                  <div className="audience-card-top">
-                    <span className="audience-index-badge">PROFILE [{prof.index}]</span>
-                    <span className="audience-category-tag">{prof.tag}</span>
+                  <div className="audience-compact-visual">
+                    <StudioIllustration name={prof.illustration} size={46} />
                   </div>
-
-                  <h3 className="audience-title">{prof.title}</h3>
-                  <div className="audience-segments-pill">{prof.segments}</div>
-                  <p className="audience-desc">{prof.desc}</p>
-
-                  <div className="audience-callout-block signal">
-                    <div className="callout-label">
-                      <span className="callout-dot warning" /> IDENTIFYING SIGNAL
-                    </div>
-                    <div className="callout-text">{prof.signal}</div>
-                  </div>
-
-                  <div className="audience-callout-block outcome">
-                    <div className="callout-label">
-                      <span className="callout-dot success" /> TARGETED OUTCOME
-                    </div>
-                    <div className="callout-text">{prof.outcome}</div>
-                  </div>
+                  <h3 className="audience-compact-title audience-title">{prof.title}</h3>
+                  <p className="audience-compact-desc audience-desc">{prof.desc}</p>
                 </motion.div>
               ))}
             </div>
           </motion.section>
 
-          {/* Section: Common Roadblocks We Eliminate (Problem-to-Resolution System) */}
+          {/* Section: Common Roadblocks We Eliminate (Problem-to-Solution Transformation) */}
           <motion.section
             className="service-roadblocks-section"
-            style={{ maxWidth: '1160px', margin: '0 auto 85px', padding: '0 24px' }}
+            style={{ maxWidth: '1160px', margin: '0 auto 60px', padding: '0 24px' }}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-60px' }}
             variants={staggerContainer(0.08, 0.05)}
           >
-            <motion.div style={{ marginBottom: '32px' }} variants={fadeInUp}>
+            <motion.div style={{ marginBottom: '24px' }} variants={fadeInUp}>
               <div className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <Zap size={14} color="var(--ink)" />
-                FRICTION DIAGNOSTICS &amp; SYSTEM RESOLUTION
+                FRICTION WE ELIMINATE • {pillarData.title.toUpperCase()}
               </div>
-              <h2 style={{ font: '700 clamp(26px, 4vw, 36px) "Space Grotesk"', margin: '0 0 10px', color: 'var(--ink)' }}>
+              <h2 style={{ font: '700 clamp(24px, 3.5vw, 32px) "Space Grotesk"', margin: '0 0 8px', color: 'var(--ink)' }}>
                 Common roadblocks we eliminate in {pillarData.title}.
               </h2>
-              <p style={{ color: 'var(--muted)', fontSize: '15px', maxWidth: '680px', margin: 0, lineHeight: 1.55 }}>
-                Sluggish performance, missing lead triggers, and vendor hostage traps cost revenue daily. Here is how our architecture replaces industry friction with tangible outcomes.
+              <p style={{ color: 'var(--muted)', fontSize: '14px', maxWidth: '640px', margin: 0, lineHeight: 1.5 }}>
+                We replace recurring industry bottlenecks with engineered clarity and measurable velocity.
               </p>
             </motion.div>
 
-            <div className="service-roadblocks-grid">
+            <div className="service-roadblocks-compact-grid service-roadblocks-grid">
               {(pillarData.roadblocks || []).map((road, idx) => (
                 <motion.div
                   key={idx}
-                  className="roadblock-resolution-card"
+                  className="roadblock-compact-card roadblock-resolution-card"
                   variants={fadeInUp}
-                  whileHover={{ y: -3, boxShadow: '0 14px 32px rgba(16, 16, 15, 0.08)' }}
+                  whileHover={{ y: -3, boxShadow: '0 12px 28px rgba(16, 16, 15, 0.06)' }}
                   transition={TRANSITIONS.cardSpring}
                 >
-                  <div className="roadblock-card-header">
-                    <span className="roadblock-tag">DIAGNOSTIC [{road.index}]</span>
-                    <span className="roadblock-category">{road.category}</span>
+                  <div className="roadblock-compact-visual">
+                    <StudioIllustration name={road.illustration} size={42} />
                   </div>
-
-                  <div className="roadblock-problem-pane">
-                    <div className="roadblock-pane-label problem">
-                      <span className="roadblock-marker-x">✕</span> COMMON ROADBLOCK
+                  <div className="roadblock-compact-body">
+                    <div className="roadblock-problem-line">
+                      <span className="roadblock-dot problem">✕</span>
+                      <h4 className="roadblock-problem-text">{road.problem}</h4>
                     </div>
-                    <p className="roadblock-problem-text">{road.problem}</p>
-                  </div>
-
-                  <div className="roadblock-divider">
-                    <span className="roadblock-arrow">↓</span>
-                  </div>
-
-                  <div className="roadblock-resolution-pane">
-                    <div className="roadblock-pane-label resolution">
-                      <span className="roadblock-marker-check">✓</span> THE SORTED RESOLUTION
+                    <div className="roadblock-connector">
+                      <span className="roadblock-arrow">→</span>
                     </div>
-                    <p className="roadblock-resolution-text">{road.resolution}</p>
+                    <div className="roadblock-solution-line">
+                      <span className="roadblock-dot solution">✓</span>
+                      <p className="roadblock-solution-text">{road.solution || road.resolution}</p>
+                    </div>
                   </div>
                 </motion.div>
               ))}
             </div>
           </motion.section>
 
-          {/* Section: What We Deliver (Editorial Delivery System) */}
+          {/* Section: What We Deliver (Illustrated Delivery Modules) */}
           <motion.section
             className="service-deliverables-section"
-            style={{ maxWidth: '1160px', margin: '0 auto 85px', padding: '0 24px' }}
+            style={{ maxWidth: '1160px', margin: '0 auto 60px', padding: '0 24px' }}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-60px' }}
             variants={staggerContainer(0.08, 0.05)}
           >
-            <motion.div style={{ textAlign: 'center', marginBottom: '36px' }} variants={fadeInUp}>
+            <motion.div style={{ textAlign: 'center', marginBottom: '32px' }} variants={fadeInUp}>
               <div className="eyebrow" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <Layers size={14} color="var(--ink)" />
-                CAPABILITIES &amp; DELIVERABLES ARCHITECTURE
+                DELIVERABLES &amp; CAPABILITIES • {pillarData.title.toUpperCase()}
               </div>
-              <h2 style={{ font: '700 clamp(26px, 4vw, 36px) "Space Grotesk"', margin: '4px 0 10px' }}>
+              <h2 style={{ font: '700 clamp(24px, 3.5vw, 32px) "Space Grotesk"', margin: '4px 0 8px' }}>
                 What We Deliver in {pillarData.title}
               </h2>
-              <p style={{ color: 'var(--muted)', fontSize: '15px', maxWidth: '640px', margin: '0 auto', lineHeight: 1.55 }}>
-                Engineered deliverables with rigorous technical standards, zero bloat, and full intellectual property ownership.
+              <p style={{ color: 'var(--muted)', fontSize: '14px', maxWidth: '600px', margin: '0 auto', lineHeight: 1.5 }}>
+                Engineered deliverables with rigorous technical standards, zero bloat, and 100% intellectual property ownership.
               </p>
             </motion.div>
 
             {pillarData.deliverablesPillars && pillarData.deliverablesPillars.length > 0 ? (
-              <div className="service-deliverables-editorial">
+              <div className="service-deliverables-modules-grid service-deliverables-editorial">
                 {pillarData.deliverablesPillars.map((col, cIdx) => (
                   <motion.div
                     key={cIdx}
-                    className="deliverable-pillar-col"
+                    className="deliverable-module-card deliverable-pillar-col"
                     variants={fadeInUp}
-                    whileHover={{ y: -4, boxShadow: '0 16px 36px rgba(16, 16, 15, 0.07)' }}
+                    whileHover={{ y: -3, boxShadow: '0 14px 30px rgba(16, 16, 15, 0.06)' }}
                     transition={TRANSITIONS.cardSpring}
                   >
-                    <div className="deliverable-pillar-header">
-                      <span className="deliverable-pillar-code">[{col.code}]</span>
-                      <h3 className="deliverable-pillar-headline">{col.category}</h3>
-                      <p className="deliverable-pillar-summary">{col.summary}</p>
+                    <div className="deliverable-module-head">
+                      <div className="deliverable-module-visual">
+                        <StudioIllustration name={col.illustration} size={44} />
+                      </div>
+                      <div>
+                        <h3 className="deliverable-module-title deliverable-pillar-headline">{col.title || col.category}</h3>
+                        {col.summary && <p className="deliverable-module-summary deliverable-pillar-summary">{col.summary}</p>}
+                      </div>
                     </div>
 
-                    <div className="deliverable-items-list">
-                      {col.items.map((item, iIdx) => (
-                        <div key={iIdx} className="deliverable-item-card">
-                          <div className="deliverable-item-top">
-                            <h4 className="deliverable-item-title">{item.title}</h4>
-                            <span className="deliverable-item-badge">{item.badge}</span>
-                          </div>
-                          <p className="deliverable-item-desc">{item.desc}</p>
-                        </div>
-                      ))}
-                    </div>
+                    <ul className="deliverable-module-list">
+                      {(col.bullets || col.items || []).map((bullet, bIdx) => {
+                        const bulletDesc = typeof bullet === 'string' ? bullet : bullet.desc || bullet.title;
+                        const bulletTitle = typeof bullet === 'object' && bullet.desc ? bullet.title : null;
+                        const bulletBadge = typeof bullet === 'object' ? bullet.badge : null;
+                        return (
+                          <li key={bIdx} className="deliverable-module-item">
+                            <CheckCircle2 size={13} className="deliverable-check-icon" />
+                            <div className="deliverable-item-text">
+                              {bulletTitle && <span className="deliverable-item-title">{bulletTitle}</span>}
+                              {bulletBadge && <span className="deliverable-item-badge">{bulletBadge}</span>}
+                              <p className="deliverable-item-desc">{bulletDesc}</p>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </motion.div>
                 ))}
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
                 {pillarData.offerings.map((off, idx) => (
                   <motion.div
                     key={idx}
@@ -1550,14 +1296,14 @@ export default function ServicesPages({
                       background: '#fff',
                       border: '1px solid var(--line)',
                       borderRadius: '10px',
-                      padding: '22px',
+                      padding: '20px',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
                     }}
                     variants={fadeInUp}
-                    whileHover={{ y: -4, boxShadow: '0 10px 24px rgba(0,0,0,0.06)' }}
+                    whileHover={{ y: -3, boxShadow: '0 8px 20px rgba(0,0,0,0.05)' }}
                     transition={TRANSITIONS.cardSpring}
                   >
-                    <h4 style={{ font: '700 16px "Space Grotesk"', margin: '0 0 6px', color: 'var(--ink)' }}>
+                    <h4 style={{ font: '700 15px "Space Grotesk"', margin: '0 0 6px', color: 'var(--ink)' }}>
                       {off.title}
                     </h4>
                     <p style={{ fontSize: '13px', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
@@ -1643,7 +1389,8 @@ export default function ServicesPages({
             >
               {pillarData.packages.map((pkg, idx) => {
                 const displayPrice = currency === 'USD' ? (pkg.priceUSD || pkg.priceINR) : (pkg.priceINR || pkg.priceUSD);
-                const isFocused = isMobile ? activeDotIndex === idx : pkg.popular;
+                const isFocused = isMobile ? activeDotIndex === idx : false;
+                const isChosen = chosenPackageName === pkg.name;
 
                 return (
                   <motion.div
@@ -1651,65 +1398,68 @@ export default function ServicesPages({
                     ref={(el) => {
                       if (el) packageCardRefs.current[idx] = el;
                     }}
-                    className={`package-card ${isFocused ? 'focused' : ''} ${pkg.popular ? 'popular' : ''}`}
+                    className={`package-card ${isFocused ? 'focused' : ''} ${isChosen ? 'chosen' : ''} ${pkg.popular ? 'popular' : ''}`}
+                    onClick={() => setChosenPackageName(pkg.name)}
                     style={{
                       background: pkg.popular ? '#ffffff' : '#fdfcf9',
                       border: '1px solid var(--line)',
                       borderRadius: '12px',
-                      padding: '30px 24px',
+                      padding: '28px 22px',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
                       position: 'relative',
-                      boxShadow: pkg.popular ? '0 10px 30px rgba(0,0,0,0.06)' : 'none'
+                      boxShadow: pkg.popular ? '0 10px 30px rgba(0,0,0,0.06)' : 'none',
+                      cursor: 'pointer'
                     }}
                     variants={fadeInUp}
-                    whileHover={{ y: -6, boxShadow: pkg.popular ? '0 16px 40px rgba(0,0,0,0.12)' : '0 10px 24px rgba(0,0,0,0.06)' }}
+                    whileHover={{ y: -4, boxShadow: pkg.popular ? '0 16px 36px rgba(0,0,0,0.1)' : '0 8px 20px rgba(0,0,0,0.05)' }}
                     transition={TRANSITIONS.cardSpring}
                   >
                     <SignaturePerimeterOutline
                       isFocused={isFocused}
-                      isSelected={pkg.popular}
+                      isSelected={isChosen}
                       borderRadius={12}
                     />
 
-                    {pkg.badge && (
+                    {pkg.popular && (
                       <span
+                        className="package-popular-badge"
                         style={{
                           position: 'absolute',
                           top: '-12px',
                           right: '20px',
-                          background: pkg.popular ? 'var(--acid)' : '#10100f',
+                          background: 'var(--acid)',
                           color: '#10100f',
-                          padding: '3px 10px',
+                          padding: '3px 12px',
                           borderRadius: '999px',
                           font: '700 10px "Space Grotesk"',
                           letterSpacing: '0.08em',
                           textTransform: 'uppercase',
-                          border: pkg.popular ? '1px solid #bfe63c' : 'none',
+                          border: '1px solid #bfe63c',
                           zIndex: 6
                         }}
                       >
-                        {pkg.badge}
+                        Most Popular
                       </span>
                     )}
 
                     <div>
                       <h3 style={{ font: '700 20px "Space Grotesk"', margin: '0 0 6px' }}>{pkg.name}</h3>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', margin: '14px 0 4px' }}>
-                        <span className="package-price-number" style={{ font: '700 32px "Space Grotesk"', color: 'var(--ink)' }}>{displayPrice}</span>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', margin: '12px 0 4px' }}>
+                        <span className="package-price-number" style={{ font: '700 30px "Space Grotesk"', color: 'var(--ink)' }}>{displayPrice}</span>
                         <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{pkg.billing}</span>
                       </div>
-                      <p style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5, margin: '0 0 20px' }}>
+                      <p style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5, margin: '0 0 18px' }}>
                         {pkg.desc}
                       </p>
 
-                      <div style={{ borderTop: '1px solid var(--line)', paddingTop: '18px', marginBottom: '24px' }}>
+                      <div style={{ borderTop: '1px solid var(--line)', paddingTop: '16px', marginBottom: '20px' }}>
                         <label className="section-subtitle" style={{ fontSize: '10px', marginBottom: '10px' }}>WHAT'S INCLUDED</label>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           {pkg.features.map((feat, fIdx) => (
                             <div key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '12px', color: 'var(--ink)' }}>
-                              <CheckCircle2 size={14} color="#15803d" style={{ flexShrink: 0, marginTop: '2px' }} />
+                              <CheckCircle2 size={13} color="#15803d" style={{ flexShrink: 0, marginTop: '2px' }} />
                               <span>{feat}</span>
                             </div>
                           ))}
@@ -1720,8 +1470,10 @@ export default function ServicesPages({
                     <motion.button
                       type="button"
                       className="primary"
-                      style={{ width: '100%', height: '42px', fontSize: '13px' }}
-                      onClick={() =>
+                      style={{ width: '100%', height: '40px', fontSize: '13px' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setChosenPackageName(pkg.name);
                         onOpenInquiry({
                           service: pillarData.serviceName,
                           package: pkg.name,
@@ -1732,8 +1484,8 @@ export default function ServicesPages({
                           priceINR: pkg.priceINR,
                           priceUSD: pkg.priceUSD,
                           problem: `I am interested in the ${pkg.name} package for ${pillarData.title}. Investment: ${displayPrice} (${currency}).`
-                        })
-                      }
+                        });
+                      }}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
