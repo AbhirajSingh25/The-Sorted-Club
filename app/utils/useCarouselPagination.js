@@ -48,7 +48,9 @@ export function useCarouselPagination(containerRef, itemCount) {
       return;
     }
 
-    const snapPoint = containerRect.left + 24; // Snap target alignment point (accounting for horizontal padding)
+    const computedStyle = window.getComputedStyle(container);
+    const paddingLeft = parseFloat(computedStyle.paddingLeft) || 16;
+    const snapPoint = containerRect.left + paddingLeft;
 
     let bestIdx = 0;
     let maxVisibleWidth = -1;
@@ -64,7 +66,7 @@ export function useCarouselPagination(containerRef, itemCount) {
       const snapDistance = Math.abs(cardRect.left - snapPoint);
 
       // We prioritize the card that has significant visibility and is closest to the snap point
-      if (visibleWidth > maxVisibleWidth || (Math.abs(visibleWidth - maxVisibleWidth) < 20 && snapDistance < minSnapDistance)) {
+      if (visibleWidth > maxVisibleWidth || (Math.abs(visibleWidth - maxVisibleWidth) < 24 && snapDistance < minSnapDistance)) {
         maxVisibleWidth = visibleWidth;
         minSnapDistance = snapDistance;
         bestIdx = i;
@@ -97,7 +99,7 @@ export function useCarouselPagination(containerRef, itemCount) {
         calculateActiveIndex();
         isProgrammaticScrollRef.current = false;
         programmaticTargetRef.current = null;
-      }, 120);
+      }, 100);
     };
 
     const handleScrollEnd = () => {
@@ -106,13 +108,22 @@ export function useCarouselPagination(containerRef, itemCount) {
       programmaticTargetRef.current = null;
     };
 
+    const handleTouchEnd = () => {
+      setTimeout(calculateActiveIndex, 60);
+      setTimeout(calculateActiveIndex, 150);
+    };
+
     container.addEventListener('scroll', handleScroll, { passive: true });
     container.addEventListener('scrollend', handleScrollEnd, { passive: true });
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+    container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
     window.addEventListener('resize', calculateActiveIndex);
 
     return () => {
       container.removeEventListener('scroll', handleScroll);
       container.removeEventListener('scrollend', handleScrollEnd);
+      container.removeEventListener('touchend', handleTouchEnd);
+      container.removeEventListener('touchcancel', handleTouchEnd);
       window.removeEventListener('resize', calculateActiveIndex);
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);

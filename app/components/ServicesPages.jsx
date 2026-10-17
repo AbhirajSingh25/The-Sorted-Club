@@ -1393,8 +1393,8 @@ export default function ServicesPages({
             >
               {pillarData.packages.map((pkg, idx) => {
                 const displayPrice = currency === 'USD' ? (pkg.priceUSD || pkg.priceINR) : (pkg.priceINR || pkg.priceUSD);
-                const isFocused = isMobile ? activeDotIndex === idx : false;
                 const isChosen = chosenPackageName === pkg.name;
+                const isFocused = isMobile ? activeDotIndex === idx : isChosen;
 
                 return (
                   <motion.div
